@@ -1,0 +1,12 @@
+node_modules
+dist
+.DS_Store
+.vscode
+.idea
+*.log
+
+# Lockfile intentionally NOT committed — Dockerfile runs fresh npm install
+# to get correct Linux native bindings (see Coolify deploy rules)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
