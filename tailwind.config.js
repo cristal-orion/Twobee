@@ -5,12 +5,18 @@ export default {
     extend: {
       colors: {
         brand: {
-          yellow: '#F5B800',
-          black: '#0A0A0A',
-          dark: '#141414',
+          yellow: {
+            DEFAULT: '#F5C518',
+            light: '#FFF2B8',
+            dark: '#E6A800',
+          },
+          black: '#111111',
+          dark: '#191818',
+          offwhite: '#FBFAF9',
         },
       },
       fontFamily: {
+        display: ['"League Spartan"', 'Inter', 'system-ui', 'sans-serif'],
         sans: ['Inter', 'system-ui', 'sans-serif'],
       },
     },

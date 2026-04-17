@@ -8,5 +8,30 @@
   }
   body {
     font-family: 'Inter', system-ui, sans-serif;
+    background-color: #191818;
+    color: #ffffff;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'League Spartan', 'Inter', system-ui, sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-brand-yellow px-6 py-3 text-sm font-bold uppercase tracking-wide text-brand-black transition hover:brightness-95 sm:px-8 sm:py-4 sm:text-base;
+  }
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-brand-yellow/40 bg-transparent px-6 py-3 text-sm font-bold uppercase tracking-wide text-brand-yellow transition hover:bg-brand-yellow hover:text-brand-black sm:px-8 sm:py-4 sm:text-base;
+  }
+  .container-x {
+    @apply mx-auto w-full max-w-[1400px] px-5 sm:px-8 lg:px-12;
+  }
+  .section-y {
+    @apply py-20 sm:py-24 lg:py-32;
+  }
+  .eyebrow {
+    @apply inline-block text-xs font-bold uppercase tracking-[0.25em] text-brand-yellow;
   }
 }
