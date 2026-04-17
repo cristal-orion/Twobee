@@ -1,0 +1,42 @@
+regole per deploy su Coolify
+
+  Stack
+
+  - Vite + React 18 (static output, client-only)
+  - Tailwind CSS
+  - framer-motion + lenis (smooth scroll)
+  - EmailJS per il form (client-side, zero backend) — da integrare
+  - Nginx come web server per i file statici
+
+  Regole build
+
+  - npm run build deve funzionare in locale prima di pushare
+  - NON committare package-lock.json (il Dockerfile fa npm install fresco
+    per ottenere i binari nativi corretti per Linux — Vite/Rollup hanno
+    binding nativi platform-specific)
+
+  Regole Coolify
+
+  - Build pack: Dockerfile (NON Nixpacks)
+  - Il repo deve essere collegato tramite la GitHub App configurata su Coolify
+  - Il Dockerfile nella root gestisce tutto: build con Node 22 Alpine + serve
+    con Nginx
+  - Porta esposta: 4321 (coerente con Plus Vending)
+  - Nessuna variabile d'ambiente necessaria (le chiavi EmailJS andranno nel
+    frontend quando integrate)
+
+  Note
+
+  - vite build emette file statici in dist/, serviti da nginx con SPA
+    fallback (try_files -> /index.html) per il routing client-side
+  - Cache aggressiva (1y, immutable) su /assets/ perche' Vite hashsa i nomi
+  - Gzip abilitato per testi, CSS, JS, SVG
+
+  Differenze rispetto al sito Astro (Plus Vending)
+
+  1. Runtime React interamente client-side (niente SSR/SSG): tutto il
+     rendering avviene nel browser alla prima visita
+  2. Bundle JS piu' grande (~100KB gzip vs ~30KB di Astro statico) — trade-off
+     per avere componenti interattivi, animazioni framer-motion e smooth scroll
+  3. SEO: se serve indicizzazione piu' aggressiva considerare pre-rendering
+     (vite-plugin-ssr, react-snap, o migrare su Astro con island React)
