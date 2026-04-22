@@ -71,7 +71,7 @@ const items = [
 
 export default function Guarantees() {
   return (
-    <section className="border-y border-white/5 bg-black/40 py-14">
+    <section className="border-y border-white/5 py-14">
       <div className="container-x">
         <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
           {items.map((it, i) => (

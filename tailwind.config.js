@@ -6,12 +6,12 @@ export default {
       colors: {
         brand: {
           yellow: {
-            DEFAULT: '#F5C518',
-            light: '#FFF2B8',
-            dark: '#E6A800',
+            DEFAULT: '#FFC501',
+            light: '#FFE27A',
+            dark: '#E0A800',
           },
-          black: '#111111',
-          dark: '#191818',
+          black: '#0B0B0C',
+          dark: '#111113',
           offwhite: '#FBFAF9',
         },
       },

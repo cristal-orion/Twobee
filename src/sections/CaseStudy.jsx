@@ -2,7 +2,7 @@ import { motion } from 'framer-motion'
 
 export default function CaseStudy() {
   return (
-    <section className="section-y border-t border-white/5 bg-black/40">
+    <section className="section-y border-t border-white/5">
       <div className="container-x">
         <div className="mx-auto max-w-3xl text-center">
           <motion.h2

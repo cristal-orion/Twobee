@@ -17,7 +17,7 @@ const services = [
 
 export default function Services() {
   return (
-    <section className="section-y border-t border-white/5 bg-black/40">
+    <section className="section-y border-t border-white/5">
       <div className="container-x">
         <div className="mx-auto max-w-3xl text-center">
           <span className="eyebrow">I nostri servizi</span>

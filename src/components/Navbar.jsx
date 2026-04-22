@@ -22,32 +22,32 @@ export default function Navbar() {
   return (
     <header
       className={[
-        'fixed inset-x-0 top-0 z-50 transition',
+        'fixed inset-x-0 top-0 z-50 transition-colors duration-300',
         scrolled
-          ? 'border-b border-white/5 bg-brand-dark/80 backdrop-blur-lg'
+          ? 'border-b border-white/5 bg-brand-black/70 backdrop-blur-xl'
           : 'bg-transparent',
       ].join(' ')}
     >
-      <div className="container-x flex h-16 items-center justify-between sm:h-20">
-        <a href="#top" className="font-display text-2xl font-extrabold tracking-tight">
-          Two<span className="text-brand-yellow">Bee</span>
+      <div className="container-x flex h-20 items-center justify-between sm:h-24">
+        <a href="#top" className="flex items-center" aria-label="two bee">
+          <img
+            src="/logo-white.png"
+            alt="two bee"
+            className="h-12 w-auto sm:h-14 lg:h-16"
+            draggable={false}
+          />
         </a>
-        <nav className="hidden items-center gap-8 lg:flex">
+        <nav className="hidden items-center gap-10 lg:flex">
           {nav.map((n) => (
             <a
               key={n.href}
               href={n.href}
-              className="text-sm font-medium text-white/70 transition hover:text-white"
+              className="text-sm font-medium text-white/60 transition-colors hover:text-white"
             >
               {n.label}
             </a>
           ))}
         </nav>
-        <div className="hidden lg:block">
-          <a href="#contatti" className="btn-primary">
-            Prenota Audit
-          </a>
-        </div>
         <button
           onClick={() => setOpen((v) => !v)}
           className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 lg:hidden"
@@ -62,9 +62,10 @@ export default function Navbar() {
             />
           </svg>
         </button>
+        <div className="hidden lg:block w-10" aria-hidden />
       </div>
       {open && (
-        <div className="border-t border-white/5 bg-brand-dark/95 backdrop-blur lg:hidden">
+        <div className="border-t border-white/5 bg-brand-black/95 backdrop-blur lg:hidden">
           <div className="container-x flex flex-col gap-1 py-4">
             {nav.map((n) => (
               <a
@@ -76,13 +77,6 @@ export default function Navbar() {
                 {n.label}
               </a>
             ))}
-            <a
-              href="#contatti"
-              onClick={() => setOpen(false)}
-              className="btn-primary mt-2"
-            >
-              Prenota Audit
-            </a>
           </div>
         </div>
       )}

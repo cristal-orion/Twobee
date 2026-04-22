@@ -1,7 +1,7 @@
 export default function Clients() {
   const logos = ['LOGOIPSUM', 'ACME CORP', 'NORTHWIND', 'STUDIOFORM', 'ECLIPTICA', 'MERIDIAN']
   return (
-    <section className="border-y border-white/5 bg-black/40 py-12">
+    <section className="border-y border-white/5 py-12">
       <div className="container-x">
         <p className="mb-8 text-center text-xs font-semibold uppercase tracking-[0.3em] text-white/50">
           Hanno scelto TwoBee
