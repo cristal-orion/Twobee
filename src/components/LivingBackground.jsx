@@ -82,6 +82,13 @@ export default function LivingBackground() {
           accentDensity={0.06}
         />
       </div>
+      <div
+        className="absolute inset-0"
+        style={{
+          backgroundColor:
+            'color-mix(in srgb, var(--theme-bg), transparent 55%)',
+        }}
+      />
       <div className="absolute inset-0" style={glowStyle} />
       <div className="absolute inset-x-0 top-0 h-24" style={fadeTop} />
       <div className="absolute inset-x-0 bottom-0 h-32" style={fadeBottom} />

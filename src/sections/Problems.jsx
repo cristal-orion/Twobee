@@ -2,89 +2,115 @@ import { motion } from 'framer-motion'
 
 const items = [
   {
-    title: 'BUDGET BRUCIATO',
-    body: 'Hai speso migliaia di euro in campagne pubblicitarie che portavano like e interazioni, ma zero vendite reali tracciate. Un buco nero per le tue casse.',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7">
-        <path
-          d="M12 2v20M7 5h7a3 3 0 010 6h-4a3 3 0 000 6h7"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-        />
-      </svg>
-    ),
+    n: '01',
+    label: 'Budget',
+    text: 'Spendi, ma non sai cosa ti ha portato vendite.',
   },
   {
-    title: 'DATI INUTILI',
-    body: 'Ti arrivano report pieni di follower, reach e impressioni che non capisci. Nessuno ti dice mai quante vendite reali ha generato una specifica campagna.',
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7">
-        <path
-          d="M4 19h16M7 16l3-6 4 3 4-8"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
+    n: '02',
+    label: 'Dati',
+    text: 'Like e reach nei report. Nessuna causa, nessun effetto.',
   },
   {
-    title: 'DIPENDENZA INFINITA',
-    body: "Paghi ogni mese la tua agenzia ma non stai costruendo un vero asset. Se smetti di pagare per le ads, il flusso di potenziali clienti si ferma all'istante.",
-    icon: (
-      <svg viewBox="0 0 24 24" fill="none" className="h-7 w-7">
-        <path
-          d="M4 12a8 8 0 0114-5.3M20 12a8 8 0 01-14 5.3M16 4v4h4M8 20v-4H4"
-          stroke="currentColor"
-          strokeWidth="2"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
-    ),
+    n: '03',
+    label: 'Dipendenza',
+    text: 'Stacchi il budget, finisce il flusso di clienti.',
   },
 ]
+
+const HEX_CLIP =
+  'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)'
+
+function HexBadge({ n, label, text }) {
+  return (
+    <div
+      className="relative w-full max-w-[320px]"
+      style={{ aspectRatio: '1 / 1.1547' }}
+    >
+      <div
+        className="absolute inset-0 bg-brand-yellow"
+        style={{ clipPath: HEX_CLIP }}
+      />
+      <div
+        className="absolute inset-[3px]"
+        style={{
+          clipPath: HEX_CLIP,
+          background:
+            'linear-gradient(160deg, rgba(255,255,255,0.22), rgba(255,197,1,0) 45%, rgba(0,0,0,0.12) 100%)',
+        }}
+      />
+      <div className="absolute inset-0 flex flex-col items-center justify-center px-7 text-center text-brand-black sm:px-8">
+        <span className="font-mono text-[10px] font-bold tracking-[0.3em] opacity-70">
+          {n}
+        </span>
+        <span className="mt-1.5 font-display text-2xl font-extrabold uppercase leading-none tracking-tight sm:text-3xl md:text-[2.1rem]">
+          {label}
+        </span>
+        <span className="mt-3 text-[13px] font-medium leading-snug sm:text-sm">
+          {text}
+        </span>
+      </div>
+    </div>
+  )
+}
 
 export default function Problems() {
   return (
     <section className="section-y">
       <div className="container-x">
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-80px' }}
+          transition={{ duration: 0.5, ease: 'easeOut' }}
+          className="eyebrow block text-center"
+        >
+          Diagnosi
+        </motion.div>
+
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: '-80px' }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
-          className="mx-auto max-w-3xl text-center font-display text-3xl font-extrabold leading-tight sm:text-4xl md:text-5xl"
+          transition={{ duration: 0.6, ease: 'easeOut', delay: 0.05 }}
+          className="text-outlined mx-auto mt-4 max-w-3xl text-center font-display text-3xl font-extrabold leading-[1.05] sm:text-4xl md:text-5xl"
         >
-          Hai già investito in marketing,
-          <br className="hidden sm:block" />{' '}
+          Hai già investito in marketing,{' '}
           <span className="text-brand-yellow">ma non vedi risultati?</span>
         </motion.h2>
 
-        <div className="mt-14 grid gap-6 md:grid-cols-3">
+        <div className="mt-20 grid grid-cols-1 items-start justify-items-center gap-14 sm:mt-24 md:grid-cols-3 md:gap-8">
           {items.map((it, i) => (
             <motion.div
-              key={it.title}
-              initial={{ opacity: 0, y: 28 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-60px' }}
-              transition={{ duration: 0.5, delay: i * 0.1, ease: 'easeOut' }}
-              className="group rounded-2xl border border-white/10 bg-white/[0.03] p-7 transition hover:border-brand-yellow/50 hover:bg-white/[0.06]"
+              key={it.label}
+              initial={{ opacity: 0, y: 40, scale: 0.9 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{
+                duration: 0.7,
+                delay: i * 0.12,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+              className={[
+                'mx-auto w-full max-w-[320px]',
+                i === 1 ? 'md:translate-y-24' : '',
+              ].join(' ')}
             >
-              <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-xl bg-brand-yellow/10 text-brand-yellow transition group-hover:bg-brand-yellow group-hover:text-brand-black">
-                {it.icon}
-              </div>
-              <h3 className="font-display text-xl font-extrabold tracking-wide">
-                {it.title}
-              </h3>
-              <p className="mt-3 text-sm leading-relaxed text-white/65">
-                {it.body}
-              </p>
+              <HexBadge n={it.n} label={it.label} text={it.text} />
             </motion.div>
           ))}
         </div>
+
+        <motion.p
+          initial={{ opacity: 0, y: 12 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-60px' }}
+          transition={{ duration: 0.6, delay: 0.1, ease: 'easeOut' }}
+          className="text-outlined mx-auto mt-24 max-w-2xl text-center font-display text-2xl font-bold leading-tight tracking-tight text-white md:mt-28 md:text-3xl"
+        >
+          Per questo abbiamo costruito{' '}
+          <span className="text-brand-yellow">un sistema</span>, non un'agenzia.
+        </motion.p>
       </div>
     </section>
   )

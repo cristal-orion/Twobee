@@ -44,7 +44,7 @@ export default function Honeycomb({
     return { viewBox: `0 0 ${totalW} ${totalH}`, hexes: out }
   }, [cols, rows, size, gap])
 
-  const accentSet = useMemo(() => {
+  const initialAccents = useMemo(() => {
     const total = hexes.length
     const target = Math.max(1, Math.round(total * accentDensity))
     const picks = new Set()
@@ -67,24 +67,23 @@ export default function Honeycomb({
 
   useGSAP(
     () => {
-      const outlineNodes = gsap.utils.toArray(
-        '[data-hex="outline"]',
-        svgRef.current
-      )
-      const accentNodes = gsap.utils.toArray(
-        '[data-hex="accent"]',
-        svgRef.current
-      )
+      const polys = gsap.utils.toArray('polygon', svgRef.current)
+      const total = polys.length
+      if (total === 0) return
 
-      gsap.set([...outlineNodes, ...accentNodes], {
+      const accentState = new Set(initialAccents)
+
+      gsap.set(polys, {
         scale: 0,
         opacity: 0,
         transformOrigin: '50% 50%',
+        fillOpacity: 0,
+        strokeOpacity: 1,
       })
 
       const tl = gsap.timeline()
 
-      tl.to(outlineNodes, {
+      tl.to(polys, {
         scale: 1,
         opacity: 1,
         duration: 0.9,
@@ -96,23 +95,24 @@ export default function Honeycomb({
         },
       })
 
+      const accentPolys = [...accentState].map((i) => polys[i]).filter(Boolean)
       tl.to(
-        accentNodes,
+        accentPolys,
         {
-          scale: 1,
-          opacity: 1,
+          fillOpacity: 1,
+          strokeOpacity: 0,
           duration: 0.7,
-          ease: 'back.out(2)',
-          stagger: { each: 0.06, from: 'random' },
+          ease: 'power2.out',
+          stagger: { each: 0.05, from: 'random' },
         },
-        '-=0.6'
+        '-=0.55'
       )
 
       tl.to(
-        outlineNodes,
+        polys,
         {
-          opacity: 'random(0.25, 0.65)',
-          duration: 2.8,
+          opacity: 'random(0.55, 1)',
+          duration: 2.6,
           ease: 'sine.inOut',
           repeat: -1,
           yoyo: true,
@@ -121,18 +121,66 @@ export default function Honeycomb({
         '+=0.2'
       )
 
-      tl.to(
-        accentNodes,
-        {
-          opacity: 'random(0.55, 1)',
-          duration: 1.8,
-          ease: 'sine.inOut',
-          repeat: -1,
-          yoyo: true,
-          stagger: { each: 0.15, from: 'random' },
-        },
-        '<'
-      )
+      const migrate = () => {
+        const accents = [...accentState]
+        if (accents.length === 0) return scheduleNext()
+
+        const retireIdx = accents[gsap.utils.random(0, accents.length - 1, 1)]
+        const candidates = []
+        for (let k = 0; k < total; k++) {
+          if (!accentState.has(k)) candidates.push(k)
+        }
+        if (candidates.length === 0) return scheduleNext()
+        const newIdx = candidates[gsap.utils.random(0, candidates.length - 1, 1)]
+
+        accentState.delete(retireIdx)
+        accentState.add(newIdx)
+
+        const retirePoly = polys[retireIdx]
+        const newPoly = polys[newIdx]
+
+        gsap.to(retirePoly, {
+          fillOpacity: 0,
+          strokeOpacity: 1,
+          duration: 1.1,
+          ease: 'power2.inOut',
+        })
+
+        gsap.fromTo(
+          newPoly,
+          { fillOpacity: 0, strokeOpacity: 1 },
+          {
+            fillOpacity: 1,
+            strokeOpacity: 0,
+            duration: 1.1,
+            ease: 'power2.inOut',
+          }
+        )
+        gsap.fromTo(
+          newPoly,
+          { scale: 0.82 },
+          {
+            scale: 1,
+            duration: 1.4,
+            ease: 'elastic.out(1, 0.55)',
+          }
+        )
+
+        scheduleNext()
+      }
+
+      let migrationCall
+      const scheduleNext = () => {
+        const delay = gsap.utils.random(1.6, 3.2)
+        migrationCall = gsap.delayedCall(delay, migrate)
+      }
+
+      const starter = gsap.delayedCall(3.2, scheduleNext)
+
+      return () => {
+        starter.kill()
+        migrationCall && migrationCall.kill()
+      }
     },
     { scope: svgRef, dependencies: [rows, cols, anchor] }
   )
@@ -145,22 +193,16 @@ export default function Honeycomb({
       className={className}
       aria-hidden
     >
-      {hexes.map((h, i) => {
-        const isAccent = accentSet.has(i)
-        return (
-          <polygon
-            key={i}
-            data-hex={isAccent ? 'accent' : 'outline'}
-            points={h.pts}
-            fill={isAccent ? 'var(--hex-accent, #FFC501)' : 'none'}
-            stroke={
-              isAccent ? 'none' : 'var(--hex-stroke, rgba(255,197,1,0.28))'
-            }
-            strokeWidth={isAccent ? 0 : 1.4}
-            style={{ transformBox: 'fill-box', transformOrigin: '50% 50%' }}
-          />
-        )
-      })}
+      {hexes.map((h, i) => (
+        <polygon
+          key={i}
+          points={h.pts}
+          fill="var(--hex-accent, #FFC501)"
+          stroke="var(--hex-stroke, rgba(255,197,1,0.28))"
+          strokeWidth={1.4}
+          style={{ transformBox: 'fill-box', transformOrigin: '50% 50%' }}
+        />
+      ))}
     </svg>
   )
 }

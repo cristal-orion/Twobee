@@ -36,21 +36,30 @@ export default function Navbar() {
           : undefined
       }
     >
-      <div className="container-x flex h-20 items-center justify-between sm:h-24">
-        <a href="#top" className="flex items-center" aria-label="two bee">
+      <div className="container-x relative flex h-20 items-center sm:h-24">
+        <a href="#top" className="relative flex items-center" aria-label="two bee">
           <img
             src="/logo-white.png"
             alt="two bee"
             className="h-12 w-auto sm:h-14 lg:h-16"
+            style={{ opacity: 'calc(1 - var(--theme-t))' }}
+            draggable={false}
+          />
+          <img
+            src="/logo-black.png"
+            alt=""
+            aria-hidden
+            className="absolute left-0 top-1/2 h-12 w-auto -translate-y-1/2 sm:h-14 lg:h-16"
+            style={{ opacity: 'var(--theme-t)' }}
             draggable={false}
           />
         </a>
-        <nav className="hidden items-center gap-10 lg:flex">
+        <nav className="pointer-events-none absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-10 lg:flex">
           {nav.map((n) => (
             <a
               key={n.href}
               href={n.href}
-              className="text-sm font-medium text-white/60 transition-colors hover:text-white"
+              className="pointer-events-auto text-sm font-medium text-white/60 transition-colors hover:text-white"
             >
               {n.label}
             </a>
@@ -58,7 +67,7 @@ export default function Navbar() {
         </nav>
         <button
           onClick={() => setOpen((v) => !v)}
-          className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 lg:hidden"
+          className="ml-auto inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 lg:hidden"
           aria-label="Menu"
         >
           <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
@@ -70,7 +79,6 @@ export default function Navbar() {
             />
           </svg>
         </button>
-        <div className="hidden lg:block w-10" aria-hidden />
       </div>
       {open && (
         <div
