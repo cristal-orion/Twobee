@@ -24,9 +24,17 @@ export default function Navbar() {
       className={[
         'fixed inset-x-0 top-0 z-50 transition-colors duration-300',
         scrolled
-          ? 'border-b border-white/5 bg-brand-black/70 backdrop-blur-xl'
+          ? 'border-b border-white/5 backdrop-blur-xl'
           : 'bg-transparent',
       ].join(' ')}
+      style={
+        scrolled
+          ? {
+              backgroundColor:
+                'color-mix(in srgb, var(--theme-bg) 70%, transparent)',
+            }
+          : undefined
+      }
     >
       <div className="container-x flex h-20 items-center justify-between sm:h-24">
         <a href="#top" className="flex items-center" aria-label="two bee">
@@ -65,7 +73,13 @@ export default function Navbar() {
         <div className="hidden lg:block w-10" aria-hidden />
       </div>
       {open && (
-        <div className="border-t border-white/5 bg-brand-black/95 backdrop-blur lg:hidden">
+        <div
+          className="border-t border-white/5 backdrop-blur lg:hidden"
+          style={{
+            backgroundColor:
+              'color-mix(in srgb, var(--theme-bg) 95%, transparent)',
+          }}
+        >
           <div className="container-x flex flex-col gap-1 py-4">
             {nav.map((n) => (
               <a

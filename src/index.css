@@ -3,10 +3,17 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --theme-t: 0;
+    --theme-bg: color-mix(in srgb, #0B0B0C, #FFFFFF calc(var(--theme-t) * 100%));
+    --theme-fg: color-mix(in srgb, #FFFFFF, #0B0B0C calc(var(--theme-t) * 100%));
+    --hex-accent: #FFC501;
+    --hex-stroke: color-mix(in srgb, #FFC501 calc(32% + var(--theme-t) * 48%), transparent);
+  }
   body {
     font-family: 'Inter', system-ui, sans-serif;
-    background-color: #0B0B0C;
-    color: #ffffff;
+    background-color: var(--theme-bg);
+    color: var(--theme-fg);
   }
   h1, h2, h3, h4, h5, h6 {
     font-family: 'League Spartan', 'Inter', system-ui, sans-serif;
@@ -16,30 +23,24 @@
 }
 
 @layer utilities {
-  html.theme-light [data-bg-zone="light"] {
-    color: #0B0B0C;
-  }
-  html.theme-light [data-bg-zone="light"] .text-white\/70,
-  html.theme-light [data-bg-zone="light"] .text-white\/60,
-  html.theme-light [data-bg-zone="light"] .text-white\/50,
-  html.theme-light [data-bg-zone="light"] .text-white\/40,
-  html.theme-light [data-bg-zone="light"] .text-white {
-    color: rgba(11, 11, 12, 0.8);
-  }
-  html.theme-light [data-bg-zone="light"] .border-white\/10,
-  html.theme-light [data-bg-zone="light"] .border-white\/5 {
-    border-color: rgba(11, 11, 12, 0.12);
-  }
-  html.theme-light [data-bg-zone="light"] .bg-white\/\[0\.03\],
-  html.theme-light [data-bg-zone="light"] .bg-white\/\[0\.04\],
-  html.theme-light [data-bg-zone="light"] .bg-white\/\[0\.05\],
-  html.theme-light [data-bg-zone="light"] .bg-white\/\[0\.06\],
-  html.theme-light [data-bg-zone="light"] .bg-white\/\[0\.07\] {
-    background-color: rgba(11, 11, 12, 0.04);
-  }
-  html.theme-light [data-bg-zone="light"] .bg-brand-yellow\/10 {
-    background-color: rgba(255, 197, 1, 0.18);
-  }
+  .text-white { color: var(--theme-fg); }
+  .text-white\/40 { color: color-mix(in srgb, var(--theme-fg) 40%, transparent); }
+  .text-white\/50 { color: color-mix(in srgb, var(--theme-fg) 50%, transparent); }
+  .text-white\/60 { color: color-mix(in srgb, var(--theme-fg) 60%, transparent); }
+  .text-white\/65 { color: color-mix(in srgb, var(--theme-fg) 65%, transparent); }
+  .text-white\/70 { color: color-mix(in srgb, var(--theme-fg) 70%, transparent); }
+  .text-white\/75 { color: color-mix(in srgb, var(--theme-fg) 75%, transparent); }
+  .text-white\/80 { color: color-mix(in srgb, var(--theme-fg) 80%, transparent); }
+
+  .border-white\/5 { border-color: color-mix(in srgb, var(--theme-fg) 5%, transparent); }
+  .border-white\/10 { border-color: color-mix(in srgb, var(--theme-fg) 10%, transparent); }
+
+  .bg-white\/5 { background-color: color-mix(in srgb, var(--theme-fg) 5%, transparent); }
+  .bg-white\/\[0\.03\] { background-color: color-mix(in srgb, var(--theme-fg) 3%, transparent); }
+  .bg-white\/\[0\.04\] { background-color: color-mix(in srgb, var(--theme-fg) 4%, transparent); }
+  .bg-white\/\[0\.05\] { background-color: color-mix(in srgb, var(--theme-fg) 5%, transparent); }
+  .bg-white\/\[0\.06\] { background-color: color-mix(in srgb, var(--theme-fg) 6%, transparent); }
+  .bg-white\/\[0\.07\] { background-color: color-mix(in srgb, var(--theme-fg) 7%, transparent); }
 }
 
 @layer components {

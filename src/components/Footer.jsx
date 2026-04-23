@@ -1,6 +1,11 @@
 export default function Footer() {
   return (
-    <footer className="border-t border-white/5 bg-black/60 py-12">
+    <footer
+      className="border-t border-white/5 py-12"
+      style={{
+        backgroundColor: 'color-mix(in srgb, var(--theme-bg) 60%, transparent)',
+      }}
+    >
       <div className="container-x flex flex-col items-center gap-6 text-center sm:flex-row sm:justify-between sm:text-left">
         <div>
           <div className="font-display text-2xl font-extrabold">
