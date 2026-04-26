@@ -15,7 +15,6 @@ import System from './sections/System.jsx'
 import Pricing from './sections/Pricing.jsx'
 import CaseStudy from './sections/CaseStudy.jsx'
 import Team from './sections/Team.jsx'
-import Guarantees from './sections/Guarantees.jsx'
 import Faq from './sections/Faq.jsx'
 import Contact from './sections/Contact.jsx'
 
@@ -83,7 +82,6 @@ export default function App() {
               <Team />
             </section>
             <div data-bg-zone="finale">
-              <Guarantees />
               <Faq />
               <Contact />
             </div>
