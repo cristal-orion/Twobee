@@ -6,7 +6,7 @@ import Honeycomb from './Honeycomb.jsx'
 
 gsap.registerPlugin(ScrollTrigger, useGSAP)
 
-export default function LivingBackground() {
+export default function LivingBackground({ forceDark = false }) {
   const root = useRef(null)
   const hexWrap = useRef(null)
 
@@ -14,21 +14,25 @@ export default function LivingBackground() {
     () => {
       const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
-      gsap.fromTo(
-        document.documentElement,
-        { '--theme-t': 0 },
-        {
-          '--theme-t': 1,
-          ease: 'power2.inOut',
-          scrollTrigger: {
-            trigger: '#sistema',
-            start: 'bottom bottom',
-            end: '+=100%',
-            scrub: true,
-            invalidateOnRefresh: true,
-          },
-        }
-      )
+      if (forceDark) {
+        gsap.set(document.documentElement, { '--theme-t': 0 })
+      } else {
+        gsap.fromTo(
+          document.documentElement,
+          { '--theme-t': 0 },
+          {
+            '--theme-t': 1,
+            ease: 'power2.inOut',
+            scrollTrigger: {
+              trigger: '#sistema',
+              start: 'bottom bottom',
+              end: '+=100%',
+              scrub: true,
+              invalidateOnRefresh: true,
+            },
+          }
+        )
+      }
 
       if (!reduce) {
         gsap.to(hexWrap.current, {
@@ -43,7 +47,7 @@ export default function LivingBackground() {
         })
       }
     },
-    { scope: root }
+    { scope: root, dependencies: [forceDark], revertOnUpdate: true }
   )
 
   const fadeTop = {
