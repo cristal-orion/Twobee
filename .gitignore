@@ -10,3 +10,10 @@ dist
 package-lock.json
 yarn.lock
 pnpm-lock.yaml
+
+# Designer reference materials kept at repo root (not actual app assets —
+# real assets live in public/). Use kebab-case names in public/ when committing.
+/Logo*.png
+/Logobianco.png
+/brandkit.png
+/esagonisfondo.png
