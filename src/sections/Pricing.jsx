@@ -136,7 +136,7 @@ export default function Pricing() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-80px' }}
             transition={{ duration: 0.6, ease: 'easeOut' }}
-            className="font-display text-3xl font-extrabold leading-tight sm:text-4xl md:text-5xl"
+            className="font-display text-3xl font-extrabold leading-tight text-white sm:text-4xl md:text-5xl"
           >
             Piani <span className="text-brand-yellow">trasparenti</span>
           </motion.h2>
@@ -146,63 +146,106 @@ export default function Pricing() {
           </p>
         </div>
 
-        <div className="mt-14 grid gap-6 lg:grid-cols-3">
-          {plans.map((p, i) => (
-            <motion.div
-              key={p.name}
-              initial={{ opacity: 0, y: 28 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-60px' }}
-              transition={{ duration: 0.5, delay: i * 0.1, ease: 'easeOut' }}
-              className={[
-                'relative flex flex-col rounded-2xl p-7',
-                p.highlighted
-                  ? 'border-2 border-brand-yellow bg-brand-yellow/[0.06] shadow-[0_0_60px_-20px_rgba(245,197,24,0.5)]'
-                  : 'border border-white/10 bg-white/[0.03]',
-              ].join(' ')}
-            >
-              {p.badge && (
-                <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-brand-yellow px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-brand-black">
-                  {p.badge}
-                </span>
-              )}
-              <h3 className="font-display text-2xl font-extrabold tracking-wide">
-                {p.name}
-              </h3>
-              <p className="mt-2 text-sm text-white/65">{p.tag}</p>
-              <ul className="mt-6 flex-1 space-y-3">
-                {p.features.map((f) => (
-                  <li
-                    key={f}
-                    className="flex items-start gap-3 text-sm text-white/80"
-                  >
-                    <span
-                      className={
-                        p.highlighted
-                          ? 'text-brand-yellow'
-                          : 'text-brand-yellow/70'
-                      }
-                    >
-                      <Check />
-                    </span>
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <a
-                href="#contatti"
-                className={p.highlighted ? 'btn-primary mt-8' : 'btn-outline mt-8'}
+        <div className="mt-14 grid gap-6 lg:grid-cols-3 lg:items-stretch">
+          {plans.map((p, i) => {
+            const hl = p.highlighted
+            const bg = hl ? 'bg-brand-black' : 'bg-brand-yellow'
+            const fg = hl ? '#FFFFFF' : '#0B0B0C'
+            const subFgColor = hl
+              ? 'rgba(255,255,255,0.78)'
+              : 'rgba(11,11,12,0.75)'
+            const dividerColor = hl
+              ? 'rgba(255,255,255,0.18)'
+              : 'rgba(11,11,12,0.15)'
+            const checkColor = hl ? 'text-brand-yellow' : 'text-brand-black'
+            const decoColor = hl ? 'rgba(255,197,1,0.9)' : '#000000'
+            const decoOpacity = hl ? 'opacity-[0.10]' : 'opacity-[0.08]'
+            const ctaCls = hl
+              ? 'bg-brand-yellow text-brand-black'
+              : 'bg-brand-black text-[#fff]'
+            return (
+              <motion.div
+                key={p.name}
+                initial={{ opacity: 0, y: 28 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: '-60px' }}
+                transition={{ duration: 0.5, delay: i * 0.1, ease: 'easeOut' }}
+                className={[
+                  'relative flex h-full flex-col',
+                  hl ? 'lg:-translate-y-5 lg:scale-[1.04]' : '',
+                ].join(' ')}
               >
-                Prenota un Audit Gratuito
-              </a>
-            </motion.div>
-          ))}
+                {p.badge && (
+                  <span className="absolute -top-3 left-1/2 z-10 -translate-x-1/2 rounded-full bg-brand-yellow px-3 py-1 text-[10px] font-bold uppercase tracking-widest text-brand-black shadow-md">
+                    {p.badge}
+                  </span>
+                )}
+                <div
+                  style={{ color: fg }}
+                  className={[
+                    'relative flex h-full flex-col overflow-hidden rounded-2xl p-7',
+                    bg,
+                    hl
+                      ? 'ring-2 ring-brand-yellow shadow-[0_40px_90px_-20px_rgba(0,0,0,0.55)] lg:p-8'
+                      : 'shadow-[0_18px_50px_-20px_rgba(0,0,0,0.3)]',
+                  ].join(' ')}
+                >
+                  <div
+                    aria-hidden
+                    className={`pointer-events-none absolute -right-14 -top-12 h-44 w-44 ${decoOpacity}`}
+                    style={{ clipPath: HEX_CLIP, background: decoColor }}
+                  />
+                  <div
+                    aria-hidden
+                    className={`pointer-events-none absolute -bottom-20 -left-14 h-52 w-52 ${decoOpacity}`}
+                    style={{ clipPath: HEX_CLIP, background: decoColor }}
+                  />
+
+                  <h3
+                    className="relative font-display text-2xl font-extrabold tracking-wide"
+                    style={{ color: fg }}
+                  >
+                    {p.name}
+                  </h3>
+                  <p
+                    className="relative mt-2 text-sm font-medium"
+                    style={{ color: subFgColor }}
+                  >
+                    {p.tag}
+                  </p>
+                  <ul
+                    className="relative mt-6 flex-1 space-y-3 border-t pt-6"
+                    style={{ borderColor: dividerColor }}
+                  >
+                    {p.features.map((f) => (
+                      <li
+                        key={f}
+                        className="flex items-start gap-3 text-[15px] leading-snug"
+                        style={{ color: fg }}
+                      >
+                        <span className={checkColor}>
+                          <Check />
+                        </span>
+                        {f}
+                      </li>
+                    ))}
+                  </ul>
+                  <a
+                    href="#contatti"
+                    className={`relative mt-8 inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 text-sm font-bold uppercase tracking-wide transition hover:brightness-110 sm:px-8 sm:py-4 sm:text-base ${ctaCls}`}
+                  >
+                    Prenota un Audit Gratuito
+                  </a>
+                </div>
+              </motion.div>
+            )
+          })}
         </div>
 
         <div className="mt-20 border-t border-white/10 pt-12">
           <div className="mx-auto max-w-2xl text-center">
             <span className="eyebrow">Incluse in ogni piano</span>
-            <h3 className="mt-3 font-display text-2xl font-extrabold sm:text-3xl">
+            <h3 className="mt-3 font-display text-2xl font-extrabold text-white sm:text-3xl">
               La nostra{' '}
               <span className="text-brand-yellow">promessa contrattuale</span>
             </h3>
@@ -246,7 +289,7 @@ export default function Pricing() {
                     {g.icon}
                   </div>
                 </div>
-                <h4 className="mt-4 font-display text-base font-extrabold">
+                <h4 className="mt-4 font-display text-base font-extrabold text-white">
                   {g.title}
                 </h4>
                 <p className="mt-2 max-w-[260px] text-sm text-white/65">

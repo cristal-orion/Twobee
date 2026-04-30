@@ -116,7 +116,7 @@ export default function Capabilities() {
                 delay: i * 0.1,
                 ease: [0.22, 1, 0.36, 1],
               }}
-              className="relative flex h-full flex-col rounded-2xl border border-white/10 bg-white/[0.05] p-6 backdrop-blur-sm sm:p-7"
+              className="relative flex h-full flex-col rounded-2xl border border-black/10 bg-white/85 p-6 shadow-[0_15px_40px_-20px_rgba(0,0,0,0.25)] backdrop-blur-sm sm:p-7"
             >
               <div className="flex items-start gap-5">
                 <PillarHex n={p.n} />
@@ -124,12 +124,12 @@ export default function Capabilities() {
                   <h3 className="font-display text-xl font-extrabold leading-tight text-white sm:text-2xl">
                     {p.label}
                   </h3>
-                  <p className="mt-2 text-sm leading-snug text-brand-yellow/90">
+                  <p className="mt-2 text-[15px] font-medium leading-snug text-white/75">
                     {p.tagline}
                   </p>
                 </div>
               </div>
-              <ul className="mt-6 space-y-3 border-t border-white/10 pt-6 text-sm text-white/80">
+              <ul className="mt-6 space-y-3 border-t border-black/10 pt-6 text-[15px] leading-relaxed text-white/80">
                 {p.items.map((it) => (
                   <li key={it} className="flex items-start gap-2.5">
                     <span

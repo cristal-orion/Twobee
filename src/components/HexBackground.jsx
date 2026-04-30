@@ -7,7 +7,7 @@ gsap.registerPlugin(ScrollTrigger)
 const HEX_CLIP =
   'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)'
 
-const YELLOW = '255, 230, 0'
+const YELLOW = '200, 150, 0'
 
 const HEX_W = 78
 const HEX_H = HEX_W * 1.1547
@@ -16,7 +16,7 @@ const ROW_OFFSET = HEX_W / 2
 
 const FLOW_COUNT = 4
 const TRAIL_LEN = 10
-const TICK_MS = 180
+const TICK_MS = 350
 const SCROLL_IDLE_MS = 180
 
 const LIGHT_SELECTOR = '[data-bg-light]'
@@ -54,7 +54,7 @@ function randomCell(cols, rows) {
 }
 
 function intensityToYellow(intensity) {
-  const a = Math.min(1, intensity + 0.15)
+  const a = Math.min(0.45, intensity * 0.4 + 0.05)
   return `rgba(${YELLOW}, ${a})`
 }
 
