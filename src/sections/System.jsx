@@ -1,10 +1,4 @@
-import { useRef } from 'react'
 import { motion } from 'framer-motion'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { useGSAP } from '@gsap/react'
-
-gsap.registerPlugin(ScrollTrigger, useGSAP)
 
 const steps = [
   {
@@ -36,15 +30,11 @@ const steps = [
 const HEX_CLIP =
   'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)'
 
-function HexFace({ children, back = false }) {
+function PhaseHex({ phase }) {
   return (
     <div
-      className="absolute inset-0"
-      style={{
-        backfaceVisibility: 'hidden',
-        WebkitBackfaceVisibility: 'hidden',
-        transform: back ? 'rotateY(180deg)' : undefined,
-      }}
+      className="relative w-full max-w-[200px]"
+      style={{ aspectRatio: '1 / 1.1547' }}
     >
       <div
         className="absolute inset-0 bg-brand-yellow"
@@ -58,235 +48,57 @@ function HexFace({ children, back = false }) {
             'linear-gradient(160deg, rgba(255,255,255,0.22), rgba(255,197,1,0) 45%, rgba(0,0,0,0.14) 100%)',
         }}
       />
-      <div className="absolute inset-0 flex flex-col items-center justify-center px-7 text-center text-brand-black">
-        {children}
+      <div className="absolute inset-0 flex items-center justify-center px-5 text-center text-brand-black">
+        <span className="font-display text-2xl font-extrabold uppercase leading-none tracking-tight sm:text-3xl">
+          {phase}
+        </span>
       </div>
     </div>
   )
 }
 
-function HexCard({ phase, title, body }) {
-  return (
-    <div
-      className="relative h-full w-full"
-      data-hex-flipper
-      style={{ transformStyle: 'preserve-3d' }}
-    >
-      <HexFace>
-        <span className="font-display text-4xl font-extrabold uppercase leading-none tracking-tight sm:text-[2.6rem]">
-          {phase}
-        </span>
-      </HexFace>
-      <HexFace back>
-        <span className="font-display text-sm font-extrabold uppercase tracking-[0.15em]">
-          {title}
-        </span>
-        <p className="mt-3 text-[13px] font-medium leading-snug">
-          {body}
-        </p>
-      </HexFace>
-    </div>
-  )
-}
-
 export default function System() {
-  const root = useRef(null)
-  const pin = useRef(null)
-  const arena = useRef(null)
-
-  useGSAP(
-    () => {
-      const mm = gsap.matchMedia()
-
-      mm.add('(min-width: 768px)', () => {
-        const hexes = gsap.utils.toArray('[data-hex]', arena.current)
-        const flippers = gsap.utils.toArray(
-          '[data-hex-flipper]',
-          arena.current
-        )
-
-        const hexBase = 350
-        const smallScale = 0.42
-        const smallW = hexBase * smallScale
-        const smallH = smallW * 1.1547
-        const DX = smallW
-        const DY = smallH * 0.75
-        const clusterAnchor = { x: -(DX * 3) / 4, y: -DY / 2 }
-        const clusterPositions = [
-          { x: clusterAnchor.x, y: clusterAnchor.y },
-          { x: clusterAnchor.x + DX / 2, y: clusterAnchor.y + DY },
-          { x: clusterAnchor.x + DX, y: clusterAnchor.y },
-          { x: clusterAnchor.x + (DX * 3) / 2, y: clusterAnchor.y + DY },
-        ]
-
-        gsap.set(hexes, {
-          xPercent: -50,
-          yPercent: -50,
-          x: () => window.innerWidth * 0.55,
-          y: 0,
-          scale: 0.9,
-          opacity: 0,
-        })
-        gsap.set(flippers, { rotationY: 0 })
-
-        const tl = gsap.timeline({
-          scrollTrigger: {
-            trigger: root.current,
-            start: 'top top',
-            end: () => `+=${steps.length * 120}%`,
-            pin: pin.current,
-            scrub: 0.6,
-            anticipatePin: 1,
-            invalidateOnRefresh: true,
-          },
-        })
-
-        steps.forEach((_, i) => {
-          const base = i
-
-          tl.to(
-            hexes[i],
-            {
-              x: 0,
-              y: 0,
-              scale: 1,
-              opacity: 1,
-              duration: 0.3,
-              ease: 'power3.out',
-            },
-            base
-          )
-
-          tl.to(
-            flippers[i],
-            {
-              rotationY: 180,
-              duration: 0.2,
-              ease: 'power2.inOut',
-            },
-            base + 0.32
-          )
-
-          tl.to(
-            flippers[i],
-            {
-              rotationY: 360,
-              duration: 0.2,
-              ease: 'power2.inOut',
-            },
-            base + 0.62
-          )
-
-          tl.to(
-            hexes[i],
-            {
-              x: clusterPositions[i].x,
-              y: clusterPositions[i].y,
-              scale: smallScale,
-              duration: 0.3,
-              ease: 'power2.inOut',
-            },
-            base + 0.85
-          )
-        })
-
-        return () => {
-          tl.scrollTrigger && tl.scrollTrigger.kill()
-          tl.kill()
-        }
-      })
-
-      mm.add('(max-width: 767px)', () => {
-        const hexes = gsap.utils.toArray('[data-hex]', arena.current)
-        const flippers = gsap.utils.toArray(
-          '[data-hex-flipper]',
-          arena.current
-        )
-        gsap.set(hexes, { clearProps: 'all' })
-        gsap.set(flippers, { clearProps: 'all' })
-      })
-
-      return () => mm.revert()
-    },
-    { scope: root }
-  )
-
   return (
-    <section ref={root} className="relative">
-      <div
-        ref={pin}
-        className="relative flex min-h-screen flex-col overflow-hidden py-20 md:py-24"
-      >
-        <div className="container-x">
-          <div className="mx-auto max-w-4xl text-center">
-            <span className="eyebrow">Il nostro metodo</span>
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
+    <section className="section-y">
+      <div className="container-x">
+        <div className="mx-auto max-w-4xl text-center">
+          <span className="eyebrow">Il nostro metodo</span>
+          <motion.h2
+            initial={{ opacity: 0, y: 16 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true, margin: '-80px' }}
+            transition={{ duration: 0.4, ease: 'easeOut' }}
+            className="text-outlined mt-4 font-display text-3xl font-extrabold leading-tight sm:text-4xl md:text-5xl"
+          >
+            Costruiamo il tuo sistema di acquisizione clienti con{' '}
+            <span className="text-brand-yellow">KPI di fatturato reale</span>,
+            non follower.
+          </motion.h2>
+        </div>
+
+        <div className="mt-16 grid grid-cols-1 gap-12 sm:grid-cols-2 md:mt-20 md:grid-cols-4 md:gap-8">
+          {steps.map((s, i) => (
+            <motion.article
+              key={s.n}
+              initial={{ opacity: 0, y: 24 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-80px' }}
-              transition={{ duration: 0.6, ease: 'easeOut' }}
-              className="text-outlined mt-4 font-display text-3xl font-extrabold leading-tight sm:text-4xl md:text-5xl"
+              viewport={{ once: true, margin: '-60px' }}
+              transition={{
+                duration: 0.4,
+                delay: i * 0.07,
+                ease: [0.22, 1, 0.36, 1],
+              }}
+              className="flex flex-col items-center text-center"
             >
-              Costruiamo il tuo sistema di acquisizione clienti con{' '}
-              <span className="text-brand-yellow">KPI di fatturato reale</span>,
-              non follower.
-            </motion.h2>
-          </div>
-        </div>
-
-        <div
-          ref={arena}
-          className="relative flex flex-1 items-center justify-center"
-          style={{ perspective: 1600 }}
-        >
-          <div className="relative hidden h-[500px] w-full md:block">
-            {steps.map((s) => (
-              <div
-                key={s.n}
-                data-hex
-                className="absolute left-1/2 top-1/2 will-change-transform"
-                style={{
-                  width: 350,
-                  height: 350 * 1.1547,
-                  transformStyle: 'preserve-3d',
-                }}
-              >
-                <HexCard phase={s.phase} title={s.title} body={s.body} />
-              </div>
-            ))}
-          </div>
-
-          <div className="grid w-full grid-cols-1 gap-10 px-4 sm:grid-cols-2 md:hidden">
-            {steps.map((s) => (
-              <div
-                key={s.n}
-                className="flex flex-col items-center gap-5"
-              >
-                <div
-                  data-hex
-                  className="relative"
-                  style={{ width: 300, height: 300 * 1.1547 }}
-                >
-                  <HexCard phase={s.phase} title={s.title} body={s.body} />
-                </div>
-                <div className="text-center">
-                  <h3 className="text-outlined font-display text-lg font-extrabold">
-                    {s.title}
-                  </h3>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        <div className="hidden md:block">
-          <div className="container-x">
-            <div className="mx-auto mt-4 flex max-w-xs items-center justify-center gap-2 text-[11px] font-bold uppercase tracking-[0.3em] text-white/40">
-              <span className="h-px flex-1 bg-white/20" />
-              <span>Scorri</span>
-              <span className="h-px flex-1 bg-white/20" />
-            </div>
-          </div>
+              <PhaseHex phase={s.phase} />
+              <h3 className="mt-6 font-display text-xl font-extrabold leading-tight text-white sm:text-2xl">
+                {s.title}
+              </h3>
+              <p className="mt-3 max-w-xs text-base leading-snug text-white/80">
+                {s.body}
+              </p>
+            </motion.article>
+          ))}
         </div>
       </div>
     </section>

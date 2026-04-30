@@ -88,7 +88,7 @@ export default function Services() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-80px' }}
             transition={{ duration: 0.6, ease: 'easeOut' }}
-            className="text-outlined mt-4 font-display text-3xl font-extrabold leading-tight sm:text-4xl md:text-5xl"
+            className="mt-4 font-display text-3xl font-extrabold leading-tight text-brand-black sm:text-4xl md:text-5xl"
           >
             Mentre le agenzie si concentrano sulle vanity metrics,{' '}
             <span className="text-brand-yellow">
@@ -134,13 +134,13 @@ export default function Services() {
                         : 'md:ml-auto md:pl-16 md:pr-0 md:text-left',
                     ].join(' ')}
                   >
-                    <div className="text-outlined font-display text-5xl font-extrabold leading-none text-brand-yellow sm:text-6xl md:text-[5rem]">
+                    <div className="font-display text-5xl font-extrabold leading-none text-brand-yellow sm:text-6xl md:text-[5rem]">
                       {s.n}
                     </div>
-                    <h3 className="text-outlined mt-4 font-display text-2xl font-extrabold leading-tight sm:text-3xl">
+                    <h3 className="mt-4 font-display text-2xl font-extrabold leading-tight text-brand-black sm:text-3xl">
                       {s.title}
                     </h3>
-                    <p className="text-outlined-sm mt-4 text-base leading-relaxed text-white/85 md:text-lg">
+                    <p className="mt-4 text-base leading-relaxed text-brand-black/80 md:text-lg">
                       {s.body}
                     </p>
                   </div>

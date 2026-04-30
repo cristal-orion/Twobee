@@ -4,7 +4,6 @@ const nav = [
   { label: 'Servizi', href: '#servizi' },
   { label: 'Sistema', href: '#sistema' },
   { label: 'Piani', href: '#piani' },
-  { label: 'Risultati', href: '#risultati' },
   { label: 'Team', href: '#team' },
 ]
 
@@ -65,20 +64,43 @@ export default function Navbar() {
             </a>
           ))}
         </nav>
-        <button
-          onClick={() => setOpen((v) => !v)}
-          className="ml-auto inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 lg:hidden"
-          aria-label="Menu"
-        >
-          <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
-            <path
-              d={open ? 'M6 6l12 12M6 18L18 6' : 'M4 7h16M4 12h16M4 17h16'}
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-            />
-          </svg>
-        </button>
+        <div className="ml-auto flex items-center gap-2 sm:gap-3">
+          <a
+            href="#contatti"
+            className="hidden items-center gap-2 rounded-full bg-brand-yellow px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-brand-black transition-transform hover:scale-[1.03] sm:inline-flex"
+          >
+            Prenota un audit gratuito
+            <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none">
+              <path
+                d="M5 12h14M13 5l7 7-7 7"
+                stroke="currentColor"
+                strokeWidth="2.5"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              />
+            </svg>
+          </a>
+          <a
+            href="#contatti"
+            className="inline-flex items-center rounded-full bg-brand-yellow px-3.5 py-2 text-[11px] font-bold uppercase tracking-wider text-brand-black sm:hidden"
+          >
+            Audit
+          </a>
+          <button
+            onClick={() => setOpen((v) => !v)}
+            className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 lg:hidden"
+            aria-label="Menu"
+          >
+            <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
+              <path
+                d={open ? 'M6 6l12 12M6 18L18 6' : 'M4 7h16M4 12h16M4 17h16'}
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+              />
+            </svg>
+          </button>
+        </div>
       </div>
       {open && (
         <div

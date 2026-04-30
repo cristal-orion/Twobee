@@ -40,14 +40,32 @@ export default function Hero() {
     { scope: root }
   )
 
-  const splitChars = (text) =>
-    Array.from(text).map((c, i) => (
-      <span key={i} className="inline-block overflow-hidden align-top">
-        <span className="hero-char inline-block will-change-transform">
-          {c === ' ' ? ' ' : c}
+  const splitChars = (text) => {
+    const segments = text.split(/(\s+)/)
+    return segments.map((seg, si) => {
+      if (seg === '') return null
+      if (/^\s+$/.test(seg)) {
+        return <span key={si}>{seg}</span>
+      }
+      return (
+        <span
+          key={si}
+          className="inline-block whitespace-nowrap align-top"
+        >
+          {Array.from(seg).map((c, i) => (
+            <span
+              key={i}
+              className="inline-block overflow-hidden align-top"
+            >
+              <span className="hero-char inline-block will-change-transform">
+                {c}
+              </span>
+            </span>
+          ))}
         </span>
-      </span>
-    ))
+      )
+    })
+  }
 
   return (
     <section
