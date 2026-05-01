@@ -1,25 +1,60 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
+import emailjs from '@emailjs/browser'
+
+const EMAILJS_SERVICE_ID = 'service_jjfdxbn'
+const EMAILJS_TEMPLATE_ID = 'template_peotzqb'
+const EMAILJS_PUBLIC_KEY = 'gHeKJYysSLwOsJUcT'
 
 export default function Contact() {
   const [open, setOpen] = useState(false)
-  const [form, setForm] = useState({ nome: '', email: '', telefono: '' })
+  const [form, setForm] = useState({
+    nome: '',
+    email: '',
+    telefono: '',
+    messaggio: '',
+  })
   const [status, setStatus] = useState('idle')
 
   const onChange = (e) =>
     setForm((f) => ({ ...f, [e.target.name]: e.target.value }))
 
-  const onSubmit = (e) => {
+  const closeModal = () => {
+    setOpen(false)
+    setTimeout(() => {
+      setForm({ nome: '', email: '', telefono: '', messaggio: '' })
+      setStatus('idle')
+    }, 300)
+  }
+
+  const onSubmit = async (e) => {
     e.preventDefault()
     setStatus('sending')
-    setTimeout(() => setStatus('sent'), 600)
+    try {
+      await emailjs.send(
+        EMAILJS_SERVICE_ID,
+        EMAILJS_TEMPLATE_ID,
+        {
+          nome: form.nome,
+          email: form.email,
+          telefono: form.telefono,
+          messaggio: form.messaggio.trim() || '(nessun messaggio)',
+          reply_to: form.email,
+        },
+        { publicKey: EMAILJS_PUBLIC_KEY }
+      )
+      setStatus('sent')
+    } catch (err) {
+      console.error('EmailJS error', err)
+      setStatus('error')
+    }
   }
 
   useEffect(() => {
     if (!open) return
     const onKey = (e) => {
-      if (e.key === 'Escape') setOpen(false)
+      if (e.key === 'Escape') closeModal()
     }
     const prevOverflow = document.body.style.overflow
     document.addEventListener('keydown', onKey)
@@ -126,7 +161,7 @@ export default function Contact() {
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
                 className="fixed inset-0 z-[100] overflow-y-auto bg-black/80 backdrop-blur-sm"
-                onClick={() => setOpen(false)}
+                onClick={closeModal}
                 role="dialog"
                 aria-modal="true"
               >
@@ -141,7 +176,7 @@ export default function Contact() {
               >
               <button
                 type="button"
-                onClick={() => setOpen(false)}
+                onClick={closeModal}
                 aria-label="Chiudi"
                 className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full border border-white/15 text-white/70 transition hover:bg-white/10 hover:text-white"
               >
@@ -155,6 +190,10 @@ export default function Contact() {
                 </svg>
               </button>
 
+              {status === 'sent' ? (
+                <ThankYou onClose={closeModal} />
+              ) : (
+                <>
               <div className="text-center">
                 <span className="eyebrow">Prenota la tua call</span>
                 <h3 className="mt-3 font-display text-2xl font-extrabold leading-tight sm:text-3xl">
@@ -193,18 +232,48 @@ export default function Contact() {
                   placeholder="Scrivi il numero di telefono..."
                   required
                 />
-                <button type="submit" className="btn-primary mt-2 w-full">
+                <label className="block">
+                  <span className="mb-2 block text-xs font-semibold uppercase tracking-widest text-white/70">
+                    Messaggio
+                  </span>
+                  <textarea
+                    name="messaggio"
+                    value={form.messaggio}
+                    onChange={onChange}
+                    rows={4}
+                    placeholder="Raccontaci brevemente di cosa hai bisogno (facoltativo)..."
+                    className="w-full resize-none rounded-2xl border border-white/10 bg-brand-black/60 px-5 py-3.5 text-sm text-white placeholder-white/30 outline-none transition focus:border-brand-yellow focus:ring-2 focus:ring-brand-yellow/30"
+                  />
+                </label>
+                <button
+                  type="submit"
+                  disabled={status === 'sending' || status === 'sent'}
+                  className="btn-primary mt-2 w-full disabled:cursor-not-allowed disabled:opacity-70"
+                >
                   {status === 'sending'
                     ? 'Invio in corso…'
                     : status === 'sent'
                     ? 'Richiesta inviata ✓'
+                    : status === 'error'
+                    ? 'Errore, riprova'
                     : 'Conferma prenotazione'}
                 </button>
+                {status === 'error' && (
+                  <p className="text-center text-xs text-red-400">
+                    Qualcosa è andato storto. Riprova o scrivici a{' '}
+                    <a href="mailto:info@twobee.it" className="underline">
+                      info@twobee.it
+                    </a>
+                    .
+                  </p>
+                )}
               </form>
 
               <p className="mt-5 text-center text-[11px] uppercase tracking-[0.2em] text-white/40">
                 Gratis · 45 min · Nessun impegno
               </p>
+                </>
+              )}
               </motion.div>
             </div>
           </motion.div>
@@ -213,6 +282,67 @@ export default function Contact() {
           document.body
         )}
     </section>
+  )
+}
+
+function ThankYou({ onClose }) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: 'easeOut' }}
+      className="py-4 text-center"
+    >
+      <motion.div
+        initial={{ scale: 0.6, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{
+          delay: 0.1,
+          duration: 0.5,
+          type: 'spring',
+          stiffness: 260,
+          damping: 18,
+        }}
+        className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-brand-yellow text-brand-black shadow-[0_0_60px_-10px_rgba(255,197,1,0.6)]"
+      >
+        <svg viewBox="0 0 24 24" className="h-10 w-10" fill="none">
+          <path
+            d="M5 12.5l4.5 4.5L19 7.5"
+            stroke="currentColor"
+            strokeWidth="3"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        </svg>
+      </motion.div>
+
+      <h3 className="mt-7 font-display text-2xl font-extrabold leading-tight sm:text-3xl">
+        Richiesta <span className="text-brand-yellow">inviata</span>
+      </h3>
+      <p className="mx-auto mt-3 max-w-sm text-sm leading-relaxed text-white/70 sm:text-base">
+        Grazie! Abbiamo ricevuto i tuoi contatti. Ti richiameremo entro
+        24 ore per fissare insieme l'orario della call.
+      </p>
+
+      <ul className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11px] font-bold uppercase tracking-[0.2em] text-white/50">
+        <li className="inline-flex items-center gap-2">
+          <span className="h-1.5 w-1.5 rounded-full bg-brand-yellow" />
+          Entro 24 ore
+        </li>
+        <li className="inline-flex items-center gap-2">
+          <span className="h-1.5 w-1.5 rounded-full bg-brand-yellow" />
+          Nessun impegno
+        </li>
+      </ul>
+
+      <button
+        type="button"
+        onClick={onClose}
+        className="btn-primary mt-8 w-full"
+      >
+        Torna al sito
+      </button>
+    </motion.div>
   )
 }
 
