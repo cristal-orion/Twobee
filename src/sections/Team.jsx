@@ -3,7 +3,7 @@ import { motion } from 'framer-motion'
 const HEX_CLIP =
   'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)'
 
-const team = [
+const founders = [
   {
     key: 'marco',
     name: 'Marco',
@@ -11,7 +11,6 @@ const team = [
     tag: 'KPI Hunter. Non si ferma finché i conti non tornano.',
     photo: '/team-marco.jpeg',
     initials: 'M',
-    position: { left: '16.67%', top: '0%', labelSide: 'top' },
   },
   {
     key: 'toto',
@@ -20,8 +19,10 @@ const team = [
     tag: 'Profit Maker. Trasforma i click in clienti alto-spendenti.',
     photo: '/team-toto.jpeg',
     initials: 'T',
-    position: { left: '50%', top: '0%', labelSide: 'top' },
   },
+]
+
+const teamMembers = [
   {
     key: 'sabrina',
     name: 'Sabrina',
@@ -29,7 +30,6 @@ const team = [
     tag: '',
     photo: '/team-sabrina.jpeg',
     initials: 'S',
-    position: { left: '0%', top: '42.86%', labelSide: 'bottom' },
   },
   {
     key: 'michele',
@@ -38,7 +38,6 @@ const team = [
     tag: '',
     photo: '/team-michele.jpeg',
     initials: 'M',
-    position: { left: '33.33%', top: '42.86%', labelSide: 'bottom' },
   },
   {
     key: 'gabriele',
@@ -47,7 +46,6 @@ const team = [
     tag: '',
     photo: '/team-gabriele.jpeg',
     initials: 'G',
-    position: { left: '66.67%', top: '42.86%', labelSide: 'bottom' },
   },
 ]
 
@@ -88,27 +86,34 @@ function HexPortrait({ photo, initials, alt }) {
   )
 }
 
-function MemberLabel({ name, role, tag, side }) {
-  const isTop = side === 'top'
+function MemberCard({ photo, initials, name, role, tag, size = 'md', delay = 0 }) {
+  const widthCls =
+    size === 'lg' ? 'w-44 sm:w-52 lg:w-56' : 'w-32 sm:w-40 lg:w-44'
+  const nameCls =
+    size === 'lg'
+      ? 'font-display text-2xl font-extrabold sm:text-3xl'
+      : 'font-display text-xl font-extrabold sm:text-2xl'
   return (
-    <div
-      className={[
-        'absolute left-1/2 w-max max-w-[240px] -translate-x-1/2 text-center',
-        isTop ? 'bottom-full mb-5' : 'top-full mt-5',
-      ].join(' ')}
+    <motion.div
+      initial={{ opacity: 0, y: 24, scale: 0.92 }}
+      whileInView={{ opacity: 1, y: 0, scale: 1 }}
+      viewport={{ once: true, margin: '-80px' }}
+      transition={{ duration: 0.6, delay, ease: [0.22, 1, 0.36, 1] }}
+      className="flex flex-col items-center text-center"
     >
-      <div className="text-outlined font-display text-xl font-extrabold sm:text-2xl">
-        {name}
+      <div className={`relative ${widthCls}`} style={{ aspectRatio: '1 / 1.1547' }}>
+        <HexPortrait photo={photo} initials={initials} alt={name} />
       </div>
-      <div className="text-outlined-sm mt-1 text-[11px] font-bold uppercase tracking-[0.2em] text-brand-yellow sm:text-xs">
+      <div className={`mt-5 text-outlined ${nameCls}`}>{name}</div>
+      <div className="mt-1 text-[11px] font-bold uppercase tracking-[0.2em] text-brand-yellow sm:text-xs">
         {role}
       </div>
       {tag && (
-        <p className="text-outlined-sm mx-auto mt-2 max-w-[220px] text-xs leading-snug text-white/75">
+        <p className="mx-auto mt-2 max-w-[240px] text-[13px] leading-snug text-white/70">
           {tag}
         </p>
       )}
-    </div>
+    </motion.div>
   )
 }
 
@@ -134,82 +139,17 @@ export default function Team() {
           </p>
         </div>
 
-        {/* Desktop: 5-hex honeycomb cluster */}
-        <div className="relative mx-auto mt-40 mb-24 hidden aspect-[660/445] w-full max-w-[720px] md:block">
-          {team.map((m, i) => (
-            <motion.div
-              key={m.key}
-              initial={{ opacity: 0, scale: 0.85, y: 16 }}
-              whileInView={{ opacity: 1, scale: 1, y: 0 }}
-              viewport={{ once: true, margin: '-80px' }}
-              transition={{
-                duration: 0.7,
-                delay: i * 0.1,
-                ease: [0.22, 1, 0.36, 1],
-              }}
-              className="absolute"
-              style={{
-                left: m.position.left,
-                top: m.position.top,
-                width: '33.33%',
-              }}
-            >
-              <div
-                className="relative"
-                style={{ aspectRatio: '1 / 1.1547' }}
-              >
-                <HexPortrait
-                  photo={m.photo}
-                  initials={m.initials}
-                  alt={m.name}
-                />
-                <MemberLabel
-                  name={m.name}
-                  role={m.role}
-                  tag={m.tag}
-                  side={m.position.labelSide}
-                />
-              </div>
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Mobile: stacked list with hex thumbnails */}
-        <div className="mt-14 grid gap-8 md:hidden">
-          {team.map((m, i) => (
-            <motion.div
-              key={m.key}
-              initial={{ opacity: 0, y: 24 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: '-60px' }}
-              transition={{ duration: 0.6, delay: i * 0.08, ease: 'easeOut' }}
-              className="flex items-center gap-5"
-            >
-              <div
-                className="relative w-28 shrink-0"
-                style={{ aspectRatio: '1 / 1.1547' }}
-              >
-                <HexPortrait
-                  photo={m.photo}
-                  initials={m.initials}
-                  alt={m.name}
-                />
-              </div>
-              <div className="flex-1">
-                <div className="text-outlined font-display text-xl font-extrabold">
-                  {m.name}
-                </div>
-                <div className="text-outlined-sm mt-1 text-[11px] font-bold uppercase tracking-[0.2em] text-brand-yellow">
-                  {m.role}
-                </div>
-                {m.tag && (
-                  <p className="text-outlined-sm mt-2 text-sm leading-snug text-white/75">
-                    {m.tag}
-                  </p>
-                )}
-              </div>
-            </motion.div>
-          ))}
+        <div className="mt-20 flex flex-col items-center gap-20 md:gap-24">
+          <div className="flex flex-wrap justify-center gap-x-16 gap-y-12 sm:gap-x-24">
+            {founders.map((m, i) => (
+              <MemberCard key={m.key} {...m} size="lg" delay={i * 0.1} />
+            ))}
+          </div>
+          <div className="flex flex-wrap justify-center gap-x-10 gap-y-12 sm:gap-x-16">
+            {teamMembers.map((m, i) => (
+              <MemberCard key={m.key} {...m} size="md" delay={0.2 + i * 0.08} />
+            ))}
+          </div>
         </div>
       </div>
     </section>

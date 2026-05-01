@@ -1,8 +1,4 @@
 import { memo, useEffect, useMemo, useRef, useState } from 'react'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-
-gsap.registerPlugin(ScrollTrigger)
 
 const HEX_CLIP =
   'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)'
@@ -17,11 +13,8 @@ const ROW_OFFSET = HEX_W / 2
 const FLOW_COUNT = 4
 const TRAIL_LEN = 10
 const TICK_MS = 350
-const SCROLL_IDLE_MS = 180
 
-const LIGHT_SELECTOR = '[data-bg-light]'
 const DARK_BASE = '#080808'
-const LIGHT_BASE = '#ededed'
 
 function neighbors(col, row) {
   const odd = row % 2 !== 0
@@ -59,23 +52,16 @@ function intensityToYellow(intensity) {
 }
 
 export default function HexBackground() {
-  const [grid, setGrid] = useState({ cols: 0, rows: 0, vw: 0, vh: 0 })
-  const [clipRects, setClipRects] = useState([])
+  const [grid, setGrid] = useState({ cols: 0, rows: 0 })
   const cellRefs = useRef(new Map())
   const flowsRef = useRef([])
   const activeRef = useRef({})
-  const scrollingRef = useRef(false)
 
   useEffect(() => {
     const update = () => {
       const cols = Math.ceil(window.innerWidth / HEX_W) + 2
       const rows = Math.ceil(window.innerHeight / ROW_GAP) + 2
-      setGrid({
-        cols,
-        rows,
-        vw: window.innerWidth,
-        vh: window.innerHeight,
-      })
+      setGrid({ cols, rows })
     }
     update()
     window.addEventListener('resize', update)
@@ -98,7 +84,6 @@ export default function HexBackground() {
     activeRef.current = {}
 
     const tick = () => {
-      if (scrollingRef.current) return
       flowsRef.current.forEach((flow) => {
         flow.trail.forEach((n) => (n.age += 1))
         flow.trail = flow.trail.filter((n) => n.age < TRAIL_LEN)
@@ -150,16 +135,9 @@ export default function HexBackground() {
         const p = prev[key] || 0
         const n = next[key] || 0
         if (p === n) return
-        const entry = cellRefs.current.get(key)
-        if (!entry) return
-        if (entry.dark) {
-          entry.dark.style.backgroundColor =
-            n > 0 ? intensityToYellow(n) : DARK_BASE
-        }
-        if (entry.light) {
-          entry.light.style.backgroundColor =
-            n > 0 ? intensityToYellow(n) : LIGHT_BASE
-        }
+        const el = cellRefs.current.get(key)
+        if (!el) return
+        el.style.backgroundColor = n > 0 ? intensityToYellow(n) : DARK_BASE
       })
       activeRef.current = next
     }
@@ -167,61 +145,6 @@ export default function HexBackground() {
     const id = setInterval(tick, TICK_MS)
     return () => clearInterval(id)
   }, [grid.cols, grid.rows])
-
-  useEffect(() => {
-    let raf = 0
-    let idleTimer = 0
-    let last = ''
-
-    const compute = () => {
-      raf = 0
-      const els = document.querySelectorAll(LIGHT_SELECTOR)
-      const vh = window.innerHeight
-      const rects = []
-      els.forEach((el) => {
-        const r = el.getBoundingClientRect()
-        if (r.bottom <= 0 || r.top >= vh) return
-        const top = Math.max(0, r.top)
-        const bottom = Math.min(vh, r.bottom)
-        if (bottom - top <= 0) return
-        rects.push({ y: top, h: bottom - top })
-      })
-      const sig = rects
-        .map((r) => `${r.y.toFixed(0)}:${r.h.toFixed(0)}`)
-        .join('|')
-      if (sig !== last) {
-        last = sig
-        setClipRects(rects)
-      }
-    }
-
-    const schedule = () => {
-      scrollingRef.current = true
-      window.clearTimeout(idleTimer)
-      idleTimer = window.setTimeout(() => {
-        scrollingRef.current = false
-      }, SCROLL_IDLE_MS)
-      if (raf) return
-      raf = requestAnimationFrame(compute)
-    }
-
-    compute()
-    window.addEventListener('scroll', schedule, { passive: true })
-    window.addEventListener('resize', schedule)
-    const st = ScrollTrigger.create({
-      start: 0,
-      end: 'max',
-      onUpdate: schedule,
-      onRefresh: compute,
-    })
-    return () => {
-      window.removeEventListener('scroll', schedule)
-      window.removeEventListener('resize', schedule)
-      st.kill()
-      if (raf) cancelAnimationFrame(raf)
-      if (idleTimer) window.clearTimeout(idleTimer)
-    }
-  }, [])
 
   const cells = useMemo(() => {
     const out = []
@@ -236,124 +159,65 @@ export default function HexBackground() {
   }, [grid.cols, grid.rows])
 
   return (
-    <div aria-hidden>
-      <div
-        className="pointer-events-none fixed inset-0 -z-20 overflow-hidden bg-[#040404]"
-        style={{ transform: 'translateZ(0)', willChange: 'transform' }}
-      >
-        <HexLayer cells={cells} mode="dark" cellRefs={cellRefs} />
-        <div
-          className="absolute inset-0"
-          style={{
-            background:
-              'radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.55) 100%)',
-          }}
-        />
+    <div
+      aria-hidden
+      className="pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-[#040404]"
+      style={{ transform: 'translateZ(0)', willChange: 'transform' }}
+    >
+      <div className="absolute inset-0">
+        {cells.map((cell) => (
+          <HexCell
+            key={cell.key}
+            cellKey={cell.key}
+            x={cell.x}
+            y={cell.y}
+            cellRefs={cellRefs}
+          />
+        ))}
       </div>
-
-      <svg
-        aria-hidden
-        width="0"
-        height="0"
-        style={{ position: 'fixed', width: 0, height: 0 }}
-      >
-        <defs>
-          <clipPath id="hex-light-clip" clipPathUnits="userSpaceOnUse">
-            {clipRects.map((r, i) => (
-              <rect
-                key={i}
-                x={0}
-                y={r.y}
-                width={grid.vw || 0}
-                height={r.h}
-              />
-            ))}
-          </clipPath>
-        </defs>
-      </svg>
-
       <div
-        className="pointer-events-none fixed inset-0 -z-10 overflow-hidden"
+        className="absolute inset-0"
         style={{
-          transform: 'translateZ(0)',
-          willChange: 'transform',
-          clipPath:
-            clipRects.length === 0
-              ? 'inset(100% 0 0 0)'
-              : 'url(#hex-light-clip)',
+          background:
+            'radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.55) 100%)',
         }}
-      >
-        <div className="absolute inset-0 bg-white" />
-        <HexLayer cells={cells} mode="light" cellRefs={cellRefs} />
-      </div>
+      />
     </div>
   )
 }
 
-function HexLayer({ cells, mode, cellRefs }) {
-  return (
-    <div className="absolute inset-0">
-      {cells.map((cell) => (
-        <HexCell
-          key={cell.key}
-          cellKey={cell.key}
-          x={cell.x}
-          y={cell.y}
-          mode={mode}
-          cellRefs={cellRefs}
-        />
-      ))}
-    </div>
-  )
-}
-
-const HexCell = memo(
-  function HexCell({ cellKey, x, y, mode, cellRefs }) {
-    const isLight = mode === 'light'
-    const baseBg = isLight ? LIGHT_BASE : DARK_BASE
-    const innerGradient = isLight
-      ? 'linear-gradient(155deg, #ffffff 0%, #f4f4f4 28%, #e8e8e8 60%, #d6d6d6 100%)'
-      : 'linear-gradient(155deg, #2a2a2a 0%, #161616 28%, #0c0c0c 60%, #060606 100%)'
-    const innerShadow = isLight
-      ? 'inset 0 1.5px 0 rgba(255, 255, 255, 0.95), inset 0 -8px 14px rgba(0, 0, 0, 0.07)'
-      : 'inset 0 1.5px 0 rgba(255, 255, 255, 0.06), inset 0 -8px 14px rgba(0, 0, 0, 0.65)'
-
-    const setRef = (el) => {
-      if (!el) {
-        const entry = cellRefs.current.get(cellKey)
-        if (entry) {
-          delete entry[mode]
-          if (!entry.dark && !entry.light) cellRefs.current.delete(cellKey)
-        }
-        return
-      }
-      const entry = cellRefs.current.get(cellKey) || {}
-      entry[mode] = el
-      cellRefs.current.set(cellKey, entry)
+const HexCell = memo(function HexCell({ cellKey, x, y, cellRefs }) {
+  const setRef = (el) => {
+    if (!el) {
+      cellRefs.current.delete(cellKey)
+      return
     }
-
-    return (
-      <div
-        ref={setRef}
-        className="absolute"
-        style={{
-          left: x,
-          top: y,
-          width: HEX_W,
-          height: HEX_H,
-          clipPath: HEX_CLIP,
-          backgroundColor: baseBg,
-        }}
-      >
-        <div
-          className="absolute inset-[2.5px]"
-          style={{
-            clipPath: HEX_CLIP,
-            background: innerGradient,
-            boxShadow: innerShadow,
-          }}
-        />
-      </div>
-    )
+    cellRefs.current.set(cellKey, el)
   }
-)
+
+  return (
+    <div
+      ref={setRef}
+      className="absolute"
+      style={{
+        left: x,
+        top: y,
+        width: HEX_W,
+        height: HEX_H,
+        clipPath: HEX_CLIP,
+        backgroundColor: DARK_BASE,
+      }}
+    >
+      <div
+        className="absolute inset-[2.5px]"
+        style={{
+          clipPath: HEX_CLIP,
+          background:
+            'linear-gradient(155deg, #2a2a2a 0%, #161616 28%, #0c0c0c 60%, #060606 100%)',
+          boxShadow:
+            'inset 0 1.5px 0 rgba(255, 255, 255, 0.06), inset 0 -8px 14px rgba(0, 0, 0, 0.65)',
+        }}
+      />
+    </div>
+  )
+})

@@ -65,19 +65,34 @@ function MainSite() {
             <Hero />
             <Clients />
             <Problems />
-            <section id="servizi" data-bg-light style={LIGHT_VARS}>
+            <section
+              id="servizi"
+              data-bg-light
+              className="bg-white"
+              style={LIGHT_VARS}
+            >
               <Services />
             </section>
             <section id="a-chi">
               <Audience />
             </section>
-            <section id="capabilities" data-bg-light style={LIGHT_VARS}>
+            <section
+              id="capabilities"
+              data-bg-light
+              className="bg-white"
+              style={LIGHT_VARS}
+            >
               <Capabilities />
             </section>
             <section id="sistema">
               <System />
             </section>
-            <section id="piani" data-bg-light style={LIGHT_VARS}>
+            <section
+              id="piani"
+              data-bg-light
+              className="bg-white"
+              style={LIGHT_VARS}
+            >
               <Pricing />
             </section>
             <section id="team">
