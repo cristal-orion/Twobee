@@ -1,0 +1,482 @@
+════════════════════════════════════════════════════════════════════════
+  REGOLE TRACKING + FORM MARKETING — PROGETTI WEB
+  Lezioni apprese sul progetto Plus Vending — aprile 2026
+════════════════════════════════════════════════════════════════════════
+
+Knowledge base riutilizzabile per i prossimi progetti. Due macro-aree:
+
+  PARTE A — Cookie banner + Google Consent Mode v2 (GTM/GA4/Ads)
+  PARTE B — Integrazione form con Klaviyo (profili + liste)
+
+Consultare SEMPRE prima di implementare/modificare una di queste
+integrazioni su un nuovo sito.
+
+
+════════════════════════════════════════════════════════════════════════
+  PARTE A — COOKIE BANNER + GOOGLE CONSENT MODE v2
+════════════════════════════════════════════════════════════════════════
+
+Queste regole vanno seguite OGNI volta che si crea un cookie banner
+GDPR-compliant su un sito che usa GTM + GA4 + Google Ads.
+Sono il risultato di un bug reale che ha tenuto il tracking fuori
+servizio per utenti nuovi e ha fatto salire il warning "tasso di
+consenso 0%" in GA4.
+
+
+────────────────────────────────────────────────────────────────────────
+  IL BUG DA NON RIPETERE (critico — l'errore più sottile di tutti)
+────────────────────────────────────────────────────────────────────────
+
+La funzione `gtag` DEVE essere scritta nella forma canonica di Google:
+
+    function gtag(){dataLayer.push(arguments);}        ✅ CORRETTO
+
+NON scriverla così, anche se sembra equivalente:
+
+    function gtag(...args){dataLayer.push(args);}      ❌ BUG
+
+Perché: GTM riconosce i comandi `consent` SOLO quando il push
+contiene un oggetto `Arguments`. Se pushi un Array JavaScript normale
+(che è ciò che produce la rest syntax `...args`), GTM lo tratta come
+un evento generico e IGNORA il comando consent.
+
+Risultato del bug: gli utenti nuovi che cliccano "Accetta" continuano
+a navigare con gcs=G100 (denied) perché l'update non viene mai
+applicato. Il tracking sembra funzionare solo per gli utenti di
+ritorno (perché il `default` viene letto dal localStorage e parte
+già granted, senza passare per l'update).
+
+Come accorgersene:
+- In DevTools Console: `dataLayer.filter(e => e[0]==='consent')`
+- Le entries DEVONO essere tutte `Arguments(3)`, mai `Array(3)`
+- L'entry update DEVE avere il campo `gtm.uniqueEventId: N`
+  (è la prova che GTM l'ha processata)
+
+
+────────────────────────────────────────────────────────────────────────
+  1. ORDINE DI CARICAMENTO (obbligatorio)
+────────────────────────────────────────────────────────────────────────
+
+Nell'<head>, PRIMA di GTM, mettere inline lo script del consent default.
+Altrimenti GTM parte con il default di Google (tutto denied) e il primo
+page_view si perde irreversibilmente.
+
+Ordine corretto in <head>:
+
+  1) <script is:inline> — consent default (legge localStorage se presente)
+  2) <script> — snippet GTM (gtm.js)
+  3) tutto il resto
+
+Mai invertire. Mai caricare il consent default asincrono.
+
+
+────────────────────────────────────────────────────────────────────────
+  2. CONSENT DEFAULT per EU
+────────────────────────────────────────────────────────────────────────
+
+Prima del click utente, servire questi default:
+
+  ad_storage:             denied
+  ad_user_data:           denied
+  ad_personalization:     denied
+  analytics_storage:      denied
+  functionality_storage:  granted   (cookie tecnici, necessari)
+  personalization_storage: denied
+  security_storage:       granted   (cookie sicurezza, necessari)
+
+Se il localStorage ha già una scelta salvata dall'utente, LEGGERLA
+al momento del default (non aspettare l'update) — così gli utenti
+di ritorno partono già con lo stato corretto e non perdono il primo
+page_view.
+
+
+────────────────────────────────────────────────────────────────────────
+  3. PERSISTENZA della scelta
+────────────────────────────────────────────────────────────────────────
+
+Salvare la scelta in localStorage (non cookie — meno attrito GDPR).
+Formato consigliato:
+
+  key: pv_consent_v1
+  value: { "choices": { "statistics": true, "marketing": true },
+           "timestamp": 1776932533434 }
+
+Usare un suffisso versione (`_v1`) per poter invalidare scelte vecchie
+quando cambiano le categorie.
+
+
+────────────────────────────────────────────────────────────────────────
+  4. CONSENT UPDATE al click (i 4 campi che contano)
+────────────────────────────────────────────────────────────────────────
+
+Al click su "Accetta" / "Rifiuta" / "Salva preferenze", chiamare:
+
+  gtag('consent', 'update', {
+    analytics_storage:  choices.statistics ? 'granted' : 'denied',
+    ad_storage:         choices.marketing  ? 'granted' : 'denied',
+    ad_user_data:       choices.marketing  ? 'granted' : 'denied',
+    ad_personalization: choices.marketing  ? 'granted' : 'denied',
+  });
+
+Questi 4 sono gli UNICI che contano per GA4 + Google Ads.
+`functionality_storage`, `personalization_storage`, `security_storage`
+non servono aggiornarli — restano al default. Se qualcuno insiste di
+includerli, non è un bug: semplicemente non cambia nulla.
+
+
+────────────────────────────────────────────────────────────────────────
+  5. CONFIG GTM (Consent Settings del tag)
+────────────────────────────────────────────────────────────────────────
+
+Ogni tag in GTM deve avere "Additional Consent Checks":
+
+  Tag GA4 Configuration       → richiede analytics_storage
+  Tag GA4 Event               → richiede analytics_storage
+  Tag Google Ads Conversion   → richiede ad_storage
+  Tag Google Ads Remarketing  → richiede ad_storage + ad_user_data
+
+Senza questo, i tag firmano anche con consenso negato → violazione GDPR.
+
+
+────────────────────────────────────────────────────────────────────────
+  6. VERIFICA POST-DEPLOY (OBBLIGATORIA, non opzionale)
+────────────────────────────────────────────────────────────────────────
+
+Dopo ogni deploy che tocca il banner o il consent, fare SEMPRE:
+
+  Browser: incognito + hotspot 4G (NO adblocker, NO DNS-blocker)
+  NB: AdGuard / uBlock / Brave bloccano stats.g.doubleclick.net e
+      google-analytics.com — darebbero falsi negativi.
+
+  Step:
+  1) localStorage.removeItem('<chiave>') + F5
+  2) Verifica banner visibile + default denied nel dataLayer
+  3) Click "Accetta tutti"
+  4) dataLayer.filter(e => e[0]==='consent')
+     → DEVE avere 2 entries Arguments(3) con gtm.uniqueEventId
+  5) Network → filtro "collect" → dopo il click la URL deve avere:
+     - tid=G-XXXXXXX (Measurement ID giusto)
+     - gcs=G111 (non più G100)
+     - Status 204 No Content (è la risposta corretta, non 200)
+
+Se anche solo uno di questi check fallisce, il banner è rotto.
+
+
+────────────────────────────────────────────────────────────────────────
+  7. VERIFICA GA4 (dopo 24-48h)
+────────────────────────────────────────────────────────────────────────
+
+GA4 → Admin → Impostazioni consenso:
+- Il warning "tasso di consenso 0%" deve sparire
+- Gli "Indicatori di consenso" devono risultare "attivi"
+
+GA4 → Realtime: gli utenti che accettano devono apparire in tempo reale.
+
+
+────────────────────────────────────────────────────────────────────────
+  8. COSE CHE CONFONDONO — non farsi trappolare
+────────────────────────────────────────────────────────────────────────
+
+- 204 No Content NON è un errore: è la risposta standard di Google.
+  Se qualcuno dice "mi arrivano 204 e non 200", spiegargli che è
+  corretto — GA4 non restituisce mai un 200.
+
+- DebugView NON mostra il traffico normale. Mostra solo eventi con
+  debug_mode=true (Preview GTM, estensione "GA Debugger", o parametro
+  manuale). Per verificare il traffico reale, usare Realtime.
+
+- I Report standard di GA4 hanno latenza 24-48h. Se uno dice
+  "non vedo niente in GA4" dopo 5 minuti, è normale se guarda i
+  Report. Mandarlo su Realtime o DebugView.
+
+- Filtro "Internal Traffic" di GA4: se è Active e include l'IP
+  dello sviluppatore, TUTTI i suoi test da quella rete vengono
+  scartati. Metterlo in "Testing" durante lo sviluppo.
+
+- Preview GTM mostra dati anche quando il traffico reale non li
+  mostra. Se funziona in Preview ma non in produzione:
+  * container GTM non pubblicato (solo workspace salvato)
+  * oppure il tag ha un trigger "Debug Mode = true" come eccezione
+  * oppure il consent update non arriva (vedi il BUG di apertura)
+
+
+────────────────────────────────────────────────────────────────────────
+  9. CHECKLIST RAPIDA PER NUOVO PROGETTO
+────────────────────────────────────────────────────────────────────────
+
+  [ ] Script consent default inline, PRIMA di gtm.js
+  [ ] Funzione gtag con `function gtag(){dataLayer.push(arguments);}`
+  [ ] Default EU: analytics+ads denied, functionality+security granted
+  [ ] Lettura localStorage al default per utenti di ritorno
+  [ ] Update al click con i 4 campi (analytics_storage, ad_storage,
+      ad_user_data, ad_personalization)
+  [ ] Stessa firma di gtag anche DENTRO il componente banner
+      (no rest spread, no Array push)
+  [ ] Consent Settings su ogni tag in GTM
+  [ ] Container GTM PUBBLICATO (non solo salvato in workspace)
+  [ ] Test post-deploy: incognito + hotspot + verifica gcs=G111
+  [ ] Privacy policy + link "Gestisci cookie" sempre accessibile
+  [ ] Pulsante "Rifiuta tutti" visibile allo stesso livello di
+      "Accetta tutti" (requisito GDPR — no dark patterns)
+
+════════════════════════════════════════════════════════════════════════
+
+
+════════════════════════════════════════════════════════════════════════
+  PARTE B — INTEGRAZIONE FORM → KLAVIYO
+════════════════════════════════════════════════════════════════════════
+
+Regole per collegare un form di contatto a Klaviyo così che ogni
+submit crei/aggiorni un profilo e lo iscriva a una lista specifica.
+Tipicamente si usa in coppia con EmailJS o un altro servizio che
+invia la mail al cliente: EmailJS = notifica interna, Klaviyo =
+CRM/email marketing.
+
+
+────────────────────────────────────────────────────────────────────────
+  1. DATI NECESSARI DA RECUPERARE DA KLAVIYO
+────────────────────────────────────────────────────────────────────────
+
+Il cliente (o chi gestisce il Klaviyo) deve fornirti 2 valori:
+
+  - company_id      (es. "RWRtDs")
+      → PUBBLICO, safe da esporre in JS client-side
+      → si trova in Klaviyo → Account → Settings → API Keys
+        oppure nel Public API Key
+
+  - list_id         (es. "WWzu7E")
+      → ID della lista dove verranno iscritti i profili
+      → si trova in Klaviyo → Audience → Lists & Segments
+        → apri la lista, è nell'URL (es. .../list/WWzu7E)
+
+NON servono chiavi private: l'endpoint `/client/subscriptions/` è
+pensato proprio per uso browser-side e usa solo il company_id come
+identifier pubblico.
+
+
+────────────────────────────────────────────────────────────────────────
+  2. ENDPOINT E VERSIONE API
+────────────────────────────────────────────────────────────────────────
+
+Usare sempre l'endpoint CLIENT (non Server):
+
+  POST https://a.klaviyo.com/client/subscriptions/?company_id=XXXXX
+
+Headers:
+  Content-Type: application/json
+  revision:     2024-10-15   (o la più recente stabile)
+
+La revision è IMPORTANTE: Klaviyo versiona l'API per data, senza
+questo header la chiamata può fallire o usare la versione legacy.
+Controllare periodicamente se è uscita una revision più recente.
+
+
+────────────────────────────────────────────────────────────────────────
+  3. ORDINE DELLE OPERAZIONI NEL SUBMIT (critico!)
+────────────────────────────────────────────────────────────────────────
+
+Errore frequente: chiamare `form.reset()` PRIMA di aver raccolto i
+dati per Klaviyo. Risultato: tutti i campi risultano vuoti.
+
+Sequenza corretta nella callback di successo:
+
+  1) Invia mail con EmailJS (await)
+  2) Estrai tutti i dati dal FormData
+  3) Normalizza i campi (telefono in E.164, trim, ecc.)
+  4) Mostra messaggio di successo + form.reset()
+  5) Fetch POST a Klaviyo — fire-and-forget (no await)
+
+
+────────────────────────────────────────────────────────────────────────
+  4. FIRE-AND-FORGET (non bloccare la UX)
+────────────────────────────────────────────────────────────────────────
+
+NON mettere `await` sulla fetch a Klaviyo. Se Klaviyo è lento
+(1-2 secondi a volte) l'utente resta con il bottone disabilitato
+e pensa che qualcosa sia rotto.
+
+  fetch(...).catch(err => console.error('Errore invio Klaviyo:', err));
+
+Il `.catch` logga gli errori in console ma NON mostra mai nulla
+all'utente: se Klaviyo fallisce, la mail EmailJS è già partita
+quindi la lead non è persa. Il cliente riceve comunque la richiesta.
+
+
+────────────────────────────────────────────────────────────────────────
+  5. CAMPI NATIVI vs PROPERTIES CUSTOM
+────────────────────────────────────────────────────────────────────────
+
+Klaviyo distingue due tipi di campi nel profilo:
+
+  NATIVI (fuori da "properties"):
+    - email              (obbligatorio)
+    - first_name         (usabile in email come {{ first_name }})
+    - last_name
+    - phone_number       (formato E.164 obbligatorio, vedi §6)
+    - organization
+    - title
+    - image
+    - location           (oggetto con address, city, country, ecc.)
+
+  CUSTOM (dentro "properties"):
+    - Tutto il resto (es. Regione, Sorgente, Messaggio,
+      "Data richiesta", "Tipo servizio richiesto", ecc.)
+    - Usabili nelle email ma con sintassi diversa
+    - Appaiono come colonne filtrabili nei segmenti
+
+Regola pratica: se è un campo che userai nel saluto o nei flussi
+(nome, telefono) → nativo. Se è per segmentare → property.
+
+
+────────────────────────────────────────────────────────────────────────
+  6. NORMALIZZAZIONE TELEFONO (E.164)
+────────────────────────────────────────────────────────────────────────
+
+Klaviyo accetta phone_number SOLO in formato E.164:
+
+  +393331234567      ✅ OK
+  333 123 4567       ❌ scartato
+  3331234567         ❌ scartato
+  0039 333 1234567   ❌ scartato
+
+Normalizzazione standard (per siti IT):
+
+  const cleaned = rawPhone.replace(/[\s\-().]/g, '');
+  let phone = null;
+  if (cleaned) {
+    if (cleaned.startsWith('+'))         phone = cleaned;
+    else if (cleaned.startsWith('00'))   phone = '+' + cleaned.slice(2);
+    else                                 phone = '+39' + cleaned;
+  }
+
+Poi passare `phone` (che può essere `null`) al campo phone_number.
+Se invalido, Klaviyo scarta solo quel campo ma CREA comunque il
+profilo con gli altri dati — quindi lead non persa.
+
+
+────────────────────────────────────────────────────────────────────────
+  7. STRUTTURA DEL BODY (template)
+────────────────────────────────────────────────────────────────────────
+
+  {
+    "data": {
+      "type": "subscription",
+      "attributes": {
+        "profile": {
+          "data": {
+            "type": "profile",
+            "attributes": {
+              "email":        "...",
+              "first_name":   "...",
+              "last_name":    "...",
+              "phone_number": "+39...",   // o null
+              "properties": {
+                "Regione":        "...",
+                "Sorgente":       "Landing XYZ - Form Contatti",
+                "Data richiesta": "<ISO timestamp>",
+                ...altre properties custom...
+              }
+            }
+          }
+        }
+      },
+      "relationships": {
+        "list": {
+          "data": { "type": "list", "id": "XXXXXX" }
+        }
+      }
+    }
+  }
+
+Due punti importanti:
+- "Sorgente" deve essere descrittiva e unica per sito/form (così
+  si può filtrare/attribuire la lead)
+- "Data richiesta" con `new Date().toISOString()` — timestamp
+  UTC standard, parsabile nei segmenti Klaviyo
+
+
+────────────────────────────────────────────────────────────────────────
+  8. GDPR / CONSENSO
+────────────────────────────────────────────────────────────────────────
+
+L'endpoint `/client/subscriptions/` di Klaviyo sottintende che
+l'utente abbia dato consenso all'iscrizione. Quindi:
+
+  [ ] Checkbox privacy OBBLIGATORIO sul form (required)
+  [ ] Label del checkbox che cita Klaviyo (o "strumenti di email
+      marketing") tra i destinatari
+  [ ] Privacy policy del sito aggiornata con:
+        - Klaviyo come responsabile del trattamento
+        - Sede USA (trasferimento extra-UE → base giuridica SCC)
+        - Finalità: email marketing, nurturing, newsletter
+  [ ] Opzione di disiscrizione chiara nelle email (Klaviyo la
+      inserisce automaticamente in footer)
+
+Senza questi punti il flusso è tecnicamente funzionante ma non
+compliant GDPR — rischio sanzioni se arriva un reclamo.
+
+
+────────────────────────────────────────────────────────────────────────
+  9. VERIFICA POST-DEPLOY
+────────────────────────────────────────────────────────────────────────
+
+Dopo ogni deploy che tocca il form o l'integrazione Klaviyo:
+
+  1) Compila il form con email di test (es. test+YYYYMMDD@dominio)
+  2) Controlla EmailJS: arriva la mail al cliente? ✅
+  3) Apri Klaviyo → Audience → Lists → [lista configurata]
+     → il profilo deve comparire entro 10-30 secondi
+  4) Clicca il profilo e verifica:
+     - email, first_name, last_name, phone_number corretti
+     - phone_number in formato +39XXXXXXXXXX (o null)
+     - properties custom presenti (Regione, Sorgente, ecc.)
+     - "List source" = il list_id corretto
+  5) Apri DevTools → Network → filtro "klaviyo" → status 202
+     (Klaviyo risponde sempre 202 Accepted, NON 200)
+
+
+────────────────────────────────────────────────────────────────────────
+  10. COSE CHE CONFONDONO
+────────────────────────────────────────────────────────────────────────
+
+- Klaviyo risponde **202 Accepted**, non 200. Non è un errore.
+  Vuol dire che la richiesta è in coda interna, il profilo verrà
+  processato entro secondi.
+
+- Se stai usando un adblocker/DNS-blocker, `a.klaviyo.com`
+  potrebbe essere bloccato. Testa sempre in incognito + hotspot
+  4G (vedi PARTE A § verifica post-deploy per il perché).
+
+- Klaviyo NON fa double opt-in di default su liste importate via
+  `/client/subscriptions/`: il profilo viene iscritto direttamente.
+  Se serve double opt-in, va configurato come "Single Opt-In →
+  Double Opt-In" nelle impostazioni della lista.
+
+- Se il profilo esiste già (stessa email), Klaviyo lo AGGIORNA
+  anziché creare un duplicato. Le properties custom vengono
+  sovrascritte con i nuovi valori — se serve storicizzare, usare
+  una property tipo "Ultima richiesta: <data>" invece di una
+  generica.
+
+- Rate limit dell'endpoint client: 75 req/s (più che sufficiente
+  per un form normale, ma non usarlo per bulk import).
+
+
+────────────────────────────────────────────────────────────────────────
+  11. CHECKLIST RAPIDA KLAVIYO
+────────────────────────────────────────────────────────────────────────
+
+  [ ] company_id e list_id ricevuti dal cliente
+  [ ] Header 'revision' presente e aggiornato
+  [ ] Dati estratti PRIMA del form.reset()
+  [ ] Fetch fire-and-forget (no await, con .catch console.error)
+  [ ] Telefono normalizzato in E.164 (+39... se manca prefisso)
+  [ ] Campi nativi (first/last_name, phone) separati dalle
+      properties custom
+  [ ] "Sorgente" descrittiva e univoca per il form
+  [ ] Checkbox privacy required + privacy policy aggiornata
+      con Klaviyo
+  [ ] Test post-deploy: profilo compare nella lista corretta
+      con tutti i campi valorizzati
+
+════════════════════════════════════════════════════════════════════════

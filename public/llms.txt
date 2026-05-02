@@ -1,0 +1,23 @@
+# TwoBee
+
+> TwoBee è un'agenzia italiana di performance marketing che progetta sistemi di acquisizione clienti misurabili per le PMI del Sud Italia. Lavora su KPI di fatturato (non vanity metrics) attraverso campagne paid, funnel di conversione e marketing automation.
+
+## Cosa offriamo
+
+- **Performance Marketing** — campagne paid su Meta e Google misurate sul ritorno sull'investimento
+- **Funnel e conversione** — landing page, sequenze di nurturing e follow-up automatizzati
+- **Marketing Automation** — lead scoring, routing ai commerciali, follow-up programmati
+
+## Piani
+
+- **Worker Bee** — un canale Ads, CRM base, pipeline di vendita, report mensile
+- **Hive** — due canali Ads (Meta + Google), CRM avanzato, funnel multi-step, A/B test, KPI dashboard
+- **Royal Queen** — direzione strategica continuativa, analisi ROI per linea di prodotto, lead scoring AI, advisory direzionale
+
+Tutti i piani includono: contratto minimo 6 mesi, report mensile entro il 5°, nessun costo nascosto, clausola di uscita a 90 giorni senza penali.
+
+## Contatti
+
+- Email: info@twobee.it
+- Sito: https://twobee.it/
+- CTA principale: audit gratuito di 45 minuti, senza impegno
