@@ -149,17 +149,19 @@ export default function Pricing() {
         <div className="mt-14 grid gap-6 lg:grid-cols-3 lg:items-stretch">
           {plans.map((p, i) => {
             const hl = p.highlighted
-            const bg = hl ? 'bg-brand-black' : 'bg-brand-yellow'
+            const bg = hl
+              ? 'bg-brand-black'
+              : 'bg-white border-2 border-brand-yellow/60'
             const fg = hl ? '#FFFFFF' : '#0B0B0C'
             const subFgColor = hl
               ? 'rgba(255,255,255,0.78)'
-              : 'rgba(11,11,12,0.75)'
+              : 'rgba(11,11,12,0.7)'
             const dividerColor = hl
               ? 'rgba(255,255,255,0.18)'
-              : 'rgba(11,11,12,0.15)'
-            const checkColor = hl ? 'text-brand-yellow' : 'text-brand-black'
-            const decoColor = hl ? 'rgba(255,197,1,0.9)' : '#000000'
-            const decoOpacity = hl ? 'opacity-[0.10]' : 'opacity-[0.08]'
+              : 'rgba(11,11,12,0.12)'
+            const checkColor = 'text-brand-yellow'
+            const decoColor = hl ? 'rgba(255,197,1,0.9)' : 'rgba(255,197,1,0.6)'
+            const decoOpacity = hl ? 'opacity-[0.10]' : 'opacity-[0.12]'
             const ctaCls = hl
               ? 'bg-brand-yellow text-brand-black'
               : 'bg-brand-black text-[#fff]'
@@ -289,10 +291,10 @@ export default function Pricing() {
                     {g.icon}
                   </div>
                 </div>
-                <h4 className="mt-4 font-display text-base font-extrabold text-white">
+                <h4 className="mt-5 font-display text-xl font-extrabold leading-tight text-white sm:text-2xl">
                   {g.title}
                 </h4>
-                <p className="mt-2 max-w-[260px] text-sm text-white/65">
+                <p className="mt-3 max-w-[280px] text-base leading-snug text-white/70">
                   {g.body}
                 </p>
               </motion.div>

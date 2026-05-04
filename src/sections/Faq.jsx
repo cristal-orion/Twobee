@@ -73,7 +73,7 @@ function Item({ faq, open, onToggle }) {
 export default function Faq() {
   const [openIdx, setOpenIdx] = useState(0)
   return (
-    <section className="section-y">
+    <section className="section-y bg-brand-black">
       <div className="container-x grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
         <div className="lg:sticky lg:top-24">
           <span className="eyebrow">FAQ</span>

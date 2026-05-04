@@ -5,7 +5,7 @@ const HEX_CLIP =
 
 const founders = [
   {
-    key: 'marco',
+    id: 'marco',
     name: 'Marco',
     role: 'Founder & Strategist',
     tag: 'KPI Hunter. Non si ferma finché i conti non tornano.',
@@ -13,7 +13,7 @@ const founders = [
     initials: 'M',
   },
   {
-    key: 'toto',
+    id: 'toto',
     name: 'Toto',
     role: 'Growth & Operations',
     tag: 'Profit Maker. Trasforma i click in clienti alto-spendenti.',
@@ -24,7 +24,7 @@ const founders = [
 
 const teamMembers = [
   {
-    key: 'sabrina',
+    id: 'sabrina',
     name: 'Sabrina',
     role: 'Marketing',
     tag: '',
@@ -32,7 +32,7 @@ const teamMembers = [
     initials: 'S',
   },
   {
-    key: 'michele',
+    id: 'michele',
     name: 'Michele',
     role: 'IT Specialist',
     tag: '',
@@ -40,7 +40,7 @@ const teamMembers = [
     initials: 'M',
   },
   {
-    key: 'gabriele',
+    id: 'gabriele',
     name: 'Gabriele',
     role: 'Meta & Google Ads',
     tag: '',
@@ -142,12 +142,12 @@ export default function Team() {
         <div className="mt-20 flex flex-col items-center gap-20 md:gap-24">
           <div className="flex flex-wrap justify-center gap-x-16 gap-y-12 sm:gap-x-24">
             {founders.map((m, i) => (
-              <MemberCard key={m.key} {...m} size="lg" delay={i * 0.1} />
+              <MemberCard key={m.id} {...m} size="lg" delay={i * 0.1} />
             ))}
           </div>
           <div className="flex flex-wrap justify-center gap-x-10 gap-y-12 sm:gap-x-16">
             {teamMembers.map((m, i) => (
-              <MemberCard key={m.key} {...m} size="md" delay={0.2 + i * 0.08} />
+              <MemberCard key={m.id} {...m} size="md" delay={0.2 + i * 0.08} />
             ))}
           </div>
         </div>

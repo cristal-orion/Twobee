@@ -46,13 +46,40 @@ function MainSite() {
     const smoother = ScrollSmoother.create({
       wrapper: wrapper.current,
       content: content.current,
-      smooth: 1.1,
-      smoothTouch: 0,
+      smooth: 1.4,
+      smoothTouch: 0.1,
       effects: true,
-      normalizeScroll: true,
     })
+
+    const pinTriggers = []
+    const setupPins = () => {
+      pinTriggers.forEach((t) => t.kill())
+      pinTriggers.length = 0
+      const isDesktop = window.matchMedia('(min-width: 768px)').matches
+      if (!isDesktop) return
+      ;['#problemi', '#a-chi'].forEach((sel) => {
+        const el = document.querySelector(sel)
+        if (!el) return
+        pinTriggers.push(
+          ScrollTrigger.create({
+            trigger: el,
+            start: 'top top',
+            end: 'bottom top',
+            pin: true,
+            pinSpacing: false,
+          })
+        )
+      })
+    }
+    setupPins()
+    window.addEventListener('resize', setupPins)
+
     ScrollTrigger.refresh()
-    return () => smoother && smoother.kill()
+    return () => {
+      window.removeEventListener('resize', setupPins)
+      pinTriggers.forEach((t) => t.kill())
+      smoother && smoother.kill()
+    }
   }, [])
 
   return (
@@ -64,22 +91,24 @@ function MainSite() {
           <main>
             <Hero />
             <Clients />
-            <Problems />
+            <section id="problemi" className="relative bg-brand-black">
+              <Problems />
+            </section>
             <section
               id="servizi"
               data-bg-light
-              className="bg-white"
+              className="relative z-10 rounded-t-[2.5rem] bg-white shadow-[0_-30px_60px_-25px_rgba(0,0,0,0.55)] sm:rounded-t-[3rem]"
               style={LIGHT_VARS}
             >
               <Services />
             </section>
-            <section id="a-chi">
+            <section id="a-chi" className="relative bg-brand-black">
               <Audience />
             </section>
             <section
               id="capabilities"
               data-bg-light
-              className="bg-white"
+              className="relative z-10 rounded-t-[2.5rem] bg-white shadow-[0_-30px_60px_-25px_rgba(0,0,0,0.55)] sm:rounded-t-[3rem]"
               style={LIGHT_VARS}
             >
               <Capabilities />
