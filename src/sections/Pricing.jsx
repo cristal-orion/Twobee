@@ -159,7 +159,7 @@ export default function Pricing() {
             const dividerColor = hl
               ? 'rgba(255,255,255,0.18)'
               : 'rgba(11,11,12,0.12)'
-            const checkColor = 'text-brand-yellow'
+            const checkColor = hl ? 'text-brand-yellow' : 'text-brand-black'
             const decoColor = hl ? 'rgba(255,197,1,0.9)' : 'rgba(255,197,1,0.6)'
             const decoOpacity = hl ? 'opacity-[0.10]' : 'opacity-[0.12]'
             const ctaCls = hl
@@ -236,7 +236,7 @@ export default function Pricing() {
                     href="#contatti"
                     className={`relative mt-8 inline-flex items-center justify-center gap-2 rounded-full px-6 py-3.5 text-sm font-bold uppercase tracking-wide transition hover:brightness-110 sm:px-8 sm:py-4 sm:text-base ${ctaCls}`}
                   >
-                    Prenota un Audit Gratuito
+                    Scopri di più
                   </a>
                 </div>
               </motion.div>

@@ -30,7 +30,7 @@ export default function Audience() {
             transition={{ duration: 0.5, ease: 'easeOut' }}
             className="eyebrow block"
           >
-            A chi ci rivolgiamo
+            Con chi vogliamo lavorare
           </motion.span>
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
@@ -39,8 +39,10 @@ export default function Audience() {
             transition={{ duration: 0.6, ease: 'easeOut', delay: 0.05 }}
             className="mt-4 font-display text-3xl font-extrabold leading-tight text-white sm:text-4xl md:text-5xl"
           >
-            Lavoriamo con chi ha già un business{' '}
-            <span className="text-brand-yellow">e vuole farlo crescere.</span>
+            Lavoriamo solo con imprenditori che non hanno smesso di{' '}
+            <span className="text-brand-yellow">
+              sognare e credere nel loro progetto.
+            </span>
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 12 }}
@@ -49,8 +51,8 @@ export default function Audience() {
             transition={{ duration: 0.6, ease: 'easeOut', delay: 0.1 }}
             className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-white/70 md:text-lg"
           >
-            Non vendiamo a chiunque. Lavoriamo con realtà che hanno un prodotto,
-            un mercato e la volontà di costruire un sistema di crescita serio.
+            Scegliamo con chi lavorare: realtà che hanno un prodotto, un
+            servizio e la volontà di costruire un sistema di crescita serio.
           </motion.p>
         </div>
 

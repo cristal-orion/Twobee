@@ -76,17 +76,18 @@ export default function Hero() {
 
       <div className="container-x relative w-full pt-32 pb-20 sm:pt-36">
         <h1 className="font-display text-5xl font-extrabold leading-[0.95] tracking-tight sm:text-6xl md:text-7xl lg:text-[88px]">
-          <span className="block">{splitChars('Le agenzie ti')}</span>
-          <span className="block">{splitChars('vendono follower.')}</span>
+          <span className="block">{splitChars('Gli altri ti vendono')}</span>
+          <span className="block">{splitChars('follower.')}</span>
           <span className="mt-2 block">
-            {splitChars('Noi ti vendiamo ')}
-            <span className="text-brand-yellow">{splitChars('fatturato.')}</span>
+            {splitChars('Noi guidiamo la tua ')}
+            <span className="text-brand-yellow">{splitChars('crescita.')}</span>
           </span>
         </h1>
 
         <p className="hero-fade mt-8 max-w-xl text-base text-white/70 sm:text-lg">
-          Performance marketing per PMI italiane. Un sistema di acquisizione
-          clienti misurabile, con impatto diretto sui ricavi.
+          Società di consulenza strategica, in ambito Growth & AI per PMI
+          italiane. Un sistema di acquisizione clienti misurabile, con impatto
+          diretto sui ricavi.
         </p>
 
         <div className="hero-fade mt-10">

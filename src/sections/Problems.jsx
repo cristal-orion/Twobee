@@ -2,16 +2,16 @@ import { motion } from 'framer-motion'
 
 const items = [
   {
-    title: 'Budget bruciato senza ROI',
-    text: 'Spendi, ma non sai cosa ti ha portato vendite.',
+    title: 'Budget bruciato senza KPI',
+    text: 'Spendi senza nessun impatto sulle tue vendite.',
   },
   {
     title: 'Solo vanity metrics',
-    text: 'Like e reach nei report. Nessuna causa, nessun effetto.',
+    text: 'Like e follower non pagano i tuoi dipendenti.',
   },
   {
-    title: 'Crescita dipendente dal paid',
-    text: 'Stacchi il budget, finisce il flusso di clienti.',
+    title: 'Senza ads crolla tutto',
+    text: 'Stacchi il budget e i tuoi clienti non arrivano più.',
   },
 ]
 

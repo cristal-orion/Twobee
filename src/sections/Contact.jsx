@@ -135,12 +135,7 @@ export default function Contact() {
             </motion.button>
 
             <ul className="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-xs font-bold uppercase tracking-[0.2em] text-brand-black/75 sm:text-sm">
-              {[
-                'Gratis',
-                '45 minuti',
-                'Nessun impegno',
-                'Solo 4 slot questa settimana',
-              ].map((t) => (
+              {['Gratis', '45 minuti', 'Costruiamo insieme'].map((t) => (
                 <li key={t} className="inline-flex items-center gap-2">
                   <span className="h-1.5 w-1.5 rounded-full bg-brand-black" />
                   {t}
@@ -270,7 +265,7 @@ export default function Contact() {
               </form>
 
               <p className="mt-5 text-center text-[11px] uppercase tracking-[0.2em] text-white/40">
-                Gratis · 45 min · Nessun impegno
+                Gratis · 45 min · Costruiamo insieme
               </p>
                 </>
               )}

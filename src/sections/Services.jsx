@@ -10,17 +10,17 @@ const services = [
   {
     n: '01',
     title: 'Performance Marketing',
-    body: "Campagne paid su Meta e Google con un unico metro: il ritorno sull'investimento. Ogni euro allocato dove converte, ogni campagna ottimizzata in continuo.",
+    body: 'Campagne paid su Meta, Google, TikTok, LinkedIn, Reddit, Pinterest, Shopify e Mediaset. Ogni euro allocato dove converte, ogni campagna ottimizzata in continuo.',
   },
   {
     n: '02',
-    title: 'Funnel e conversione',
-    body: 'Il percorso completo dal primo click alla firma. Landing, sequenze di nurturing, follow-up automatici — ogni passaggio testato per ridurre le perdite.',
+    title: 'Controllo di gestione',
+    body: 'Studiamo insieme le marginalità ed i costi del tuo business per guidarti verso una crescita sostenibile.',
   },
   {
     n: '03',
-    title: 'Marketing Automation',
-    body: 'Il sistema lavora anche quando il tuo team non lo fa. Lead scoring, routing ai commerciali, follow-up programmati. Meno energia sui contatti freddi, più sui lead caldi.',
+    title: 'Growth System',
+    body: 'Il sistema lavora anche quando sei in ferie. Lead scoring, notifiche ai commerciali, follow-up programmati.',
   },
 ]
 
@@ -90,7 +90,7 @@ export default function Services() {
             transition={{ duration: 0.6, ease: 'easeOut' }}
             className="mt-4 font-display text-3xl font-extrabold leading-tight text-brand-black sm:text-4xl md:text-5xl"
           >
-            Mentre le agenzie si concentrano sulle vanity metrics,{' '}
+            Mentre i creativi si concentrano sulle vanity metrics,{' '}
             <span className="text-brand-yellow">
               noi abbiamo cambiato le regole del gioco.
             </span>

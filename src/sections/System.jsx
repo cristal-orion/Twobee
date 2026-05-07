@@ -23,7 +23,7 @@ const steps = [
     n: '04',
     phase: 'Reporting',
     title: "Ritorno sull'investimento",
-    body: 'Report mensile sul fatturato reale generato. Niente follower, niente vanity metric.',
+    body: 'Capiamo insieme da dove provengono i tuoi ricavi: CAC, NCAC, MER, AMER, LTV per comprendere i driver del tuo business.',
   },
 ]
 

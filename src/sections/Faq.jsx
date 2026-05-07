@@ -3,12 +3,12 @@ import { motion, AnimatePresence } from 'framer-motion'
 
 const faqs = [
   {
-    q: 'Come faccio a sapere se state lavorando davvero?',
+    q: 'Come faccio a tenere traccia dei risultati?',
     a: 'Ricevi un report mensile con i KPI di fatturato reale generato, non vanity metrics. In più hai una dashboard sempre accessibile con lo stato delle campagne in tempo reale.',
   },
   {
     q: 'Quanto ci vuole per vedere i primi risultati?',
-    a: 'I primi risultati misurabili arrivano entro 30-60 giorni. A 90 giorni il sistema è a regime e i KPI di fatturato diventano stabili e prevedibili.',
+    a: 'I primi risultati misurabili arrivano dopo aver raccolto i dati giusti: vedrai un impatto sul tuo business entro 30-60 giorni. A 90 giorni il sistema è a regime e i KPI di fatturato diventano stabili e prevedibili.',
   },
   {
     q: 'Cosa succede se non funziona?',
@@ -16,11 +16,11 @@ const faqs = [
   },
   {
     q: 'Quanto devo investire in Ads?',
-    a: "L'investimento minimo consigliato varia in base al settore e agli obiettivi, ma partiamo tipicamente da 1.500€/mese di spend. In audit definiamo insieme la cifra corretta per il tuo caso.",
+    a: "L'investimento minimo consigliato varia in base al settore e agli obiettivi: lo valuteremo insieme con un calcolo statistico. In audit definiamo insieme la cifra corretta, si parte in genere dal 2% del fatturato.",
   },
   {
-    q: 'Perché siete diversi dalle altre agenzie?',
-    a: 'Lavoriamo su KPI di fatturato, non di follower. Nessun costo nascosto, clausola di uscita a 90 giorni, report garantiti e un partner decisionale invece di un esecutore di campagne.',
+    q: 'Cosa vi differenzia dalle agenzie?',
+    a: 'Lavoriamo con un approccio data-driven su KPI di fatturato, non di follower. Nessun costo nascosto, clausola di uscita a 90 giorni, report garantiti e un partner decisionale invece di un esecutore di campagne.',
   },
 ]
 

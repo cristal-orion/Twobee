@@ -1,5 +1,13 @@
 export default function Clients() {
-  const logos = ['LOGOIPSUM', 'ACME CORP', 'NORTHWIND', 'STUDIOFORM', 'ECLIPTICA', 'MERIDIAN']
+  const logos = [
+    'SARTORIA CONDOTTI',
+    'ICURA',
+    'AFFINITY',
+    'ELETTRA',
+    'INDUSTRIAL',
+    'SEVEN',
+    'JOSÉ',
+  ]
   return (
     <section className="py-12">
       <div className="container-x">

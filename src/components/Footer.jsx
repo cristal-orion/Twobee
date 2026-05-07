@@ -12,7 +12,7 @@ export default function Footer() {
             Two<span className="text-brand-yellow">Bee</span>
           </div>
           <p className="mt-1 text-xs text-white/50">
-            Sistemi di crescita per le PMI del Sud Italia
+            Sistema di crescita per le PMI
           </p>
         </div>
 
