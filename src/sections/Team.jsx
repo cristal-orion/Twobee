@@ -11,7 +11,7 @@ const founders = [
     tag: "Ti convince a scalare l'Everest in infradito, e alla fine lo ringrazi pure per l'esperienza. Costruisce strategie blindate e relazioni così solide che i clienti finiscono per invitarci al pranzo della domenica. Il suo superpotere? La persuasione.",
     photo: '/team-marco.jpeg',
     initials: 'M',
-    linkedin: '#',
+    linkedin: 'https://www.linkedin.com/in/marcodlucci/',
   },
   {
     id: 'toto',
@@ -20,7 +20,7 @@ const founders = [
     tag: 'Psicopatico dei dati, analizza i numeri anche quando fa la spesa. Guida il team operativo parlando un “consulentese” tutto suo: se ti guarda e ti propone un “pre-audit strategico”, tu sorridi, annuisci e preparati a fatturare.',
     photo: '/team-toto.jpeg',
     initials: 'T',
-    linkedin: '#',
+    linkedin: 'https://www.linkedin.com/in/salvatore-piacente-537b4518b/',
   },
 ]
 
@@ -32,7 +32,7 @@ const teamMembers = [
     tag: "L'abbiamo strappata a Londra per riportare questo diamante in patria. Quando si infervora le parte l'accento british: in società non la capisce nessuno, ma tutti annuiamo intensamente perché le sue campagne convertono da paura.",
     photo: '/team-sabrina.jpeg',
     initials: 'S',
-    linkedin: '#',
+    linkedin: 'https://www.linkedin.com/in/sabrina-nastro-a963a1153/',
   },
   {
     id: 'michele',
@@ -41,7 +41,7 @@ const teamMembers = [
     tag: 'Avete mai visto un tecnico puro che sforna idee creative esplosive? Noi sì, ed è un caso clinico interessante. Metà genio, metà sregolatezza assoluta: addestra le nostre intelligenze artificiali con intuizioni folli che si trasformano sempre in oro.',
     photo: '/team-michele.jpeg',
     initials: 'M',
-    linkedin: '#',
+    linkedin: 'https://www.linkedin.com/in/michele-cristallo-120b63176/',
   },
   {
     id: 'gabriele',
@@ -50,7 +50,7 @@ const teamMembers = [
     tag: 'Il Grande Fratello del marketing. Traccia il customer journey in modo così maniacale che nei suoi report mensili riesci a leggere pure quanti passi ha fatto il tuo cliente oggi. Imposta automazioni spietate: nessun click sfugge al suo controllo.',
     photo: '/team-gabriele.jpeg',
     initials: 'G',
-    linkedin: '#',
+    linkedin: 'https://www.linkedin.com/in/gabriele-saraiello/',
   },
 ]
 
