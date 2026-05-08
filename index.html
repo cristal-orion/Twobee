@@ -5,6 +5,47 @@
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 
+    <!-- Google Consent Mode v2 — default + hydration (must run BEFORE GTM) -->
+    <script>
+      (function () {
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        window.gtag = gtag;
+        var defaults = {
+          ad_storage: 'denied',
+          ad_user_data: 'denied',
+          ad_personalization: 'denied',
+          analytics_storage: 'denied',
+          personalization_storage: 'denied',
+          functionality_storage: 'granted',
+          security_storage: 'granted',
+          wait_for_update: 500
+        };
+        try {
+          var raw = localStorage.getItem('tb_consent_v1');
+          if (raw) {
+            var saved = JSON.parse(raw);
+            if (saved && saved.choices) {
+              defaults.analytics_storage = saved.choices.statistics ? 'granted' : 'denied';
+              defaults.ad_storage = saved.choices.marketing ? 'granted' : 'denied';
+              defaults.ad_user_data = saved.choices.marketing ? 'granted' : 'denied';
+              defaults.ad_personalization = saved.choices.marketing ? 'granted' : 'denied';
+            }
+          }
+        } catch (e) {}
+        gtag('consent', 'default', defaults);
+      })();
+    </script>
+    <!-- End Consent Default -->
+
+    <!-- Google Tag Manager -->
+    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-MV7672T3');</script>
+    <!-- End Google Tag Manager -->
+
     <title>TwoBee | Sistemi di crescita per le PMI del Sud Italia</title>
     <meta name="description" content="Trasformiamo il marketing delle PMI italiane in un sistema di acquisizione clienti misurabile, con un impatto diretto sui ricavi." />
 
@@ -128,6 +169,10 @@
     </script>
   </head>
   <body class="text-white antialiased">
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV7672T3"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>

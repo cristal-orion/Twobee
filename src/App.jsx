@@ -7,6 +7,7 @@ import { useGSAP } from '@gsap/react'
 import Navbar from './components/Navbar.jsx'
 import Footer from './components/Footer.jsx'
 import HexBackground from './components/HexBackground.jsx'
+import CookieBanner from './components/CookieBanner.jsx'
 import Hero from './sections/Hero.jsx'
 import Clients from './sections/Clients.jsx'
 import Problems from './sections/Problems.jsx'
@@ -133,6 +134,7 @@ function MainSite() {
           <Footer />
         </div>
       </div>
+      <CookieBanner />
     </div>
   )
 }

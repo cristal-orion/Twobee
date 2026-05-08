@@ -37,6 +37,15 @@ export default function Footer() {
           <a href="/cookie-policy.html" className="hover:text-brand-yellow">
             Cookie Policy
           </a>
+          <button
+            type="button"
+            onClick={() =>
+              window.dispatchEvent(new Event('tb:reopen-consent'))
+            }
+            className="text-left hover:text-brand-yellow sm:text-right"
+          >
+            Gestisci cookie
+          </button>
           <p className="mt-2 text-white/40">
             © {new Date().getFullYear()} Two Bee S.r.l.
           </p>

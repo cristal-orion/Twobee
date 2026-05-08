@@ -7,23 +7,73 @@ const EMAILJS_SERVICE_ID = 'service_jjfdxbn'
 const EMAILJS_TEMPLATE_ID = 'template_peotzqb'
 const EMAILJS_PUBLIC_KEY = 'gHeKJYysSLwOsJUcT'
 
+function normalizePhone(raw) {
+  const cleaned = String(raw || '').replace(/[\s\-().]/g, '')
+  if (!cleaned) return null
+  if (cleaned.startsWith('+')) return cleaned
+  if (cleaned.startsWith('00')) return '+' + cleaned.slice(2)
+  return '+39' + cleaned
+}
+
+function splitName(fullName) {
+  const parts = String(fullName || '').trim().split(/\s+/)
+  if (parts.length === 0) return { first: '', last: '' }
+  if (parts.length === 1) return { first: parts[0], last: '' }
+  return { first: parts[0], last: parts.slice(1).join(' ') }
+}
+
+function pushFormSubmitEvent(form) {
+  if (typeof window === 'undefined') return
+  const { first, last } = splitName(form.nome)
+  window.dataLayer = window.dataLayer || []
+  window.dataLayer.push({
+    event: 'form_submit',
+    form_id: 'audit_request',
+    form_location: 'landing_main',
+    user_data: {
+      email: form.email,
+      first_name: first,
+      last_name: last,
+      phone_number: normalizePhone(form.telefono),
+      organization: form.azienda.trim() || null,
+    },
+    properties: {
+      Sorgente: 'Landing TwoBee - Form Audit Gratuito',
+      Azienda: form.azienda.trim() || null,
+      Messaggio: form.messaggio.trim() || null,
+      'Data richiesta': new Date().toISOString(),
+    },
+  })
+}
+
 export default function Contact() {
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState({
     nome: '',
+    azienda: '',
     email: '',
     telefono: '',
     messaggio: '',
+    privacy: false,
   })
   const [status, setStatus] = useState('idle')
 
-  const onChange = (e) =>
-    setForm((f) => ({ ...f, [e.target.name]: e.target.value }))
+  const onChange = (e) => {
+    const { name, type, value, checked } = e.target
+    setForm((f) => ({ ...f, [name]: type === 'checkbox' ? checked : value }))
+  }
 
   const closeModal = () => {
     setOpen(false)
     setTimeout(() => {
-      setForm({ nome: '', email: '', telefono: '', messaggio: '' })
+      setForm({
+        nome: '',
+        azienda: '',
+        email: '',
+        telefono: '',
+        messaggio: '',
+        privacy: false,
+      })
       setStatus('idle')
     }, 300)
   }
@@ -37,6 +87,7 @@ export default function Contact() {
         EMAILJS_TEMPLATE_ID,
         {
           nome: form.nome,
+          azienda: form.azienda,
           email: form.email,
           telefono: form.telefono,
           messaggio: form.messaggio.trim() || '(nessun messaggio)',
@@ -44,6 +95,7 @@ export default function Contact() {
         },
         { publicKey: EMAILJS_PUBLIC_KEY }
       )
+      pushFormSubmitEvent(form)
       setStatus('sent')
     } catch (err) {
       console.error('EmailJS error', err)
@@ -210,6 +262,14 @@ export default function Contact() {
                   required
                 />
                 <Field
+                  label="Azienda*"
+                  name="azienda"
+                  value={form.azienda}
+                  onChange={onChange}
+                  placeholder="Scrivi il nome della tua azienda..."
+                  required
+                />
+                <Field
                   label="Email*"
                   type="email"
                   name="email"
@@ -240,6 +300,30 @@ export default function Contact() {
                     className="w-full resize-none rounded-2xl border border-white/10 bg-brand-black/60 px-5 py-3.5 text-sm text-white placeholder-white/30 outline-none transition focus:border-brand-yellow focus:ring-2 focus:ring-brand-yellow/30"
                   />
                 </label>
+
+                <label className="mt-1 flex items-start gap-3 text-left text-xs leading-relaxed text-white/65">
+                  <input
+                    type="checkbox"
+                    name="privacy"
+                    checked={form.privacy}
+                    onChange={onChange}
+                    required
+                    className="mt-1 h-4 w-4 shrink-0 accent-brand-yellow"
+                  />
+                  <span>
+                    Ho letto la{' '}
+                    <a
+                      href="/privacy-policy.html"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="underline hover:text-brand-yellow"
+                    >
+                      Privacy Policy
+                    </a>{' '}
+                    e autorizzo Two Bee S.r.l. a trattare i miei dati per essere ricontattato/a in merito alla mia richiesta.*
+                  </span>
+                </label>
+
                 <button
                   type="submit"
                   disabled={status === 'sending' || status === 'sent'}
