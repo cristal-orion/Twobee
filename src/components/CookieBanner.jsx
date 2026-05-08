@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 
 const STORAGE_KEY = 'tb_consent_v1'
+const MAX_AGE_MS = 365 * 24 * 60 * 60 * 1000
 
 const DEFAULT_CHOICES = { statistics: false, marketing: false }
 const ALL_GRANTED = { statistics: true, marketing: true }
@@ -30,6 +31,10 @@ function readSaved() {
     if (!raw) return null
     const parsed = JSON.parse(raw)
     if (!parsed || !parsed.choices) return null
+    if (!parsed.timestamp || Date.now() - parsed.timestamp > MAX_AGE_MS) {
+      localStorage.removeItem(STORAGE_KEY)
+      return null
+    }
     return parsed.choices
   } catch (e) {
     return null
@@ -85,7 +90,7 @@ export default function CookieBanner() {
 
   if (view === 'card') {
     return (
-      <div className="fixed bottom-4 left-4 right-4 z-[100] sm:right-auto sm:max-w-sm">
+      <div className="fixed bottom-4 left-4 right-4 z-[100] sm:left-auto sm:max-w-sm">
         <div className="rounded-2xl border border-brand-yellow/40 bg-brand-black/95 p-5 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.6)] backdrop-blur-md">
           <div className="font-display text-base font-extrabold text-white">
             Cookie e privacy

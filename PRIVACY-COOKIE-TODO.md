@@ -19,12 +19,18 @@ Workstream bloccato finché non arrivano le info qui sotto. Quando le abbiamo, s
 ### Decisioni stack di tracking (per cookie banner)
 - [x] **Storage finale**: VPS privato in Unione Europea (zero trasferimenti extra-UE → semplifica privacy policy, no SCC necessarie per il dato grezzo)
 - [x] **Klaviyo**: ATTIVO (per monitoring + email marketing) → servono `company_id` e `list_id`. Vedi `cookie-banner-regole.txt` PARTE B. NB: Klaviyo ha sede USA → la privacy policy DEVE menzionare il trasferimento extra-UE con base giuridica SCC anche se il VPS è in UE
-- [x] **Google stack**: ATTIVO (GTM + GA4) → segue le regole di `cookie-banner-regole.txt` PARTE A. Servono container ID `GTM-XXXXXXX` e Measurement ID `G-XXXXXXXXXX`
+- [x] **Google stack**: ATTIVO (GTM + GA4) → segue le regole di `cookie-banner-regole.txt` PARTE A. Container ID GTM ricevuto: **`GTM-MV7672T3`** (2026-05-04). Manca Measurement ID GA4 `G-XXXXXXXXXX`
 - [x] **EmailJS**: confermato — resta per la notifica interna (mail al titolare a ogni submit)
 - [ ] **Google Ads**: lo attiviamo? (sì/no — se sì serve conversion ID)
 - [ ] **Meta Pixel**: lo attiviamo? (sì/no — se sì serve pixel ID)
 - [ ] **LinkedIn Insight Tag**: lo attiviamo? (sì/no)
-- [ ] **IDs concreti da fornire** (rimandati a settimana del 2026-05-04): `GTM-XXXXXXX`, `G-XXXXXXXXXX`, Klaviyo `company_id`, Klaviyo `list_id`
+- [ ] **IDs ancora da fornire** (aggiornato 2026-05-04):
+  - [x] GTM container ID → `GTM-MV7672T3` ricevuto
+  - [ ] Secondo snippet GTM (`<noscript>` con iframe per `<body>`) → da chiedere a chi ha mandato il primo
+  - [ ] GA4 Measurement ID `G-XXXXXXXXXX`
+  - [ ] Google Ads Conversion ID `AW-XXXXXXXXX` (se Google Ads attivo — vedi sopra)
+  - [ ] Klaviyo `company_id`
+  - [ ] Klaviyo `list_id`
 
 ### Decisioni operative
 - [ ] Stile banner: stesso pattern Plus Vending (vanilla JS inline nel `<head>` + componente custom React) o componente React integrato col design TwoBee?

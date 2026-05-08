@@ -25,11 +25,15 @@
           var raw = localStorage.getItem('tb_consent_v1');
           if (raw) {
             var saved = JSON.parse(raw);
-            if (saved && saved.choices) {
+            var maxAge = 365 * 24 * 60 * 60 * 1000;
+            var fresh = saved && saved.timestamp && (Date.now() - saved.timestamp) < maxAge;
+            if (fresh && saved.choices) {
               defaults.analytics_storage = saved.choices.statistics ? 'granted' : 'denied';
               defaults.ad_storage = saved.choices.marketing ? 'granted' : 'denied';
               defaults.ad_user_data = saved.choices.marketing ? 'granted' : 'denied';
               defaults.ad_personalization = saved.choices.marketing ? 'granted' : 'denied';
+            } else if (!fresh) {
+              localStorage.removeItem('tb_consent_v1');
             }
           }
         } catch (e) {}
@@ -108,7 +112,11 @@
           "areaServed": {
             "@type": "Country",
             "name": "Italia"
-          }
+          },
+          "sameAs": [
+            "https://www.linkedin.com/company/two-bee-growth-performance/",
+            "https://www.instagram.com/twobee.growth/"
+          ]
         },
         {
           "@type": "WebSite",
