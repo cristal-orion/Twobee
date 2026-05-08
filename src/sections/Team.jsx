@@ -1,3 +1,4 @@
+import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
 
 const HEX_CLIP =
@@ -9,7 +10,8 @@ const founders = [
     name: 'Marco Lucci',
     role: 'Founder & Strategist',
     tag: "Ti convince a scalare l'Everest in infradito, e alla fine lo ringrazi pure per l'esperienza. Costruisce strategie blindate e relazioni così solide che i clienti finiscono per invitarci al pranzo della domenica. Il suo superpotere? La persuasione.",
-    photo: '/team-marco.jpeg',
+    photoBw: '/team-marco-bw.jpg',
+    photoColor: '/team-marco-color.jpg',
     initials: 'M',
     linkedin: 'https://www.linkedin.com/in/marcodlucci/',
   },
@@ -18,7 +20,8 @@ const founders = [
     name: 'Toto Piacente',
     role: 'Co-Founder & Growth',
     tag: 'Psicopatico dei dati, analizza i numeri anche quando fa la spesa. Guida il team operativo parlando un “consulentese” tutto suo: se ti guarda e ti propone un “pre-audit strategico”, tu sorridi, annuisci e preparati a fatturare.',
-    photo: '/team-toto.jpeg',
+    photoBw: '/team-toto-bw.jpg',
+    photoColor: '/team-toto-color.jpg',
     initials: 'T',
     linkedin: 'https://www.linkedin.com/in/salvatore-piacente-537b4518b/',
   },
@@ -30,7 +33,8 @@ const teamMembers = [
     name: 'Sabrina Nastro',
     role: 'Marketing Specialist',
     tag: "L'abbiamo strappata a Londra per riportare questo diamante in patria. Quando si infervora le parte l'accento british: in società non la capisce nessuno, ma tutti annuiamo intensamente perché le sue campagne convertono da paura.",
-    photo: '/team-sabrina.jpeg',
+    photoBw: '/team-sabrina-bw.jpg',
+    photoColor: '/team-sabrina-color.jpg',
     initials: 'S',
     linkedin: 'https://www.linkedin.com/in/sabrina-nastro-a963a1153/',
   },
@@ -39,7 +43,8 @@ const teamMembers = [
     name: 'Michele Cristallo',
     role: 'AI Specialist',
     tag: 'Avete mai visto un tecnico puro che sforna idee creative esplosive? Noi sì, ed è un caso clinico interessante. Metà genio, metà sregolatezza assoluta: addestra le nostre intelligenze artificiali con intuizioni folli che si trasformano sempre in oro.',
-    photo: '/team-michele.jpeg',
+    photoBw: '/team-michele-bw.jpg',
+    photoColor: '/team-michele-color.jpg',
     initials: 'M',
     linkedin: 'https://www.linkedin.com/in/michele-cristallo-120b63176/',
   },
@@ -48,15 +53,29 @@ const teamMembers = [
     name: 'Gabriele Saraiello',
     role: 'Automation Specialist',
     tag: 'Il Grande Fratello del marketing. Traccia il customer journey in modo così maniacale che nei suoi report mensili riesci a leggere pure quanti passi ha fatto il tuo cliente oggi. Imposta automazioni spietate: nessun click sfugge al suo controllo.',
-    photo: '/team-gabriele.jpeg',
+    photoBw: '/team-gabriele-bw.jpg',
+    photoColor: '/team-gabriele-color.jpg',
     initials: 'G',
     linkedin: 'https://www.linkedin.com/in/gabriele-saraiello/',
   },
+  {
+    id: 'claudia',
+    name: 'Claudia Amodei',
+    role: 'AI Executive',
+    tag: 'Quando supera i limiti nessuno le può parlare più, ma ha sempre la risposta pronta.',
+    photoBw: '/team-claudia-bw.jpg',
+    photoColor: '/team-claudia-color.jpg',
+    initials: 'C',
+    linkedin: null,
+  },
 ]
 
-function HexPortrait({ photo, initials, alt }) {
+function HexFace({ photo, initials, alt, back = false }) {
   return (
-    <div className="absolute inset-0">
+    <div
+      className="absolute inset-0 [backface-visibility:hidden] [-webkit-backface-visibility:hidden]"
+      style={back ? { transform: 'rotateY(180deg)' } : undefined}
+    >
       <div
         className="absolute inset-0 bg-brand-yellow"
         style={{ clipPath: HEX_CLIP }}
@@ -69,6 +88,8 @@ function HexPortrait({ photo, initials, alt }) {
           <img
             src={photo}
             alt={alt}
+            loading="lazy"
+            decoding="async"
             className="h-full w-full object-cover"
           />
         ) : (
@@ -91,6 +112,60 @@ function HexPortrait({ photo, initials, alt }) {
   )
 }
 
+function HexFlip({ photoBw, photoColor, initials, alt }) {
+  const [flipped, setFlipped] = useState(false)
+  const ref = useRef(null)
+  const teaserShownRef = useRef(false)
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const isTouch = window.matchMedia('(hover: none)').matches
+    const reducedMotion = window.matchMedia(
+      '(prefers-reduced-motion: reduce)'
+    ).matches
+    if (!isTouch || reducedMotion) return
+    const node = ref.current
+    if (!node) return
+
+    let showT, hideT
+    const obs = new IntersectionObserver(
+      ([entry]) => {
+        if (!entry.isIntersecting || teaserShownRef.current) return
+        teaserShownRef.current = true
+        showT = setTimeout(() => setFlipped(true), 350)
+        hideT = setTimeout(() => setFlipped(false), 350 + 1500)
+        obs.disconnect()
+      },
+      { threshold: 0.6 }
+    )
+    obs.observe(node)
+    return () => {
+      obs.disconnect()
+      if (showT) clearTimeout(showT)
+      if (hideT) clearTimeout(hideT)
+    }
+  }, [])
+
+  return (
+    <div
+      ref={ref}
+      className="group absolute inset-0 cursor-pointer select-none [perspective:1000px]"
+      data-flipped={flipped}
+      onClick={() => setFlipped((v) => !v)}
+      role="button"
+      tabIndex={-1}
+      aria-label={`${alt} — tocca per vedere la foto a colori`}
+    >
+      <div
+        className="relative h-full w-full transition-transform duration-700 ease-[cubic-bezier(.22,1,.36,1)] [transform-style:preserve-3d] motion-reduce:transition-none group-hover:[transform:rotateY(180deg)] group-data-[flipped=true]:[transform:rotateY(180deg)]"
+      >
+        <HexFace photo={photoBw} initials={initials} alt={`${alt} (bianco e nero)`} />
+        <HexFace photo={photoColor} initials={initials} alt={`${alt} (a colori)`} back />
+      </div>
+    </div>
+  )
+}
+
 function LinkedInBadge({ href }) {
   if (!href) return null
   return (
@@ -109,7 +184,8 @@ function LinkedInBadge({ href }) {
 }
 
 function MemberCard({
-  photo,
+  photoBw,
+  photoColor,
   initials,
   name,
   role,
@@ -119,12 +195,13 @@ function MemberCard({
   delay = 0,
 }) {
   const widthCls =
-    size === 'lg' ? 'w-44 sm:w-52 lg:w-56' : 'w-32 sm:w-40 lg:w-44'
+    size === 'lg' ? 'w-44 sm:w-52 lg:w-56' : 'w-44 sm:w-40 lg:w-44'
   const nameCls =
     size === 'lg'
       ? 'font-display text-2xl font-extrabold sm:text-3xl'
-      : 'font-display text-xl font-extrabold sm:text-2xl'
-  const tagMaxW = size === 'lg' ? 'max-w-[320px]' : 'max-w-[280px]'
+      : 'font-display text-2xl font-extrabold sm:text-xl lg:text-2xl'
+  const tagMaxW =
+    size === 'lg' ? 'max-w-[320px]' : 'max-w-[320px] sm:max-w-[280px]'
   return (
     <motion.div
       initial={{ opacity: 0, y: 24, scale: 0.92 }}
@@ -134,7 +211,12 @@ function MemberCard({
       className="flex flex-col items-center text-center"
     >
       <div className={`relative ${widthCls}`} style={{ aspectRatio: '1 / 1.1547' }}>
-        <HexPortrait photo={photo} initials={initials} alt={name} />
+        <HexFlip
+          photoBw={photoBw}
+          photoColor={photoColor}
+          initials={initials}
+          alt={name}
+        />
       </div>
       <div className={`mt-5 text-outlined ${nameCls}`}>{name}</div>
       <div className="mt-1 text-[11px] font-bold uppercase tracking-[0.2em] text-brand-yellow sm:text-xs">
@@ -184,7 +266,7 @@ export default function Team() {
               <MemberCard key={m.id} {...m} size="lg" delay={i * 0.1} />
             ))}
           </div>
-          <div className="flex flex-wrap justify-center gap-x-10 gap-y-12 sm:gap-x-16">
+          <div className="grid w-full grid-cols-1 justify-items-center gap-y-12 sm:grid-cols-2 sm:gap-x-10 lg:grid-cols-4 lg:gap-x-8">
             {teamMembers.map((m, i) => (
               <MemberCard key={m.id} {...m} size="md" delay={0.2 + i * 0.08} />
             ))}
