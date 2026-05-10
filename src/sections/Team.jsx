@@ -154,10 +154,10 @@ function HexFlip({ photoBw, photoColor, initials, alt }) {
       onClick={() => setFlipped((v) => !v)}
       role="button"
       tabIndex={-1}
-      aria-label={`${alt} — tocca per vedere la foto a colori`}
+      aria-label={`${alt} — tocca per alternare bianco e nero e colore`}
     >
       <div
-        className="relative h-full w-full transition-transform duration-700 ease-[cubic-bezier(.22,1,.36,1)] [transform-style:preserve-3d] motion-reduce:transition-none group-hover:[transform:rotateY(180deg)] group-data-[flipped=true]:[transform:rotateY(180deg)]"
+        className="relative h-full w-full transition-transform duration-700 ease-[cubic-bezier(.22,1,.36,1)] [transform-style:preserve-3d] motion-reduce:transition-none [@media(hover:hover)]:group-hover:[transform:rotateY(180deg)] group-data-[flipped=true]:[transform:rotateY(180deg)]"
       >
         <HexFace photo={photoBw} initials={initials} alt={`${alt} (bianco e nero)`} />
         <HexFace photo={photoColor} initials={initials} alt={`${alt} (a colori)`} back />
