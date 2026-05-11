@@ -31,7 +31,7 @@ const teamMembers = [
   {
     id: 'sabrina',
     name: 'Sabrina Nastro',
-    role: 'Marketing Specialist',
+    role: 'Growth Marketing Strategist',
     tag: "L'abbiamo strappata a Londra per riportare questo diamante in patria. Quando si infervora le parte l'accento british: in ufficio non la capisce nessuno, ma tutti annuiamo intensamente perché le sue campagne convertono da paura.",
     photoBw: '/team-sabrina-bw.jpg',
     photoColor: '/team-sabrina-color.jpg',

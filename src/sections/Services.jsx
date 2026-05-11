@@ -10,7 +10,7 @@ const services = [
   {
     n: '01',
     title: 'Performance Marketing',
-    body: 'Campagne paid su Meta, Google, TikTok, LinkedIn, Reddit, Pinterest, Shopify e Mediaset. Ogni euro allocato dove converte, ogni campagna ottimizzata in continuo.',
+    body: 'Campagne paid su Meta, Google, TikTok, LinkedIn, Reddit, Pinterest, Spotify e Mediaset. Ogni euro allocato dove converte, ogni campagna ottimizzata in continuo.',
   },
   {
     n: '02',

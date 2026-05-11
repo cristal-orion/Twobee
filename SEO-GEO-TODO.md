@@ -28,6 +28,22 @@ Documento di lavoro. Diviso in:
 - [x] `public/sitemap.xml`
 - [x] `public/llms.txt` (proposta llms.txt per discoverability LLM)
 
+## ✅ Fatto — sessione 2026-05-11 (GEO per LLM crawler)
+
+Problema rilevato: Claude.ai / Perplexity / ChatGPT search fanno fetch dell'HTML senza eseguire JS → vedevano solo lo scheletro SPA (`<div id="root"></div>`) e nessun copy. Solo meta + JSON-LD del `<head>` erano leggibili.
+
+Scelta: arricchire l'HTML statico **senza** introdurre prerender/plugin di build (per non rischiare il deploy Coolify). Due interventi su `index.html`:
+
+- [x] **JSON-LD espanso** (da 3 a 6 nodi `@graph`):
+  - `ProfessionalService` con `description` lunga, `slogan`, `knowsAbout` (17 voci), `hasOfferCatalog` con i 3 piani descritti, `employee` con i 5 membri del team + LinkedIn, `areaServed` esteso (Italia + Sud Italia + Campania)
+  - 3 nuovi `Service` separati (Performance Marketing, Controllo di gestione, Growth System)
+  - `FAQPage` portata da 5 a 11 domande (aggiunte: area servita, audit gratuito, canali Ads, e-commerce, startup vs PMI, contratto minimo)
+- [x] **Blocco `<noscript>` nel `<body>`** (~500 parole) con copy in prosa di tutte le sezioni principali (Hero, Problems, System, Services, Audience, Pricing + promessa contrattuale, Team, Contatti). Invisibile agli utenti, leggibile dai bot senza JS.
+
+Risultato: `dist/index.html` passa da 8.9 KB → 24 KB (6.7 KB gzipped). Zero modifiche al codice React.
+
+> ⚠️ **Nota di manutenzione**: il copy del `<noscript>` in `index.html` e i `description` nel JSON-LD sono **duplicati** rispetto ai componenti React (`Hero.jsx`, `Pricing.jsx`, `Faq.jsx`, `Services.jsx`, `System.jsx`, `Team.jsx`, `Audience.jsx`, `Problems.jsx`). Quando si cambia copy in queste sezioni, **ricordarsi di aggiornare anche `index.html`** altrimenti drifteranno e i bot leggeranno copy vecchio.
+
 ---
 
 ## 🔧 Da fare — invisibile (NON serve concordare copy)

@@ -96,6 +96,9 @@
           "@id": "https://twobee.it/#organization",
           "name": "TwoBee",
           "legalName": "Two Bee S.r.l.",
+          "alternateName": "Two Bee",
+          "slogan": "Sistemi di crescita per le PMI del Sud Italia",
+          "description": "TwoBee è una società di consulenza strategica in performance marketing e Growth & AI per PMI italiane, con sede a Napoli. Progetta sistemi di acquisizione clienti misurabili su KPI di fatturato reale (CAC, NCAC, MER, AMER, LTV) e non su vanity metrics. Combina campagne paid multi-canale (Meta, Google, TikTok, LinkedIn, Reddit, Pinterest), funnel di conversione, CRM, marketing automation, lead scoring AI e controllo di gestione. Tutti i piani prevedono contratto minimo 6 mesi, report mensile entro il 5° giorno, nessun costo nascosto e clausola di uscita a 90 giorni senza penali.",
           "url": "https://twobee.it/",
           "logo": {
             "@type": "ImageObject",
@@ -118,10 +121,86 @@
             "addressRegion": "NA",
             "addressCountry": "IT"
           },
-          "areaServed": {
-            "@type": "Country",
-            "name": "Italia"
+          "areaServed": [
+            { "@type": "Country", "name": "Italia" },
+            { "@type": "AdministrativeArea", "name": "Sud Italia" },
+            { "@type": "AdministrativeArea", "name": "Campania" }
+          ],
+          "knowsAbout": [
+            "Performance Marketing",
+            "Meta Ads",
+            "Google Ads",
+            "TikTok Ads",
+            "LinkedIn Ads",
+            "Reddit Ads",
+            "Pinterest Ads",
+            "Funnel di conversione",
+            "Marketing Automation",
+            "Lead scoring",
+            "CRM",
+            "Growth Strategy",
+            "Controllo di gestione",
+            "KPI di fatturato (CAC, NCAC, MER, AMER, LTV)",
+            "AI applicata al marketing",
+            "A/B test e CRO",
+            "Audit di marketing"
+          ],
+          "hasOfferCatalog": {
+            "@type": "OfferCatalog",
+            "name": "Piani TwoBee",
+            "itemListElement": [
+              {
+                "@type": "Offer",
+                "name": "Worker Bee",
+                "category": "Performance Marketing",
+                "description": "Per chi inizia. Un canale Ads (Meta o Google), CRM base, pipeline di vendita, email automation di benvenuto, report mensile e call strategica. Contratto minimo 6 mesi."
+              },
+              {
+                "@type": "Offer",
+                "name": "Hive",
+                "category": "Performance Marketing",
+                "description": "Piano più scelto. Include tutto di Worker Bee più: due canali Ads (Meta + Google), CRM pipeline personalizzata, email automation avanzata, funnel multi-step, A/B test e CRO, KPI dashboard mensile."
+              },
+              {
+                "@type": "Offer",
+                "name": "Royal Queen",
+                "category": "Strategic Advisory",
+                "description": "Per aziende che richiedono un partner decisionale. Include tutto di Hive più: direzione strategica continuativa, analisi ROI per linea di prodotto, lead scoring e automazioni AI, advisory direzionale mensile."
+              }
+            ]
           },
+          "employee": [
+            {
+              "@type": "Person",
+              "name": "Marco Lucci",
+              "jobTitle": "Founder & Strategist",
+              "sameAs": "https://www.linkedin.com/in/marcodlucci/"
+            },
+            {
+              "@type": "Person",
+              "name": "Toto Piacente",
+              "jobTitle": "Co-Founder & Growth",
+              "sameAs": "https://www.linkedin.com/in/salvatore-piacente-537b4518b/"
+            },
+            {
+              "@type": "Person",
+              "name": "Sabrina Nastro",
+              "jobTitle": "Growth Marketing Strategist",
+              "sameAs": "https://www.linkedin.com/in/sabrina-nastro-a963a1153/"
+            },
+            {
+              "@type": "Person",
+              "name": "Michele Cristallo",
+              "jobTitle": "AI Specialist",
+              "sameAs": "https://www.linkedin.com/in/michele-cristallo-120b63176/"
+            },
+            {
+              "@type": "Person",
+              "name": "Gabriele Saraiello",
+              "jobTitle": "Automation Specialist",
+              "sameAs": "https://www.linkedin.com/in/gabriele-saraiello/"
+            }
+          ],
           "sameAs": [
             "https://www.linkedin.com/company/two-bee-growth-performance/",
             "https://www.instagram.com/twobee.growth/"
@@ -134,6 +213,30 @@
           "name": "TwoBee",
           "inLanguage": "it-IT",
           "publisher": { "@id": "https://twobee.it/#organization" }
+        },
+        {
+          "@type": "Service",
+          "@id": "https://twobee.it/#service-performance",
+          "name": "Performance Marketing",
+          "provider": { "@id": "https://twobee.it/#organization" },
+          "areaServed": { "@type": "Country", "name": "Italia" },
+          "description": "Campagne paid su Meta, Google, TikTok, LinkedIn, Reddit, Pinterest, Spotify e Mediaset. Ogni euro allocato dove converte, ogni campagna ottimizzata in continuo su KPI di fatturato reale."
+        },
+        {
+          "@type": "Service",
+          "@id": "https://twobee.it/#service-controllo-gestione",
+          "name": "Controllo di gestione",
+          "provider": { "@id": "https://twobee.it/#organization" },
+          "areaServed": { "@type": "Country", "name": "Italia" },
+          "description": "Analisi delle marginalità e dei costi del business per guidare la crescita in modo sostenibile, con dashboard e indicatori per linea di prodotto."
+        },
+        {
+          "@type": "Service",
+          "@id": "https://twobee.it/#service-growth-system",
+          "name": "Growth System",
+          "provider": { "@id": "https://twobee.it/#organization" },
+          "areaServed": { "@type": "Country", "name": "Italia" },
+          "description": "Sistema di acquisizione clienti automatizzato: lead scoring, notifiche ai commerciali, follow-up programmati. Il sistema lavora anche quando sei in ferie."
         },
         {
           "@type": "FAQPage",
@@ -178,6 +281,54 @@
                 "@type": "Answer",
                 "text": "Lavoriamo con un approccio data-driven su KPI di fatturato, non di follower. Nessun costo nascosto, clausola di uscita a 90 giorni, report garantiti e un partner decisionale invece di un esecutore di campagne."
               }
+            },
+            {
+              "@type": "Question",
+              "name": "Lavorate solo nel Sud Italia o in tutta Italia?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Abbiamo sede a Napoli e siamo focalizzati sulle PMI del Sud Italia, ma lavoriamo con clienti in tutta Italia. Le attività si svolgono interamente da remoto: campagne, CRM, automazioni e call strategiche sono gestite digitalmente."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Cos'è l'audit gratuito e cosa include?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "È una call di circa 45 minuti, senza impegno, in cui analizziamo lo stato del tuo marketing: canali attivi, tracciamento, funnel, marginalità. Al termine ricevi una diagnosi onesta delle dispersioni di budget e un'indicazione concreta delle priorità di intervento."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Su quali canali pubblicitari lavorate?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Meta (Facebook e Instagram), Google Ads, TikTok, LinkedIn, Reddit, Pinterest, Spotify e Mediaset. Scegliamo i canali in base al business del cliente e alla redditività attesa, non per moda."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Lavorate con e-commerce?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Sì. Per gli e-commerce con catalogo attivo e marginalità da difendere costruiamo canali profittevoli e un funnel sempre attivo, con focus su MER, AMER e LTV invece che sul solo ROAS."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "Lavorate con startup o solo PMI consolidate?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Lavoriamo con startup che hanno un'idea validata e una prima trazione, PMI con vendite consolidate e crescita instabile, ed e-commerce. Non lavoriamo con chi non ha ancora un prodotto o un servizio sul mercato."
+              }
+            },
+            {
+              "@type": "Question",
+              "name": "C'è un contratto minimo?",
+              "acceptedAnswer": {
+                "@type": "Answer",
+                "text": "Sì, il contratto minimo è di 6 mesi: serve a raccogliere dati significativi e a portare il sistema a regime. Dopo 90 giorni hai però la clausola di uscita senza penali se non sei soddisfatto."
+              }
             }
           ]
         }
@@ -190,6 +341,108 @@
     <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MV7672T3"
     height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
     <!-- End Google Tag Manager (noscript) -->
+
+    <!--
+      Fallback contenuto per crawler/LLM senza esecuzione JavaScript.
+      Gli utenti reali non vedono questo blocco (hanno JS attivo). I bot che fanno
+      fetch dell'HTML senza renderizzare il bundle React (es. anteprime LLM, social
+      preview, primo pass di alcuni crawler) leggono qui il contenuto principale.
+      Tenere allineato al copy delle sezioni React quando cambia.
+    -->
+    <noscript>
+      <header>
+        <h1>TwoBee — Sistemi di crescita per le PMI del Sud Italia</h1>
+        <p>Gli altri ti vendono follower. Noi guidiamo la tua crescita.</p>
+      </header>
+
+      <section>
+        <h2>Chi è TwoBee</h2>
+        <p>TwoBee (ragione sociale: <strong>Two Bee S.r.l.</strong>, P.IVA IT11030281213) è una società di consulenza strategica in ambito Growth & AI per PMI italiane, con sede operativa in Via Guglielmo Marconi 15, 80125 Napoli. Trasformiamo il marketing delle PMI in un sistema di acquisizione clienti misurabile, con impatto diretto sui ricavi. Lavoriamo su KPI di fatturato reale (CAC, NCAC, MER, AMER, LTV) e non su vanity metrics come follower o like. Abbiamo sede al Sud ma seguiamo clienti in tutta Italia, interamente da remoto.</p>
+      </section>
+
+      <section>
+        <h2>Il problema che risolviamo</h2>
+        <p>Hai già investito in marketing ma non vedi risultati? Tre dispersioni tipiche delle PMI italiane:</p>
+        <ul>
+          <li><strong>Budget bruciato senza KPI</strong>: si spende senza nessun impatto reale sulle vendite.</li>
+          <li><strong>Solo vanity metrics</strong>: like e follower non pagano gli stipendi dei dipendenti.</li>
+          <li><strong>Dipendenza totale dalle ads</strong>: stacchi il budget e i clienti non arrivano più.</li>
+        </ul>
+        <p>Per questo abbiamo costruito un sistema, non un'agenzia.</p>
+      </section>
+
+      <section>
+        <h2>Il nostro metodo in 4 fasi</h2>
+        <ol>
+          <li><strong>Diagnosi — Analisi delle dispersioni.</strong> Mappiamo dove perdi clienti e budget oggi. Tracciamo i colli di bottiglia del tuo ecosistema prima di toccare qualsiasi campagna.</li>
+          <li><strong>Sistema — Architettura di vendita.</strong> Funnel, CRM e automazioni che rendono prevedibile la tua crescita — non un set di ads sparsi.</li>
+          <li><strong>Execution — Gestione operativa.</strong> Gestiamo ads, email, content e tracciamenti avanzati. Tu vedi i risultati, non la macchina.</li>
+          <li><strong>Reporting — Ritorno sull'investimento.</strong> Analizziamo insieme da dove arrivano i ricavi: CAC, NCAC, MER, AMER, LTV per comprendere i driver del tuo business.</li>
+        </ol>
+      </section>
+
+      <section>
+        <h2>Cosa offriamo</h2>
+        <h3>Performance Marketing</h3>
+        <p>Campagne paid su Meta, Google, TikTok, LinkedIn, Reddit, Pinterest, Spotify e Mediaset. Ogni euro allocato dove converte, ogni campagna ottimizzata in continuo.</p>
+        <h3>Controllo di gestione</h3>
+        <p>Studiamo insieme le marginalità e i costi del business per guidare la crescita in modo sostenibile.</p>
+        <h3>Growth System</h3>
+        <p>Il sistema lavora anche quando sei in ferie: lead scoring, notifiche ai commerciali, follow-up programmati.</p>
+      </section>
+
+      <section>
+        <h2>Con chi lavoriamo</h2>
+        <p>Lavoriamo solo con imprenditori che hanno un prodotto o un servizio sul mercato e la volontà di costruire un sistema di crescita serio:</p>
+        <ul>
+          <li><strong>Startup</strong> con idea validata e prima trazione — acquisizione misurabile dal day 1, senza bruciare runway.</li>
+          <li><strong>PMI</strong> con vendite consolidate e crescita instabile — crescita prevedibile, indipendente da passaparola e rete personale.</li>
+          <li><strong>E-commerce</strong> con catalogo attivo e marginalità da difendere — canali profittevoli e funnel sempre attivo per proteggere il margine.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Piani trasparenti</h2>
+        <h3>Worker Bee — Per chi inizia</h3>
+        <p>Un canale Ads (Meta o Google), CRM base, pipeline di vendita, email automation di benvenuto, report mensile e call strategica.</p>
+        <h3>Hive — Per crescere (piano più scelto)</h3>
+        <p>Tutto di Worker Bee, più: due canali Ads (Meta + Google), CRM pipeline personalizzata, email automation avanzata, funnel multi-step, A/B test e CRO, KPI dashboard mensile.</p>
+        <h3>Royal Queen — Per chi vuole un partner decisionale</h3>
+        <p>Tutto di Hive, più: direzione strategica continuativa, analisi ROI per linea di prodotto, lead scoring e automazioni AI, advisory direzionale mensile.</p>
+        <h4>La promessa contrattuale (vale per tutti i piani)</h4>
+        <ul>
+          <li><strong>Trasparenza contrattuale</strong>: contratto minimo di 6 mesi, condizioni chiare e leggibili.</li>
+          <li><strong>Puntualità analitica</strong>: report mensile garantito entro i primi 5 giorni.</li>
+          <li><strong>Etica finanziaria</strong>: nessun costo nascosto. Il prezzo che vedi è il prezzo che paghi.</li>
+          <li><strong>Clausola di uscita</strong>: dopo 90 giorni puoi uscire senza penali se non sei soddisfatto.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Il team</h2>
+        <ul>
+          <li><strong>Marco Lucci</strong> — Founder &amp; Strategist. Costruisce strategie e relazioni di lungo periodo con i clienti.</li>
+          <li><strong>Toto Piacente</strong> — Co-Founder &amp; Growth. Guida il team operativo con un approccio ossessivamente data-driven.</li>
+          <li><strong>Sabrina Nastro</strong> — Growth Marketing Strategist. Esperienza internazionale (Londra), specializzata in campagne ad alta conversione.</li>
+          <li><strong>Michele Cristallo</strong> — AI Specialist. Addestra le intelligenze artificiali del team e progetta integrazioni AI per il marketing.</li>
+          <li><strong>Gabriele Saraiello</strong> — Automation Specialist. Owner di tracciamento del customer journey e automazioni di marketing.</li>
+          <li><strong>Claudia Amodei</strong> — AI Executive.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2>Contatti</h2>
+        <p>La call to action principale del sito è un <strong>audit gratuito di 45 minuti, senza impegno</strong>: una call in cui analizziamo lo stato del tuo marketing e ti diamo una diagnosi delle dispersioni di budget.</p>
+        <ul>
+          <li>Email: <a href="mailto:info@twobee.it">info@twobee.it</a></li>
+          <li>Sito: <a href="https://twobee.it/">https://twobee.it/</a></li>
+          <li>LinkedIn: <a href="https://www.linkedin.com/company/two-bee-growth-performance/">linkedin.com/company/two-bee-growth-performance</a></li>
+          <li>Instagram: <a href="https://www.instagram.com/twobee.growth/">@twobee.growth</a></li>
+        </ul>
+        <p><small>Two Bee S.r.l. — Via Guglielmo Marconi 15, 80125 Napoli (NA), Italia — P.IVA IT11030281213 — REA NA-1149609</small></p>
+      </section>
+    </noscript>
+
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
   </body>
