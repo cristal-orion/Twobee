@@ -7,7 +7,7 @@ WORKDIR /app
 
 # Install deps fresh (no lockfile committed — avoids native-binding mismatch)
 COPY package.json ./
-RUN npm install
+RUN npm install --include=dev
 
 # Build
 COPY . .

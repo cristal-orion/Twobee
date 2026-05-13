@@ -160,31 +160,16 @@ export default function Contact() {
               perdendo clienti e quanto può rendere un sistema fatto bene.
             </p>
 
-            <motion.button
+            <button
               type="button"
-              onClick={() => setOpen(true)}
-              whileHover={{ scale: 1.03 }}
-              whileTap={{ scale: 0.98 }}
-              transition={{ type: 'spring', stiffness: 400, damping: 22 }}
               className="group relative mt-12 inline-flex items-center gap-3 rounded-full bg-brand-black px-10 py-5 text-base font-bold uppercase tracking-wider text-white shadow-[0_18px_60px_-12px_rgba(0,0,0,0.6)] sm:text-lg md:px-14 md:py-6 md:text-xl"
+              onClick={() => {
+                window._klOnsite = window._klOnsite || []
+                window._klOnsite.push(['openForm', 'XNsUQ9'])
+              }}
             >
-              <span>Prenota la tua call</span>
-              <span className="flex h-9 w-9 items-center justify-center rounded-full bg-brand-yellow text-brand-black transition-transform group-hover:translate-x-1 md:h-10 md:w-10">
-                <svg
-                  viewBox="0 0 24 24"
-                  className="h-4 w-4 md:h-5 md:w-5"
-                  fill="none"
-                >
-                  <path
-                    d="M5 12h14M13 5l7 7-7 7"
-                    stroke="currentColor"
-                    strokeWidth="2.5"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  />
-                </svg>
-              </span>
-            </motion.button>
+              PRENOTA LA TUA CALL
+            </button>
 
             <ul className="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-xs font-bold uppercase tracking-[0.2em] text-brand-black/75 sm:text-sm">
               {['Gratis', '45 minuti', 'Costruiamo insieme'].map((t) => (
