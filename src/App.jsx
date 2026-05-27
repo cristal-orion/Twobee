@@ -20,6 +20,7 @@ import Team from './sections/Team.jsx'
 import Faq from './sections/Faq.jsx'
 import Contact from './sections/Contact.jsx'
 import HexBgLab from './labs/HexBgLab.jsx'
+import CareersPage from './pages/Careers.jsx'
 
 gsap.registerPlugin(ScrollTrigger, ScrollSmoother, useGSAP)
 
@@ -30,9 +31,15 @@ function getLab() {
   return new URLSearchParams(window.location.search).get('lab')
 }
 
+function getPath() {
+  if (typeof window === 'undefined') return '/'
+  return window.location.pathname.replace(/\/+$/, '') || '/'
+}
+
 export default function App() {
   const lab = getLab()
   if (lab === 'hex') return <HexBgLab />
+  if (getPath() === '/lavora-con-noi') return <CareersPage />
   return <MainSite />
 }
 

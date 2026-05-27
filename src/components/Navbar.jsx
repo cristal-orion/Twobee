@@ -5,11 +5,17 @@ const nav = [
   { label: 'Sistema', href: '#sistema' },
   { label: 'Piani', href: '#piani' },
   { label: 'Team', href: '#team' },
+  { label: 'Lavora con noi', href: '/lavora-con-noi' },
 ]
 
-export default function Navbar() {
+export default function Navbar({ subpage = false }) {
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
+
+  // In una sottopagina le ancore (#servizi…) devono prima tornare alla home.
+  const resolve = (href) => (subpage && href.startsWith('#') ? `/${href}` : href)
+  const homeHref = subpage ? '/' : '#top'
+  const ctaHref = resolve('#contatti')
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
@@ -36,7 +42,7 @@ export default function Navbar() {
       }
     >
       <div className="container-x relative flex h-20 items-center sm:h-24">
-        <a href="#top" className="relative flex items-center" aria-label="two bee">
+        <a href={homeHref} className="relative flex items-center" aria-label="two bee">
           <img
             src="/logo-white.png"
             alt="two bee"
@@ -57,7 +63,7 @@ export default function Navbar() {
           {nav.map((n) => (
             <a
               key={n.href}
-              href={n.href}
+              href={resolve(n.href)}
               className="pointer-events-auto text-sm font-medium text-white/60 transition-colors hover:text-white"
             >
               {n.label}
@@ -66,7 +72,7 @@ export default function Navbar() {
         </nav>
         <div className="ml-auto flex items-center gap-2 sm:gap-3">
           <a
-            href="#contatti"
+            href={ctaHref}
             className="hidden items-center gap-2 rounded-full bg-brand-yellow px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-brand-black transition-transform hover:scale-[1.03] sm:inline-flex"
           >
             Prenota un audit gratuito
@@ -81,7 +87,7 @@ export default function Navbar() {
             </svg>
           </a>
           <a
-            href="#contatti"
+            href={ctaHref}
             className="inline-flex items-center rounded-full bg-brand-yellow px-3.5 py-2 text-[11px] font-bold uppercase tracking-wider text-brand-black sm:hidden"
           >
             Audit
@@ -114,7 +120,7 @@ export default function Navbar() {
             {nav.map((n) => (
               <a
                 key={n.href}
-                href={n.href}
+                href={resolve(n.href)}
                 onClick={() => setOpen(false)}
                 className="rounded-lg px-3 py-3 text-sm font-medium text-white/80 hover:bg-white/5"
               >

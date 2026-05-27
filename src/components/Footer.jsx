@@ -63,6 +63,9 @@ export default function Footer() {
         </div>
 
         <div className="flex flex-col items-center gap-1 text-xs text-white/55 sm:items-end">
+          <a href="/lavora-con-noi" className="hover:text-brand-yellow">
+            Lavora con noi
+          </a>
           <a href="/privacy-policy.html" className="hover:text-brand-yellow">
             Privacy Policy
           </a>
