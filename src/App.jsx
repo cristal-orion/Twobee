@@ -55,13 +55,20 @@ function MainSite() {
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (reduce) return
 
-    const smoother = ScrollSmoother.create({
-      wrapper: wrapper.current,
-      content: content.current,
-      smooth: 1.4,
-      smoothTouch: 0.1,
-      effects: true,
-    })
+    // Pure-touch devices (phones/tablets) already have buttery native inertia.
+    // Letting ScrollSmoother intercept touch creates a JS-vs-native tug-of-war
+    // that reads as stutter — so we only smooth on mouse-driven devices.
+    let smoother
+    if (ScrollTrigger.isTouch !== 1) {
+      smoother = ScrollSmoother.create({
+        wrapper: wrapper.current,
+        content: content.current,
+        smooth: 1.1,
+        // No data-speed/data-lag in the markup, so the effects scanner is pure
+        // overhead — keep it off.
+        effects: false,
+      })
+    }
 
     const pinTriggers = []
     const setupPins = () => {

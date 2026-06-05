@@ -42,11 +42,23 @@
     </script>
     <!-- End Consent Default -->
 
-    <!-- Google Tag Manager -->
-    <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
-    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
-    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
-    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    <!-- Google Tag Manager (deferred to first interaction / idle so its tags
+         don't run Long Tasks on the main thread during the initial scroll) -->
+    <script>(function(w,d,s,l,i){
+      var loaded=false;
+      function loadGTM(){
+        if(loaded)return;loaded=true;
+        events.forEach(function(e){w.removeEventListener(e,loadGTM);});
+        w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});
+        var f=d.getElementsByTagName(s)[0],j=d.createElement(s),
+            dl=l!='dataLayer'?'&l='+l:'';j.async=true;
+        j.src='https://www.googletagmanager.com/gtm.js?id='+i+dl;
+        f.parentNode.insertBefore(j,f);
+      }
+      var events=['scroll','pointerdown','keydown','touchstart'];
+      events.forEach(function(e){w.addEventListener(e,loadGTM,{once:true,passive:true});});
+      // Fallback: fire for visitors who never interact, shortly after load.
+      w.addEventListener('load',function(){setTimeout(loadGTM,3000);});
     })(window,document,'script','dataLayer','GTM-MV7672T3');</script>
     <!-- End Google Tag Manager -->
 

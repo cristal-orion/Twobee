@@ -162,7 +162,10 @@ export default function HexBackground() {
     <div
       aria-hidden
       className="pointer-events-none fixed inset-0 -z-10 overflow-hidden bg-[#040404]"
-      style={{ transform: 'translateZ(0)', willChange: 'transform' }}
+      // translateZ(0) isolates this static grid onto its own layer (so the flow
+      // repaints don't touch the scrolling content); will-change is omitted
+      // because the layer itself never transforms.
+      style={{ transform: 'translateZ(0)' }}
     >
       <div className="absolute inset-0">
         {cells.map((cell) => (

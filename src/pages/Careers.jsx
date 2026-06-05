@@ -36,13 +36,17 @@ export default function CareersPage() {
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (reduce) return
 
-    const smoother = ScrollSmoother.create({
-      wrapper: wrapper.current,
-      content: content.current,
-      smooth: 1.4,
-      smoothTouch: 0.1,
-      effects: true,
-    })
+    // Skip smoothing on pure-touch devices — native inertia is better there and
+    // ScrollSmoother fights it. Mouse-driven devices keep the smooth scroll.
+    let smoother
+    if (ScrollTrigger.isTouch !== 1) {
+      smoother = ScrollSmoother.create({
+        wrapper: wrapper.current,
+        content: content.current,
+        smooth: 1.1,
+        effects: false,
+      })
+    }
 
     ScrollTrigger.refresh()
     return () => smoother && smoother.kill()

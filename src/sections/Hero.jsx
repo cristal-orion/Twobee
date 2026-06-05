@@ -12,7 +12,9 @@ export default function Hero() {
       const chars = gsap.utils.toArray('.hero-char', root.current)
       const fader = gsap.utils.toArray('.hero-fade', root.current)
 
-      gsap.set(chars, { yPercent: 110, opacity: 0 })
+      // will-change only for the duration of the entrance, then cleared so the
+      // ~50 letters don't keep ~50 permanent GPU layers alive during scroll.
+      gsap.set(chars, { yPercent: 110, opacity: 0, willChange: 'transform' })
       gsap.set(fader, { y: 24, opacity: 0 })
 
       const tl = gsap.timeline({ delay: 0.2 })
@@ -23,6 +25,7 @@ export default function Hero() {
         duration: 0.9,
         ease: 'power4.out',
         stagger: 0.018,
+        onComplete: () => gsap.set(chars, { clearProps: 'willChange' }),
       })
 
       tl.to(
@@ -57,7 +60,7 @@ export default function Hero() {
               key={i}
               className="inline-block overflow-hidden align-top"
             >
-              <span className="hero-char inline-block will-change-transform">
+              <span className="hero-char inline-block">
                 {c}
               </span>
             </span>
