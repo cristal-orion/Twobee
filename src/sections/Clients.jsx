@@ -1,12 +1,12 @@
 export default function Clients() {
   const partners = [
-    { name: 'Sartoria Condotti', logo: '/partner-sartoriacondotti.png', url: 'https://www.sartoriacondotti.it/' },
-    { name: 'iCura Impresa', logo: '/partner-icuraimpresa.png', url: 'https://www.icuraimpresa.it/' },
-    { name: 'Affinity', logo: '/partner-affinity.png', url: 'https://www.affinitylab.it/' },
-    { name: 'Elettra Group', logo: '/partner-elettragroup.png', url: 'https://elettragroup.it/' },
-    { name: 'Industrial Service e Facility', logo: '/partner-industrial-service.png', url: 'https://www.industrialservicefacility.it/' },
-    { name: 'Seven', logo: '/partner-seven.png', url: 'https://www.sevenholding.it/' },
-    { name: 'Plus Vending', logo: '/partner-plusvending.png', url: 'https://plusvending.it/' },
+    { name: 'Sartoria Condotti', logo: '/partner-sartoriacondotti.webp', url: 'https://www.sartoriacondotti.it/' },
+    { name: 'iCura Impresa', logo: '/partner-icuraimpresa.webp', url: 'https://www.icuraimpresa.it/' },
+    { name: 'Affinity', logo: '/partner-affinity.webp', url: 'https://www.affinitylab.it/' },
+    { name: 'Elettra Group', logo: '/partner-elettragroup.webp', url: 'https://elettragroup.it/' },
+    { name: 'Industrial Service e Facility', logo: '/partner-industrial-service.webp', url: 'https://www.industrialservicefacility.it/' },
+    { name: 'Seven', logo: '/partner-seven.webp', url: 'https://www.sevenholding.it/' },
+    { name: 'Plus Vending', logo: '/partner-plusvending.webp', url: 'https://plusvending.it/' },
   ]
   const loop = [...partners, ...partners]
   return (

@@ -1,4 +1,4 @@
-import { useRef } from 'react'
+import { lazy, Suspense, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { ScrollSmoother } from 'gsap/ScrollSmoother'
@@ -19,8 +19,11 @@ import Pricing from './sections/Pricing.jsx'
 import Team from './sections/Team.jsx'
 import Faq from './sections/Faq.jsx'
 import Contact from './sections/Contact.jsx'
-import HexBgLab from './labs/HexBgLab.jsx'
-import CareersPage from './pages/Careers.jsx'
+
+// Route/lab-gated views: split out of the main bundle so the homepage
+// doesn't pay for code it never renders.
+const HexBgLab = lazy(() => import('./labs/HexBgLab.jsx'))
+const CareersPage = lazy(() => import('./pages/Careers.jsx'))
 
 gsap.registerPlugin(ScrollTrigger, ScrollSmoother, useGSAP)
 
@@ -38,8 +41,9 @@ function getPath() {
 
 export default function App() {
   const lab = getLab()
-  if (lab === 'hex') return <HexBgLab />
-  if (getPath() === '/lavora-con-noi') return <CareersPage />
+  if (lab === 'hex') return <Suspense fallback={null}><HexBgLab /></Suspense>
+  if (getPath() === '/lavora-con-noi')
+    return <Suspense fallback={null}><CareersPage /></Suspense>
   return <MainSite />
 }
 

@@ -44,14 +44,14 @@ export default function Navbar({ subpage = false }) {
       <div className="container-x relative flex h-20 items-center sm:h-24">
         <a href={homeHref} className="relative flex items-center" aria-label="two bee">
           <img
-            src="/logo-white.png"
+            src="/logo-white.webp"
             alt="two bee"
             className="h-12 w-auto sm:h-14 lg:h-16"
             style={{ opacity: 'calc(1 - var(--theme-t))' }}
             draggable={false}
           />
           <img
-            src="/logo-black.png"
+            src="/logo-black.webp"
             alt=""
             aria-hidden
             className="absolute left-0 top-1/2 h-12 w-auto -translate-y-1/2 sm:h-14 lg:h-16"
