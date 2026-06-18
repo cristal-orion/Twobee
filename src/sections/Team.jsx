@@ -59,6 +59,26 @@ const teamMembers = [
     linkedin: 'https://www.linkedin.com/in/gabriele-saraiello/',
   },
   {
+    id: 'annalisa',
+    name: 'Annalisa Smiraglia',
+    role: 'Social Media Manager & Content Creator',
+    tag: 'Fiuta i trend prima che diventino trend e parla fluente la lingua degli algoritmi. Trasforma un’idea in contenuto virale nel tempo di uno scroll: caption affilate, reel acchiappa-like e una community che pende dalle sue storie.',
+    photoBw: '/team-annalisa-bw.webp',
+    photoColor: '/team-annalisa-color.webp',
+    initials: 'A',
+    linkedin: 'https://www.linkedin.com/in/annalisa-smiraglia/',
+  },
+  {
+    id: 'agostino',
+    name: 'Agostino Abate',
+    role: 'Media Buyer',
+    tag: 'Pilota i budget come una monoposto di Formula 1: staccate al millimetro e sorpassi alla concorrenza. Con gli annunci che non convertono è un villain da film horror, li elimina senza pietà prima dei titoli di coda.',
+    photoBw: '/team-agostino-bw.webp',
+    photoColor: '/team-agostino-color.webp',
+    initials: 'A',
+    linkedin: 'https://www.linkedin.com/in/agostinoabate/',
+  },
+  {
     id: 'claudia',
     name: 'Claudia Amodei',
     role: 'AI Executive',
@@ -66,7 +86,7 @@ const teamMembers = [
     photoBw: '/team-claudia-bw.webp',
     photoColor: '/team-claudia-color.webp',
     initials: 'C',
-    linkedin: null,
+    linkedin: 'https://www.linkedin.com/in/claudia-amodei-19752140a/',
   },
 ]
 
@@ -266,7 +286,7 @@ export default function Team() {
               <MemberCard key={m.id} {...m} size="lg" delay={i * 0.1} />
             ))}
           </div>
-          <div className="grid w-full grid-cols-1 justify-items-center gap-y-12 sm:grid-cols-2 sm:gap-x-10 lg:grid-cols-4 lg:gap-x-8">
+          <div className="mx-auto grid w-full max-w-[1080px] grid-cols-1 justify-items-center gap-y-12 sm:grid-cols-2 sm:gap-x-10 lg:grid-cols-3 lg:gap-x-12">
             {teamMembers.map((m, i) => (
               <MemberCard key={m.id} {...m} size="md" delay={0.2 + i * 0.08} />
             ))}
