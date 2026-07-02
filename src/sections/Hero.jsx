@@ -1,10 +1,32 @@
 import { useRef } from 'react'
 import { gsap } from 'gsap'
 import { useGSAP } from '@gsap/react'
+import { useLang } from '../i18n/LanguageContext.jsx'
 
 gsap.registerPlugin(useGSAP)
 
+const COPY = {
+  it: {
+    line1: 'Gli altri ti vendono',
+    line2: 'follower.',
+    line3a: 'Noi guidiamo la tua ',
+    line3b: 'crescita.',
+    body: 'Società di consulenza strategica, in ambito Growth & AI per PMI italiane. Un sistema di acquisizione clienti misurabile, con impatto diretto sui ricavi.',
+    cta: 'Prenota un audit gratuito',
+  },
+  en: {
+    line1: 'Others sell you',
+    line2: 'followers.',
+    line3a: 'We drive your ',
+    line3b: 'growth.',
+    body: 'A strategic consulting firm in Growth & AI for Italian SMEs. A measurable customer-acquisition system, with a direct impact on revenue.',
+    cta: 'Book a free audit',
+  },
+}
+
 export default function Hero() {
+  const lang = useLang()
+  const t = COPY[lang]
   const root = useRef(null)
 
   useGSAP(
@@ -79,18 +101,16 @@ export default function Hero() {
 
       <div className="container-x relative w-full pt-32 pb-20 sm:pt-36">
         <h1 className="font-display text-5xl font-extrabold leading-[0.95] tracking-tight sm:text-6xl md:text-7xl lg:text-[88px]">
-          <span className="block">{splitChars('Gli altri ti vendono')}</span>
-          <span className="block">{splitChars('follower.')}</span>
+          <span className="block">{splitChars(t.line1)}</span>
+          <span className="block">{splitChars(t.line2)}</span>
           <span className="mt-2 block">
-            {splitChars('Noi guidiamo la tua ')}
-            <span className="text-brand-yellow">{splitChars('crescita.')}</span>
+            {splitChars(t.line3a)}
+            <span className="text-brand-yellow">{splitChars(t.line3b)}</span>
           </span>
         </h1>
 
         <p className="hero-fade mt-8 max-w-xl text-base text-white/70 sm:text-lg">
-          Società di consulenza strategica, in ambito Growth & AI per PMI
-          italiane. Un sistema di acquisizione clienti misurabile, con impatto
-          diretto sui ricavi.
+          {t.body}
         </p>
 
         <div className="hero-fade mt-10">
@@ -98,7 +118,7 @@ export default function Hero() {
             href="#contatti"
             className="group relative inline-flex items-center gap-3 rounded-full bg-brand-yellow px-8 py-4 text-sm font-bold uppercase tracking-wider text-brand-black transition-transform hover:scale-[1.02] sm:text-base"
           >
-            Prenota un audit gratuito
+            {t.cta}
             <svg
               viewBox="0 0 24 24"
               className="h-4 w-4 transition-transform group-hover:translate-x-0.5"

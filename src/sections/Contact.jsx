@@ -2,6 +2,94 @@ import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import emailjs from '@emailjs/browser'
+import { useLang } from '../i18n/LanguageContext.jsx'
+
+const COPY = {
+  it: {
+    eyebrowTop: 'Ultimo step',
+    heading1: 'Ogni giorno senza un sistema',
+    heading2: 'è un giorno di budget sprecato.',
+    subhead:
+      'Prenota la tua Growth Call: in 45 minuti capisci dove stai perdendo clienti e quanto può rendere un sistema fatto bene.',
+    ctaMain: 'PRENOTA LA TUA CALL',
+    tags: ['Gratis', '45 minuti', 'Costruiamo insieme'],
+    close: 'Chiudi',
+    modalEyebrow: 'Prenota la tua call',
+    modalHeadingPre: 'Lasciaci i tuoi ',
+    modalHeadingHighlight: 'contatti',
+    modalSubhead:
+      "Ti richiamiamo entro 24 ore per fissare insieme l'orario della call.",
+    fields: {
+      nome: { label: 'Nome e cognome*', placeholder: 'Scrivi il tuo nome e cognome...' },
+      azienda: { label: 'Azienda*', placeholder: 'Scrivi il nome della tua azienda...' },
+      email: { label: 'Email*', placeholder: 'Scrivi la tua email...' },
+      telefono: { label: 'Telefono*', placeholder: 'Scrivi il numero di telefono...' },
+      messaggio: {
+        label: 'Messaggio',
+        placeholder: 'Raccontaci brevemente di cosa hai bisogno (facoltativo)...',
+      },
+    },
+    privacyPre: 'Ho letto la',
+    privacyLink: 'Privacy Policy',
+    privacyPost:
+      ' e autorizzo Two Bee S.r.l. a trattare i miei dati per essere ricontattato/a in merito alla mia richiesta.*',
+    submitSending: 'Invio in corso…',
+    submitSent: 'Richiesta inviata ✓',
+    submitError: 'Errore, riprova',
+    submitIdle: 'Conferma prenotazione',
+    errorMsg: 'Qualcosa è andato storto. Riprova o scrivici a',
+    footerTags: 'Gratis · 45 min · Costruiamo insieme',
+    thankYouHeadingPre: 'Richiesta ',
+    thankYouHeadingHighlight: 'inviata',
+    thankYouBody:
+      "Grazie! Abbiamo ricevuto i tuoi contatti. Ti richiameremo entro 24 ore per fissare insieme l'orario della call.",
+    thankYouTag1: 'Entro 24 ore',
+    thankYouTag2: 'Nessun impegno',
+    thankYouCta: 'Torna al sito',
+  },
+  en: {
+    eyebrowTop: 'Last step',
+    heading1: 'Every day without a system',
+    heading2: 'is a day of wasted budget.',
+    subhead:
+      "Book your Growth Call: in 45 minutes you'll see where you're losing customers and what a well-built system can be worth.",
+    ctaMain: 'BOOK YOUR CALL',
+    tags: ['Free', '45 minutes', "Let's build it together"],
+    close: 'Close',
+    modalEyebrow: 'Book your call',
+    modalHeadingPre: 'Leave us your ',
+    modalHeadingHighlight: 'details',
+    modalSubhead:
+      "We'll call you back within 24 hours to set up the call time together.",
+    fields: {
+      nome: { label: 'Full name*', placeholder: 'Enter your full name...' },
+      azienda: { label: 'Company*', placeholder: 'Enter your company name...' },
+      email: { label: 'Email*', placeholder: 'Enter your email...' },
+      telefono: { label: 'Phone*', placeholder: 'Enter your phone number...' },
+      messaggio: {
+        label: 'Message',
+        placeholder: 'Briefly tell us what you need (optional)...',
+      },
+    },
+    privacyPre: "I've read the",
+    privacyLink: 'Privacy Policy',
+    privacyPost:
+      ' and I authorize Two Bee S.r.l. to process my data to be contacted about my request.*',
+    submitSending: 'Sending…',
+    submitSent: 'Request sent ✓',
+    submitError: 'Error, try again',
+    submitIdle: 'Confirm booking',
+    errorMsg: 'Something went wrong. Try again or email us at',
+    footerTags: "Free · 45 min · Let's build it together",
+    thankYouHeadingPre: 'Request ',
+    thankYouHeadingHighlight: 'sent',
+    thankYouBody:
+      "Thank you! We've received your details. We'll call you back within 24 hours to set up the call time together.",
+    thankYouTag1: 'Within 24 hours',
+    thankYouTag2: 'No commitment',
+    thankYouCta: 'Back to the site',
+  },
+}
 
 const EMAILJS_SERVICE_ID = 'service_jjfdxbn'
 const EMAILJS_TEMPLATE_ID = 'template_peotzqb'
@@ -47,6 +135,8 @@ function pushFormSubmitEvent(form) {
 }
 
 export default function Contact() {
+  const lang = useLang()
+  const t = COPY[lang]
   const [open, setOpen] = useState(false)
   const [form, setForm] = useState({
     nome: '',
@@ -148,16 +238,15 @@ export default function Contact() {
             className="mx-auto max-w-5xl text-center"
           >
             <span className="inline-block text-xs font-bold uppercase tracking-[0.3em] text-brand-black/70 sm:text-sm">
-              Ultimo step
+              {t.eyebrowTop}
             </span>
             <h2 className="mt-5 font-display text-4xl font-extrabold uppercase leading-[0.95] tracking-tight sm:text-6xl md:text-7xl lg:text-[88px]">
-              Ogni giorno senza un sistema
+              {t.heading1}
               <br />
-              è un giorno di budget sprecato.
+              {t.heading2}
             </h2>
             <p className="mx-auto mt-6 max-w-2xl text-base font-medium leading-snug sm:text-lg md:text-xl">
-              Prenota la tua Growth Call: in 45 minuti capisci dove stai
-              perdendo clienti e quanto può rendere un sistema fatto bene.
+              {t.subhead}
             </p>
 
             <button
@@ -168,14 +257,14 @@ export default function Contact() {
                 window._klOnsite.push(['openForm', 'XNsUQ9'])
               }}
             >
-              PRENOTA LA TUA CALL
+              {t.ctaMain}
             </button>
 
             <ul className="mt-10 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 text-xs font-bold uppercase tracking-[0.2em] text-brand-black/75 sm:text-sm">
-              {['Gratis', '45 minuti', 'Costruiamo insieme'].map((t) => (
-                <li key={t} className="inline-flex items-center gap-2">
+              {t.tags.map((tag) => (
+                <li key={tag} className="inline-flex items-center gap-2">
                   <span className="h-1.5 w-1.5 rounded-full bg-brand-black" />
-                  {t}
+                  {tag}
                 </li>
               ))}
             </ul>
@@ -209,7 +298,7 @@ export default function Contact() {
               <button
                 type="button"
                 onClick={closeModal}
-                aria-label="Chiudi"
+                aria-label={t.close}
                 className="absolute right-4 top-4 flex h-9 w-9 items-center justify-center rounded-full border border-white/15 text-white/70 transition hover:bg-white/10 hover:text-white"
               >
                 <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none">
@@ -223,65 +312,65 @@ export default function Contact() {
               </button>
 
               {status === 'sent' ? (
-                <ThankYou onClose={closeModal} />
+                <ThankYou onClose={closeModal} lang={lang} />
               ) : (
                 <>
               <div className="text-center">
-                <span className="eyebrow">Prenota la tua call</span>
+                <span className="eyebrow">{t.modalEyebrow}</span>
                 <h3 className="mt-3 font-display text-2xl font-extrabold leading-tight sm:text-3xl">
-                  Lasciaci i tuoi <span className="text-brand-yellow">contatti</span>
+                  {t.modalHeadingPre}
+                  <span className="text-brand-yellow">{t.modalHeadingHighlight}</span>
                 </h3>
                 <p className="mt-2 text-sm text-white/65 sm:text-base">
-                  Ti richiamiamo entro 24 ore per fissare insieme l'orario
-                  della call.
+                  {t.modalSubhead}
                 </p>
               </div>
 
               <form onSubmit={onSubmit} className="mt-6 grid gap-4">
                 <Field
-                  label="Nome e cognome*"
+                  label={t.fields.nome.label}
                   name="nome"
                   value={form.nome}
                   onChange={onChange}
-                  placeholder="Scrivi il tuo nome e cognome..."
+                  placeholder={t.fields.nome.placeholder}
                   required
                 />
                 <Field
-                  label="Azienda*"
+                  label={t.fields.azienda.label}
                   name="azienda"
                   value={form.azienda}
                   onChange={onChange}
-                  placeholder="Scrivi il nome della tua azienda..."
+                  placeholder={t.fields.azienda.placeholder}
                   required
                 />
                 <Field
-                  label="Email*"
+                  label={t.fields.email.label}
                   type="email"
                   name="email"
                   value={form.email}
                   onChange={onChange}
-                  placeholder="Scrivi la tua email..."
+                  placeholder={t.fields.email.placeholder}
                   required
                 />
                 <Field
-                  label="Telefono*"
+                  label={t.fields.telefono.label}
                   type="tel"
                   name="telefono"
                   value={form.telefono}
                   onChange={onChange}
-                  placeholder="Scrivi il numero di telefono..."
+                  placeholder={t.fields.telefono.placeholder}
                   required
                 />
                 <label className="block">
                   <span className="mb-2 block text-xs font-semibold uppercase tracking-widest text-white/70">
-                    Messaggio
+                    {t.fields.messaggio.label}
                   </span>
                   <textarea
                     name="messaggio"
                     value={form.messaggio}
                     onChange={onChange}
                     rows={4}
-                    placeholder="Raccontaci brevemente di cosa hai bisogno (facoltativo)..."
+                    placeholder={t.fields.messaggio.placeholder}
                     className="w-full resize-none rounded-2xl border border-white/10 bg-brand-black/60 px-5 py-3.5 text-sm text-white placeholder-white/30 outline-none transition focus:border-brand-yellow focus:ring-2 focus:ring-brand-yellow/30"
                   />
                 </label>
@@ -296,16 +385,16 @@ export default function Contact() {
                     className="mt-1 h-4 w-4 shrink-0 accent-brand-yellow"
                   />
                   <span>
-                    Ho letto la{' '}
+                    {t.privacyPre}{' '}
                     <a
                       href="/privacy-policy.html"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="underline hover:text-brand-yellow"
                     >
-                      Privacy Policy
-                    </a>{' '}
-                    e autorizzo Two Bee S.r.l. a trattare i miei dati per essere ricontattato/a in merito alla mia richiesta.*
+                      {t.privacyLink}
+                    </a>
+                    {t.privacyPost}
                   </span>
                 </label>
 
@@ -315,16 +404,16 @@ export default function Contact() {
                   className="btn-primary mt-2 w-full disabled:cursor-not-allowed disabled:opacity-70"
                 >
                   {status === 'sending'
-                    ? 'Invio in corso…'
+                    ? t.submitSending
                     : status === 'sent'
-                    ? 'Richiesta inviata ✓'
+                    ? t.submitSent
                     : status === 'error'
-                    ? 'Errore, riprova'
-                    : 'Conferma prenotazione'}
+                    ? t.submitError
+                    : t.submitIdle}
                 </button>
                 {status === 'error' && (
                   <p className="text-center text-xs text-red-400">
-                    Qualcosa è andato storto. Riprova o scrivici a{' '}
+                    {t.errorMsg}{' '}
                     <a href="mailto:info@twobee.it" className="underline">
                       info@twobee.it
                     </a>
@@ -334,7 +423,7 @@ export default function Contact() {
               </form>
 
               <p className="mt-5 text-center text-[11px] uppercase tracking-[0.2em] text-white/40">
-                Gratis · 45 min · Costruiamo insieme
+                {t.footerTags}
               </p>
                 </>
               )}
@@ -349,7 +438,8 @@ export default function Contact() {
   )
 }
 
-function ThankYou({ onClose }) {
+function ThankYou({ onClose, lang }) {
+  const t = COPY[lang]
   return (
     <motion.div
       initial={{ opacity: 0, y: 12 }}
@@ -381,21 +471,21 @@ function ThankYou({ onClose }) {
       </motion.div>
 
       <h3 className="mt-7 font-display text-2xl font-extrabold leading-tight sm:text-3xl">
-        Richiesta <span className="text-brand-yellow">inviata</span>
+        {t.thankYouHeadingPre}
+        <span className="text-brand-yellow">{t.thankYouHeadingHighlight}</span>
       </h3>
       <p className="mx-auto mt-3 max-w-sm text-sm leading-relaxed text-white/70 sm:text-base">
-        Grazie! Abbiamo ricevuto i tuoi contatti. Ti richiameremo entro
-        24 ore per fissare insieme l'orario della call.
+        {t.thankYouBody}
       </p>
 
       <ul className="mt-6 flex flex-wrap items-center justify-center gap-x-5 gap-y-2 text-[11px] font-bold uppercase tracking-[0.2em] text-white/50">
         <li className="inline-flex items-center gap-2">
           <span className="h-1.5 w-1.5 rounded-full bg-brand-yellow" />
-          Entro 24 ore
+          {t.thankYouTag1}
         </li>
         <li className="inline-flex items-center gap-2">
           <span className="h-1.5 w-1.5 rounded-full bg-brand-yellow" />
-          Nessun impegno
+          {t.thankYouTag2}
         </li>
       </ul>
 
@@ -404,7 +494,7 @@ function ThankYou({ onClose }) {
         onClick={onClose}
         className="btn-primary mt-8 w-full"
       >
-        Torna al sito
+        {t.thankYouCta}
       </button>
     </motion.div>
   )

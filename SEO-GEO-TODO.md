@@ -10,7 +10,7 @@ Documento di lavoro. Diviso in:
 
 ## Assunzioni
 - **Dominio di produzione**: `https://twobee.it` (dedotto da `info@twobee.it`). Da confermare.
-- **Lingua del sito**: `it-IT`.
+- **Lingua del sito**: `it-IT` di default, con versione `en` su `/en/` (aggiunta 2026-07-02, vedi §9).
 - **Stack**: Vite SPA in React, single-route. Nessun SSR / prerender attivo.
 - **Tracking attivo oggi**: solo EmailJS. GTM/GA4/Ads non ancora integrati.
 
@@ -100,8 +100,8 @@ Quando arriva il momento, recuperare il pattern di Plus Vending (vedi `cookie-ba
 - [ ] Aggiungere `aria-label` sui CTA "→" in Hero, Contact, Pricing (oggi gli icon-button non hanno label leggibile)
 - [ ] Verificare focus-visible su navigazione tastiera
 
-### 9. Hreflang (solo se in futuro avremo /en)
-- [ ] Aggiungere `<link rel="alternate" hreflang="it" href="...">` per evitare duplicate content
+### 9. Hreflang
+- [x] Fatto (2026-07-02): `/en/` e `/en/lavora-con-noi` esistono ora. Hreflang aggiunto sia staticamente in `index.html` (`<head>`, it/en/x-default) sia via `xhtml:link` in `sitemap.xml` per ogni coppia di pagine IT/EN — il secondo è il segnale più robusto perché non dipende dall'esecuzione JS. Nota: `<noscript>` e JSON-LD in `index.html` restano solo IT (limite CSR, vedi punto 7).
 
 ---
 

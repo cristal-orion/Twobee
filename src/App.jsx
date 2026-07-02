@@ -1,9 +1,10 @@
-import { lazy, Suspense, useRef } from 'react'
+import { lazy, Suspense, useEffect, useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { ScrollSmoother } from 'gsap/ScrollSmoother'
 import { useGSAP } from '@gsap/react'
 
+import { LanguageProvider } from './i18n/LanguageContext.jsx'
 import Navbar from './components/Navbar.jsx'
 import Footer from './components/Footer.jsx'
 import HexBackground from './components/HexBackground.jsx'
@@ -34,17 +35,66 @@ function getLab() {
   return new URLSearchParams(window.location.search).get('lab')
 }
 
-function getPath() {
-  if (typeof window === 'undefined') return '/'
-  return window.location.pathname.replace(/\/+$/, '') || '/'
+// Strips a leading /en segment so the rest of the app can route on the
+// bare path, and reports the detected language alongside it.
+function getLangAndPath() {
+  if (typeof window === 'undefined') return { lang: 'it', path: '/' }
+  const raw = window.location.pathname.replace(/\/+$/, '') || '/'
+  if (raw === '/en' || raw.startsWith('/en/')) {
+    return { lang: 'en', path: raw.slice(3) || '/' }
+  }
+  return { lang: 'it', path: raw }
+}
+
+const HEAD_COPY = {
+  it: {
+    title: 'TwoBee | Sistemi di crescita per le PMI del Sud Italia',
+    description:
+      'Trasformiamo il marketing delle PMI italiane in un sistema di acquisizione clienti misurabile, con un impatto diretto sui ricavi.',
+    locale: 'it_IT',
+  },
+  en: {
+    title: "TwoBee | Growth Systems for Southern Italy's SMEs",
+    description:
+      "We turn Italian SMEs' marketing into a measurable customer-acquisition system, with a direct impact on revenue.",
+    locale: 'en_US',
+  },
+}
+
+// No per-locale HTML build (single index.html serves / and /en/), so the
+// <html lang>/title/meta swap happens client-side on mount instead.
+function useSyncHead(lang) {
+  useEffect(() => {
+    const copy = HEAD_COPY[lang]
+    document.documentElement.lang = lang
+    document.title = copy.title
+    const setMeta = (selector, content) => {
+      const el = document.querySelector(selector)
+      if (el) el.setAttribute('content', content)
+    }
+    setMeta('meta[name="description"]', copy.description)
+    setMeta('meta[property="og:title"]', copy.title)
+    setMeta('meta[property="og:description"]', copy.description)
+    setMeta('meta[property="og:locale"]', copy.locale)
+    setMeta('meta[name="twitter:title"]', copy.title)
+    setMeta('meta[name="twitter:description"]', copy.description)
+  }, [lang])
 }
 
 export default function App() {
   const lab = getLab()
+  const { lang, path } = getLangAndPath()
+  useSyncHead(lang)
   if (lab === 'hex') return <Suspense fallback={null}><HexBgLab /></Suspense>
-  if (getPath() === '/lavora-con-noi')
-    return <Suspense fallback={null}><CareersPage /></Suspense>
-  return <MainSite />
+  return (
+    <LanguageProvider lang={lang}>
+      {path === '/lavora-con-noi' ? (
+        <Suspense fallback={null}><CareersPage /></Suspense>
+      ) : (
+        <MainSite />
+      )}
+    </LanguageProvider>
+  )
 }
 
 function MainSite() {

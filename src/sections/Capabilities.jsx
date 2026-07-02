@@ -1,40 +1,92 @@
 import { motion } from 'framer-motion'
+import { useLang } from '../i18n/LanguageContext.jsx'
 
-const pillars = [
-  {
-    n: '01',
-    label: 'Growth & Performance',
-    tagline: 'Acquisizione misurabile, ogni euro tracciato.',
-    items: [
-      'Performance marketing su Meta, Google, TikTok',
-      'Funnel di conversione e landing testate',
-      'Marketing automation e lead scoring',
-      'Reporting sul fatturato reale, non sui like',
+const COPY = {
+  it: {
+    eyebrow: 'Cosa facciamo',
+    headingPre: 'Non siamo solo marketing.',
+    headingHighlight: 'Siamo il tuo partner digitale.',
+    body: 'Acquisizione, infrastruttura digitale e intelligenza artificiale applicata. Tre pilastri, un unico interlocutore: noi.',
+    cta: 'Consulta i nostri servizi',
+    pillars: [
+      {
+        n: '01',
+        label: 'Growth & Performance',
+        tagline: 'Acquisizione misurabile, ogni euro tracciato.',
+        items: [
+          'Performance marketing su Meta, Google, TikTok',
+          'Funnel di conversione e landing testate',
+          'Marketing automation e lead scoring',
+          'Reporting sul fatturato reale, non sui like',
+        ],
+      },
+      {
+        n: '02',
+        label: 'Digital Partner',
+        tagline: "L'infrastruttura digitale che regge la crescita.",
+        items: [
+          'Siti, e-commerce e landing su misura',
+          'Integrazioni CRM, ERP e gestionali',
+          'Tracciamenti server-side e data layer',
+          'Manutenzione evolutiva continuativa',
+        ],
+      },
+      {
+        n: '03',
+        label: 'AI nei processi',
+        tagline: 'Intelligenza artificiale dove serve davvero.',
+        items: [
+          'Agenti custom su dati e workflow aziendali',
+          'Automazioni operative su email, CRM, ticketing',
+          'Generazione asset creativi su brand guideline',
+          'Integrazioni con LLM in produzione, non in demo',
+        ],
+      },
     ],
   },
-  {
-    n: '02',
-    label: 'Digital Partner',
-    tagline: "L'infrastruttura digitale che regge la crescita.",
-    items: [
-      'Siti, e-commerce e landing su misura',
-      'Integrazioni CRM, ERP e gestionali',
-      'Tracciamenti server-side e data layer',
-      'Manutenzione evolutiva continuativa',
+  en: {
+    eyebrow: 'What we do',
+    headingPre: "We're not just marketing.",
+    headingHighlight: "We're your digital partner.",
+    body: 'Acquisition, digital infrastructure, and applied artificial intelligence. Three pillars, one single point of contact: us.',
+    cta: 'See our services',
+    pillars: [
+      {
+        n: '01',
+        label: 'Growth & Performance',
+        tagline: 'Measurable acquisition, every euro tracked.',
+        items: [
+          'Performance marketing on Meta, Google, TikTok',
+          'Conversion funnels and tested landing pages',
+          'Marketing automation and lead scoring',
+          'Reporting on real revenue, not likes',
+        ],
+      },
+      {
+        n: '02',
+        label: 'Digital Partner',
+        tagline: 'The digital infrastructure that supports growth.',
+        items: [
+          'Custom websites, e-commerce, and landing pages',
+          'CRM, ERP, and management software integrations',
+          'Server-side tracking and data layer',
+          'Ongoing evolutionary maintenance',
+        ],
+      },
+      {
+        n: '03',
+        label: 'AI in the Process',
+        tagline: 'Artificial intelligence where it actually matters.',
+        items: [
+          'Custom agents on company data and workflows',
+          'Operational automation for email, CRM, ticketing',
+          'Creative asset generation on brand guidelines',
+          'LLM integrations in production, not in demos',
+        ],
+      },
     ],
   },
-  {
-    n: '03',
-    label: 'AI nei processi',
-    tagline: 'Intelligenza artificiale dove serve davvero.',
-    items: [
-      'Agenti custom su dati e workflow aziendali',
-      'Automazioni operative su email, CRM, ticketing',
-      'Generazione asset creativi su brand guideline',
-      'Integrazioni con LLM in produzione, non in demo',
-    ],
-  },
-]
+}
 
 const HEX_CLIP =
   'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)'
@@ -67,6 +119,8 @@ function PillarHex({ n }) {
 }
 
 export default function Capabilities() {
+  const lang = useLang()
+  const t = COPY[lang]
   return (
     <section className="section-y border-t border-white/5">
       <div className="container-x">
@@ -78,7 +132,7 @@ export default function Capabilities() {
             transition={{ duration: 0.5, ease: 'easeOut' }}
             className="eyebrow block"
           >
-            Cosa facciamo
+            {t.eyebrow}
           </motion.span>
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
@@ -87,10 +141,8 @@ export default function Capabilities() {
             transition={{ duration: 0.6, ease: 'easeOut', delay: 0.05 }}
             className="mt-4 font-display text-3xl font-extrabold leading-tight text-brand-black sm:text-4xl md:text-5xl"
           >
-            Non siamo solo marketing.{' '}
-            <span className="text-brand-yellow">
-              Siamo il tuo partner digitale.
-            </span>
+            {t.headingPre}{' '}
+            <span className="text-brand-yellow">{t.headingHighlight}</span>
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 12 }}
@@ -99,13 +151,12 @@ export default function Capabilities() {
             transition={{ duration: 0.6, ease: 'easeOut', delay: 0.1 }}
             className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-brand-black/80 md:text-lg"
           >
-            Acquisizione, infrastruttura digitale e intelligenza artificiale
-            applicata. Tre pilastri, un unico interlocutore: noi.
+            {t.body}
           </motion.p>
         </div>
 
         <div className="mt-20 grid grid-cols-1 gap-6 md:mt-24 md:grid-cols-3 md:gap-7">
-          {pillars.map((p, i) => (
+          {t.pillars.map((p, i) => (
             <motion.article
               key={p.label}
               initial={{ opacity: 0, y: 40 }}
@@ -146,7 +197,7 @@ export default function Capabilities() {
 
         <div className="mt-16 flex justify-center md:mt-20">
           <a href="#contatti" className="btn-primary">
-            Consulta i nostri servizi
+            {t.cta}
           </a>
         </div>
       </div>

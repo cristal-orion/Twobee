@@ -4,27 +4,62 @@ import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { useGSAP } from '@gsap/react'
 
+import { useLang } from '../i18n/LanguageContext.jsx'
+
 gsap.registerPlugin(ScrollTrigger, useGSAP)
 
-const services = [
-  {
-    n: '01',
-    title: 'Performance Marketing',
-    body: 'Campagne paid su Meta, Google, TikTok, LinkedIn, Reddit, Pinterest, Spotify e Mediaset. Ogni euro allocato dove converte, ogni campagna ottimizzata in continuo.',
+const COPY = {
+  it: {
+    eyebrow: 'I nostri servizi',
+    headingPre: 'Mentre i creativi si concentrano sulle vanity metrics,',
+    headingHighlight: 'noi abbiamo cambiato le regole del gioco.',
+    cta: 'Prenota un Audit Gratuito',
+    services: [
+      {
+        n: '01',
+        title: 'Performance Marketing',
+        body: 'Campagne paid su Meta, Google, TikTok, LinkedIn, Reddit, Pinterest, Spotify e Mediaset. Ogni euro allocato dove converte, ogni campagna ottimizzata in continuo.',
+      },
+      {
+        n: '02',
+        title: 'Controllo di gestione',
+        body: 'Studiamo insieme le marginalità ed i costi del tuo business per guidarti verso una crescita sostenibile.',
+      },
+      {
+        n: '03',
+        title: 'Growth System',
+        body: 'Il sistema lavora anche quando sei in ferie. Lead scoring, notifiche ai commerciali, follow-up programmati.',
+      },
+    ],
   },
-  {
-    n: '02',
-    title: 'Controllo di gestione',
-    body: 'Studiamo insieme le marginalità ed i costi del tuo business per guidarti verso una crescita sostenibile.',
+  en: {
+    eyebrow: 'Our services',
+    headingPre: 'While creative agencies focus on vanity metrics,',
+    headingHighlight: 'we changed the rules of the game.',
+    cta: 'Book a Free Audit',
+    services: [
+      {
+        n: '01',
+        title: 'Performance Marketing',
+        body: 'Paid campaigns on Meta, Google, TikTok, LinkedIn, Reddit, Pinterest, Spotify, and Mediaset. Every euro allocated where it converts, every campaign continuously optimized.',
+      },
+      {
+        n: '02',
+        title: 'Management Control',
+        body: "We study your margins and business costs together to guide you toward sustainable growth.",
+      },
+      {
+        n: '03',
+        title: 'Growth System',
+        body: "The system keeps working even while you're on vacation. Lead scoring, sales notifications, scheduled follow-ups.",
+      },
+    ],
   },
-  {
-    n: '03',
-    title: 'Growth System',
-    body: 'Il sistema lavora anche quando sei in ferie. Lead scoring, notifiche ai commerciali, follow-up programmati.',
-  },
-]
+}
 
 export default function Services() {
+  const lang = useLang()
+  const t = COPY[lang]
   const root = useRef(null)
   const spineFill = useRef(null)
 
@@ -82,7 +117,7 @@ export default function Services() {
     <section ref={root} className="section-y border-t border-white/5">
       <div className="container-x">
         <div className="mx-auto max-w-3xl text-center">
-          <span className="eyebrow">I nostri servizi</span>
+          <span className="eyebrow">{t.eyebrow}</span>
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -90,10 +125,8 @@ export default function Services() {
             transition={{ duration: 0.6, ease: 'easeOut' }}
             className="mt-4 font-display text-3xl font-extrabold leading-tight text-brand-black sm:text-4xl md:text-5xl"
           >
-            Mentre i creativi si concentrano sulle vanity metrics,{' '}
-            <span className="text-brand-yellow">
-              noi abbiamo cambiato le regole del gioco.
-            </span>
+            {t.headingPre}{' '}
+            <span className="text-brand-yellow">{t.headingHighlight}</span>
           </motion.h2>
         </div>
 
@@ -111,7 +144,7 @@ export default function Services() {
           </div>
 
           <ul className="space-y-24 md:space-y-28">
-            {services.map((s, i) => {
+            {t.services.map((s, i) => {
               const onLeft = i % 2 === 0
               return (
                 <li key={s.title} className="relative">
@@ -152,7 +185,7 @@ export default function Services() {
 
         <div className="mt-20 flex justify-center md:mt-24">
           <a href="#contatti" className="btn-primary">
-            Prenota un Audit Gratuito
+            {t.cta}
           </a>
         </div>
       </div>

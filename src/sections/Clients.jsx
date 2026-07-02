@@ -1,4 +1,12 @@
+import { useLang } from '../i18n/LanguageContext.jsx'
+
+const EYEBROW = {
+  it: 'Hanno scelto TwoBee',
+  en: 'Trusted by',
+}
+
 export default function Clients() {
+  const lang = useLang()
   const partners = [
     { name: 'Sartoria Condotti', logo: '/partner-sartoriacondotti.webp', url: 'https://www.sartoriacondotti.it/' },
     { name: 'iCura Impresa', logo: '/partner-icuraimpresa.webp', url: 'https://www.icuraimpresa.it/' },
@@ -13,7 +21,7 @@ export default function Clients() {
     <section className="py-12">
       <div className="container-x">
         <p className="mb-8 text-center text-xs font-semibold uppercase tracking-[0.3em] text-white/50">
-          Hanno scelto TwoBee
+          {EYEBROW[lang]}
         </p>
       </div>
       <div className="marquee" style={{ '--marquee-duration': '40s' }}>

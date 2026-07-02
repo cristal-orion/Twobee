@@ -1,24 +1,58 @@
 import { motion } from 'framer-motion'
+import { useLang } from '../i18n/LanguageContext.jsx'
 
-const audiences = [
-  {
-    keyword: 'Startup',
-    headline: 'Idea validata, prima trazione.',
-    body: 'Acquisizione misurabile dal day 1, senza bruciare runway o capitale.',
+const COPY = {
+  it: {
+    eyebrow: 'Con chi vogliamo lavorare',
+    headingPre: 'Lavoriamo solo con imprenditori che non hanno smesso di',
+    headingHighlight: 'sognare e credere nel loro progetto.',
+    body: 'Scegliamo con chi lavorare: realtà che hanno un prodotto, un servizio e la volontà di costruire un sistema di crescita serio.',
+    audiences: [
+      {
+        keyword: 'Startup',
+        headline: 'Idea validata, prima trazione.',
+        body: 'Acquisizione misurabile dal day 1, senza bruciare runway o capitale.',
+      },
+      {
+        keyword: 'PMI',
+        headline: 'Vendite consolidate, crescita instabile.',
+        body: 'Crescita prevedibile, indipendente dal passaparola e dalla rete personale.',
+      },
+      {
+        keyword: 'E-commerce',
+        headline: 'Catalogo attivo, marginalità da difendere.',
+        body: 'Canali profittevoli e funnel sempre attivo per proteggere il margine.',
+      },
+    ],
   },
-  {
-    keyword: 'PMI',
-    headline: 'Vendite consolidate, crescita instabile.',
-    body: 'Crescita prevedibile, indipendente dal passaparola e dalla rete personale.',
+  en: {
+    eyebrow: 'Who we want to work with',
+    headingPre: "We only work with founders who haven't stopped",
+    headingHighlight: 'dreaming and believing in their project.',
+    body: "We choose who we work with: businesses with a product, a service, and the will to build a serious growth system.",
+    audiences: [
+      {
+        keyword: 'Startups',
+        headline: 'Validated idea, early traction.',
+        body: 'Measurable acquisition from day 1, without burning runway or capital.',
+      },
+      {
+        keyword: 'SMEs',
+        headline: 'Steady sales, unstable growth.',
+        body: 'Predictable growth, independent of word-of-mouth and personal networks.',
+      },
+      {
+        keyword: 'E-commerce',
+        headline: 'Active catalog, margins worth protecting.',
+        body: 'Profitable channels and an always-on funnel to protect your margin.',
+      },
+    ],
   },
-  {
-    keyword: 'E-commerce',
-    headline: 'Catalogo attivo, marginalità da difendere.',
-    body: 'Canali profittevoli e funnel sempre attivo per proteggere il margine.',
-  },
-]
+}
 
 export default function Audience() {
+  const lang = useLang()
+  const t = COPY[lang]
   return (
     <section className="section-y">
       <div className="container-x">
@@ -30,7 +64,7 @@ export default function Audience() {
             transition={{ duration: 0.5, ease: 'easeOut' }}
             className="eyebrow block"
           >
-            Con chi vogliamo lavorare
+            {t.eyebrow}
           </motion.span>
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
@@ -39,10 +73,8 @@ export default function Audience() {
             transition={{ duration: 0.6, ease: 'easeOut', delay: 0.05 }}
             className="mt-4 font-display text-3xl font-extrabold leading-tight text-white sm:text-4xl md:text-5xl"
           >
-            Lavoriamo solo con imprenditori che non hanno smesso di{' '}
-            <span className="text-brand-yellow">
-              sognare e credere nel loro progetto.
-            </span>
+            {t.headingPre}{' '}
+            <span className="text-brand-yellow">{t.headingHighlight}</span>
           </motion.h2>
           <motion.p
             initial={{ opacity: 0, y: 12 }}
@@ -51,13 +83,12 @@ export default function Audience() {
             transition={{ duration: 0.6, ease: 'easeOut', delay: 0.1 }}
             className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-white/70 md:text-lg"
           >
-            Scegliamo con chi lavorare: realtà che hanno un prodotto, un
-            servizio e la volontà di costruire un sistema di crescita serio.
+            {t.body}
           </motion.p>
         </div>
 
         <div className="mt-20 grid grid-cols-1 gap-12 md:mt-24 md:grid-cols-3 md:gap-10">
-          {audiences.map((a, i) => (
+          {t.audiences.map((a, i) => (
             <motion.article
               key={a.keyword}
               initial={{ opacity: 0, y: 32 }}

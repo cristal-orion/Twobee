@@ -1,21 +1,51 @@
 import { useEffect, useState } from 'react'
+import { localePath, useLang } from '../i18n/LanguageContext.jsx'
 
-const nav = [
-  { label: 'Servizi', href: '#servizi' },
-  { label: 'Sistema', href: '#sistema' },
-  { label: 'Piani', href: '#piani' },
-  { label: 'Team', href: '#team' },
-  { label: 'Lavora con noi', href: '/lavora-con-noi' },
-]
+const COPY = {
+  it: {
+    nav: [
+      { label: 'Servizi', href: '#servizi' },
+      { label: 'Sistema', href: '#sistema' },
+      { label: 'Piani', href: '#piani' },
+      { label: 'Team', href: '#team' },
+      { label: 'Lavora con noi', href: '/lavora-con-noi' },
+    ],
+    cta: 'Prenota un audit gratuito',
+    ctaShort: 'Audit',
+    menuLabel: 'Menu',
+  },
+  en: {
+    nav: [
+      { label: 'Services', href: '#servizi' },
+      { label: 'System', href: '#sistema' },
+      { label: 'Plans', href: '#piani' },
+      { label: 'Team', href: '#team' },
+      { label: 'Careers', href: '/lavora-con-noi' },
+    ],
+    cta: 'Book a free audit',
+    ctaShort: 'Audit',
+    menuLabel: 'Menu',
+  },
+}
 
 export default function Navbar({ subpage = false }) {
+  const lang = useLang()
+  const t = COPY[lang]
   const [scrolled, setScrolled] = useState(false)
   const [open, setOpen] = useState(false)
 
   // In una sottopagina le ancore (#servizi…) devono prima tornare alla home.
-  const resolve = (href) => (subpage && href.startsWith('#') ? `/${href}` : href)
-  const homeHref = subpage ? '/' : '#top'
+  const resolve = (href) =>
+    href.startsWith('#')
+      ? subpage
+        ? `${localePath('/', lang)}${href}`
+        : href
+      : localePath(href, lang)
+  const homeHref = subpage ? localePath('/', lang) : '#top'
   const ctaHref = resolve('#contatti')
+
+  const bare = subpage ? '/lavora-con-noi' : '/'
+  const hash = typeof window !== 'undefined' ? window.location.hash : ''
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20)
@@ -60,7 +90,7 @@ export default function Navbar({ subpage = false }) {
           />
         </a>
         <nav className="pointer-events-none absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-10 lg:flex">
-          {nav.map((n) => (
+          {t.nav.map((n) => (
             <a
               key={n.href}
               href={resolve(n.href)}
@@ -71,11 +101,27 @@ export default function Navbar({ subpage = false }) {
           ))}
         </nav>
         <div className="ml-auto flex items-center gap-2 sm:gap-3">
+          <div className="hidden items-center gap-0.5 rounded-full border border-white/15 p-0.5 text-[11px] font-bold uppercase tracking-wider sm:flex">
+            {['it', 'en'].map((l) => (
+              <a
+                key={l}
+                href={localePath(bare, l) + hash}
+                aria-current={lang === l ? 'true' : undefined}
+                className={
+                  lang === l
+                    ? 'rounded-full bg-brand-yellow px-2.5 py-1 text-brand-black'
+                    : 'px-2.5 py-1 text-white/50 transition-colors hover:text-white'
+                }
+              >
+                {l.toUpperCase()}
+              </a>
+            ))}
+          </div>
           <a
             href={ctaHref}
             className="hidden items-center gap-2 rounded-full bg-brand-yellow px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-brand-black transition-transform hover:scale-[1.03] sm:inline-flex"
           >
-            Prenota un audit gratuito
+            {t.cta}
             <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none">
               <path
                 d="M5 12h14M13 5l7 7-7 7"
@@ -90,12 +136,12 @@ export default function Navbar({ subpage = false }) {
             href={ctaHref}
             className="inline-flex items-center rounded-full bg-brand-yellow px-3.5 py-2 text-[11px] font-bold uppercase tracking-wider text-brand-black sm:hidden"
           >
-            Audit
+            {t.ctaShort}
           </a>
           <button
             onClick={() => setOpen((v) => !v)}
             className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 lg:hidden"
-            aria-label="Menu"
+            aria-label={t.menuLabel}
           >
             <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
               <path
@@ -117,7 +163,7 @@ export default function Navbar({ subpage = false }) {
           }}
         >
           <div className="container-x flex flex-col gap-1 py-4">
-            {nav.map((n) => (
+            {t.nav.map((n) => (
               <a
                 key={n.href}
                 href={resolve(n.href)}
@@ -127,6 +173,22 @@ export default function Navbar({ subpage = false }) {
                 {n.label}
               </a>
             ))}
+            <div className="mt-2 flex items-center gap-2 border-t border-white/5 px-3 pt-4">
+              {['it', 'en'].map((l) => (
+                <a
+                  key={l}
+                  href={localePath(bare, l) + hash}
+                  aria-current={lang === l ? 'true' : undefined}
+                  className={
+                    lang === l
+                      ? 'rounded-full bg-brand-yellow px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-brand-black'
+                      : 'rounded-full border border-white/15 px-3 py-1.5 text-[11px] font-bold uppercase tracking-wider text-white/50 hover:text-white'
+                  }
+                >
+                  {l.toUpperCase()}
+                </a>
+              ))}
+            </div>
           </div>
         </div>
       )}

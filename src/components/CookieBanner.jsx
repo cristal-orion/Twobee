@@ -1,4 +1,73 @@
 import { useEffect, useState } from 'react'
+import { useLang } from '../i18n/LanguageContext.jsx'
+
+const COPY = {
+  it: {
+    cardTitle: 'Cookie e privacy',
+    cardBody:
+      'Usiamo cookie tecnici (sempre attivi) e, con il tuo consenso, cookie di statistica e marketing per capire cosa funziona meglio.',
+    details: 'Dettagli',
+    acceptAll: 'Accetta tutti',
+    rejectAll: 'Rifiuta tutti',
+    manage: 'Gestisci',
+    modalTitle: 'Le tue preferenze cookie',
+    modalBody:
+      'Scegli quali categorie autorizzare. Puoi cambiare idea in ogni momento dal footer.',
+    close: 'Chiudi',
+    necessary: {
+      title: 'Necessari',
+      description:
+        'Cookie tecnici e di sicurezza essenziali al funzionamento del sito. Sempre attivi.',
+    },
+    statistics: {
+      title: 'Statistiche',
+      description:
+        'Ci aiutano a capire come viene usato il sito (Google Analytics, in forma aggregata).',
+    },
+    marketing: {
+      title: 'Marketing',
+      description:
+        "Permettono di mostrarti annunci pertinenti e misurare l'efficacia delle campagne.",
+    },
+    savePrefs: 'Salva preferenze',
+    footerPre: 'Vedi la',
+    footerAnd: 'e la',
+    privacy: 'Privacy Policy',
+    cookie: 'Cookie Policy',
+  },
+  en: {
+    cardTitle: 'Cookies & privacy',
+    cardBody:
+      'We use technical cookies (always on) and, with your consent, statistics and marketing cookies to understand what works best.',
+    details: 'Details',
+    acceptAll: 'Accept all',
+    rejectAll: 'Reject all',
+    manage: 'Manage',
+    modalTitle: 'Your cookie preferences',
+    modalBody:
+      'Choose which categories to allow. You can change your mind anytime from the footer.',
+    close: 'Close',
+    necessary: {
+      title: 'Necessary',
+      description:
+        'Technical and security cookies essential for the site to work. Always on.',
+    },
+    statistics: {
+      title: 'Statistics',
+      description:
+        'Help us understand how the site is used (Google Analytics, in aggregate form).',
+    },
+    marketing: {
+      title: 'Marketing',
+      description: 'Let us show you relevant ads and measure campaign effectiveness.',
+    },
+    savePrefs: 'Save preferences',
+    footerPre: 'See the',
+    footerAnd: 'and the',
+    privacy: 'Privacy Policy',
+    cookie: 'Cookie Policy',
+  },
+}
 
 const STORAGE_KEY = 'tb_consent_v1'
 const MAX_AGE_MS = 365 * 24 * 60 * 60 * 1000
@@ -42,6 +111,8 @@ function readSaved() {
 }
 
 export default function CookieBanner() {
+  const lang = useLang()
+  const t = COPY[lang]
   const [view, setView] = useState('closed')
   const [choices, setChoices] = useState(DEFAULT_CHOICES)
 
@@ -93,12 +164,12 @@ export default function CookieBanner() {
       <div className="fixed bottom-4 left-4 right-4 z-[100] sm:left-auto sm:max-w-sm">
         <div className="rounded-2xl border border-brand-yellow/40 bg-brand-black/95 p-5 shadow-[0_30px_60px_-15px_rgba(0,0,0,0.6)] backdrop-blur-md">
           <div className="font-display text-base font-extrabold text-white">
-            Cookie e privacy
+            {t.cardTitle}
           </div>
           <p className="mt-2 text-sm leading-relaxed text-white/70">
-            Usiamo cookie tecnici (sempre attivi) e, con il tuo consenso, cookie di statistica e marketing per capire cosa funziona meglio.{' '}
+            {t.cardBody}{' '}
             <a href="/cookie-policy.html" className="underline hover:text-brand-yellow">
-              Dettagli
+              {t.details}
             </a>
             .
           </p>
@@ -107,19 +178,19 @@ export default function CookieBanner() {
               onClick={acceptAll}
               className="flex-1 rounded-full bg-brand-yellow px-4 py-2 text-sm font-bold text-brand-black transition hover:brightness-95"
             >
-              Accetta tutti
+              {t.acceptAll}
             </button>
             <button
               onClick={rejectAll}
               className="flex-1 rounded-full border border-white/25 px-4 py-2 text-sm font-bold text-white transition hover:border-white/50"
             >
-              Rifiuta tutti
+              {t.rejectAll}
             </button>
             <button
               onClick={() => setView('modal')}
               className="flex-1 rounded-full border border-white/25 px-4 py-2 text-sm font-bold text-white transition hover:border-white/50"
             >
-              Gestisci
+              {t.manage}
             </button>
           </div>
         </div>
@@ -138,15 +209,13 @@ export default function CookieBanner() {
         <div className="flex items-start justify-between gap-4">
           <div>
             <div className="font-display text-xl font-extrabold text-white">
-              Le tue preferenze cookie
+              {t.modalTitle}
             </div>
-            <p className="mt-1 text-sm text-white/60">
-              Scegli quali categorie autorizzare. Puoi cambiare idea in ogni momento dal footer.
-            </p>
+            <p className="mt-1 text-sm text-white/60">{t.modalBody}</p>
           </div>
           <button
             onClick={closeFromModal}
-            aria-label="Chiudi"
+            aria-label={t.close}
             className="text-2xl leading-none text-white/50 transition hover:text-white"
           >
             ×
@@ -155,20 +224,20 @@ export default function CookieBanner() {
 
         <div className="mt-5 space-y-3">
           <ConsentRow
-            title="Necessari"
-            description="Cookie tecnici e di sicurezza essenziali al funzionamento del sito. Sempre attivi."
+            title={t.necessary.title}
+            description={t.necessary.description}
             checked
             disabled
           />
           <ConsentRow
-            title="Statistiche"
-            description="Ci aiutano a capire come viene usato il sito (Google Analytics, in forma aggregata)."
+            title={t.statistics.title}
+            description={t.statistics.description}
             checked={choices.statistics}
             onChange={(v) => setChoices((c) => ({ ...c, statistics: v }))}
           />
           <ConsentRow
-            title="Marketing"
-            description="Permettono di mostrarti annunci pertinenti e misurare l'efficacia delle campagne."
+            title={t.marketing.title}
+            description={t.marketing.description}
             checked={choices.marketing}
             onChange={(v) => setChoices((c) => ({ ...c, marketing: v }))}
           />
@@ -179,30 +248,30 @@ export default function CookieBanner() {
             onClick={acceptAll}
             className="flex-1 rounded-full bg-brand-yellow px-4 py-2 text-sm font-bold text-brand-black transition hover:brightness-95"
           >
-            Accetta tutti
+            {t.acceptAll}
           </button>
           <button
             onClick={rejectAll}
             className="flex-1 rounded-full border border-white/25 px-4 py-2 text-sm font-bold text-white transition hover:border-white/50"
           >
-            Rifiuta tutti
+            {t.rejectAll}
           </button>
           <button
             onClick={savePrefs}
             className="flex-1 rounded-full border border-white/25 px-4 py-2 text-sm font-bold text-white transition hover:border-white/50"
           >
-            Salva preferenze
+            {t.savePrefs}
           </button>
         </div>
 
         <p className="mt-4 text-[11px] leading-relaxed text-white/40">
-          Vedi la{' '}
+          {t.footerPre}{' '}
           <a href="/privacy-policy.html" className="underline hover:text-brand-yellow">
-            Privacy Policy
+            {t.privacy}
           </a>{' '}
-          e la{' '}
+          {t.footerAnd}{' '}
           <a href="/cookie-policy.html" className="underline hover:text-brand-yellow">
-            Cookie Policy
+            {t.cookie}
           </a>
           .
         </p>

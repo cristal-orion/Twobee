@@ -1,28 +1,67 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useLang } from '../i18n/LanguageContext.jsx'
 
-const faqs = [
-  {
-    q: 'Come faccio a tenere traccia dei risultati?',
-    a: 'Ricevi un report mensile con i KPI di fatturato reale generato, non vanity metrics. In più hai una dashboard sempre accessibile con lo stato delle campagne in tempo reale.',
+const COPY = {
+  it: {
+    eyebrow: 'FAQ',
+    headingPre: 'Domande ',
+    headingHighlight: 'frequenti',
+    body: "Tutto ciò che c'è da sapere per capire come lavoriamo e come ti aiutiamo a scalare il tuo business.",
+    cta: 'Prenota un Audit Gratuito',
+    faqs: [
+      {
+        q: 'Come faccio a tenere traccia dei risultati?',
+        a: 'Ricevi un report mensile con i KPI di fatturato reale generato, non vanity metrics. In più hai una dashboard sempre accessibile con lo stato delle campagne in tempo reale.',
+      },
+      {
+        q: 'Quanto ci vuole per vedere i primi risultati?',
+        a: "I primi risultati misurabili arrivano dopo aver raccolto i dati giusti: vedrai un impatto sul tuo business entro 30-60 giorni. A 90 giorni il sistema è a regime e i KPI di fatturato diventano stabili e prevedibili.",
+      },
+      {
+        q: 'Cosa succede se non funziona?',
+        a: 'Dopo 90 giorni puoi uscire dal contratto senza penali. Crediamo nel valore del nostro lavoro: se non produciamo risultati misurabili, non meritiamo di trattenerti.',
+      },
+      {
+        q: 'Quanto devo investire in Ads?',
+        a: "L'investimento minimo consigliato varia in base al settore e agli obiettivi: lo valuteremo insieme con un calcolo statistico. In audit definiamo insieme la cifra corretta, si parte in genere dal 2% del fatturato.",
+      },
+      {
+        q: 'Cosa vi differenzia dalle agenzie?',
+        a: 'Lavoriamo con un approccio data-driven su KPI di fatturato, non di follower. Nessun costo nascosto, clausola di uscita a 90 giorni, report garantiti e un partner decisionale invece di un esecutore di campagne.',
+      },
+    ],
   },
-  {
-    q: 'Quanto ci vuole per vedere i primi risultati?',
-    a: 'I primi risultati misurabili arrivano dopo aver raccolto i dati giusti: vedrai un impatto sul tuo business entro 30-60 giorni. A 90 giorni il sistema è a regime e i KPI di fatturato diventano stabili e prevedibili.',
+  en: {
+    eyebrow: 'FAQ',
+    headingPre: 'Frequently Asked ',
+    headingHighlight: 'Questions',
+    body: 'Everything you need to know to understand how we work and how we help you scale your business.',
+    cta: 'Book a Free Audit',
+    faqs: [
+      {
+        q: 'How do I track results?',
+        a: "You get a monthly report with real revenue KPIs, not vanity metrics. Plus, you always have access to a dashboard showing your campaigns' status in real time.",
+      },
+      {
+        q: 'How long before I see the first results?',
+        a: "The first measurable results come after we've gathered the right data: you'll see an impact on your business within 30-60 days. By 90 days the system is fully up to speed and revenue KPIs become stable and predictable.",
+      },
+      {
+        q: "What happens if it doesn't work?",
+        a: "After 90 days you can exit the contract with no penalties. We believe in the value of our work: if we don't produce measurable results, we don't deserve to keep you.",
+      },
+      {
+        q: 'How much should I invest in Ads?',
+        a: "The recommended minimum investment varies by industry and goals: we'll work it out together with a statistical calculation. During the audit we define the right figure together — it typically starts at around 2% of revenue.",
+      },
+      {
+        q: 'What sets you apart from agencies?',
+        a: 'We work with a data-driven approach based on revenue KPIs, not follower counts. No hidden costs, a 90-day exit clause, guaranteed reporting, and a decision-making partner instead of a campaign executor.',
+      },
+    ],
   },
-  {
-    q: 'Cosa succede se non funziona?',
-    a: 'Dopo 90 giorni puoi uscire dal contratto senza penali. Crediamo nel valore del nostro lavoro: se non produciamo risultati misurabili, non meritiamo di trattenerti.',
-  },
-  {
-    q: 'Quanto devo investire in Ads?',
-    a: "L'investimento minimo consigliato varia in base al settore e agli obiettivi: lo valuteremo insieme con un calcolo statistico. In audit definiamo insieme la cifra corretta, si parte in genere dal 2% del fatturato.",
-  },
-  {
-    q: 'Cosa vi differenzia dalle agenzie?',
-    a: 'Lavoriamo con un approccio data-driven su KPI di fatturato, non di follower. Nessun costo nascosto, clausola di uscita a 90 giorni, report garantiti e un partner decisionale invece di un esecutore di campagne.',
-  },
-]
+}
 
 function Item({ faq, open, onToggle }) {
   return (
@@ -71,25 +110,25 @@ function Item({ faq, open, onToggle }) {
 }
 
 export default function Faq() {
+  const lang = useLang()
+  const t = COPY[lang]
   const [openIdx, setOpenIdx] = useState(0)
   return (
     <section className="section-y bg-brand-black">
       <div className="container-x grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-start">
         <div className="lg:sticky lg:top-24">
-          <span className="eyebrow">FAQ</span>
+          <span className="eyebrow">{t.eyebrow}</span>
           <h2 className="mt-4 font-display text-3xl font-extrabold leading-tight sm:text-4xl md:text-5xl">
-            Domande <span className="text-brand-yellow">frequenti</span>
+            {t.headingPre}
+            <span className="text-brand-yellow">{t.headingHighlight}</span>
           </h2>
-          <p className="mt-4 text-base text-white/65">
-            Tutto ciò che c'è da sapere per capire come lavoriamo e come ti
-            aiutiamo a scalare il tuo business.
-          </p>
+          <p className="mt-4 text-base text-white/65">{t.body}</p>
           <a href="#contatti" className="btn-primary mt-8">
-            Prenota un Audit Gratuito
+            {t.cta}
           </a>
         </div>
         <div className="space-y-3">
-          {faqs.map((f, i) => (
+          {t.faqs.map((f, i) => (
             <Item
               key={f.q}
               faq={f}

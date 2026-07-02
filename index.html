@@ -78,6 +78,12 @@
     <meta name="robots" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
     <meta name="theme-color" content="#0B0B0C" />
 
+    <!-- Same physical HTML is served for both / and /en/ (client-side i18n,
+         no per-locale build), so this static block correctly describes both. -->
+    <link rel="alternate" hreflang="it" href="https://twobee.it/" />
+    <link rel="alternate" hreflang="en" href="https://twobee.it/en/" />
+    <link rel="alternate" hreflang="x-default" href="https://twobee.it/" />
+
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="TwoBee" />
     <meta property="og:title" content="TwoBee | Sistemi di crescita per le PMI del Sud Italia" />

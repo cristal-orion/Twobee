@@ -13,20 +13,140 @@ import Navbar from '../components/Navbar.jsx'
 import Footer from '../components/Footer.jsx'
 import HexBackground from '../components/HexBackground.jsx'
 import CookieBanner from '../components/CookieBanner.jsx'
+import { useLang } from '../i18n/LanguageContext.jsx'
 
 gsap.registerPlugin(ScrollTrigger, ScrollSmoother, useGSAP)
 
 // Numero WhatsApp Two Bee (formato wa.me, senza + e spazi)
 const WA_NUMBER = '393668092605'
 const WA_DISPLAY = '+39 366 809 2605'
-const WA_TEXT =
-  'Ciao Two Bee! 🐝 Vorrei candidarmi: tra poco vi mando il mio videopalla di presentazione e il CV.'
-const WA_LINK = `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(WA_TEXT)}`
+const WA_TEXT = {
+  it: 'Ciao Two Bee! 🐝 Vorrei candidarmi: tra poco vi mando il mio videopalla di presentazione e il CV.',
+  en: "Hi Two Bee! 🐝 I'd like to apply — I'll send my intro videopalla and resume shortly.",
+}
+const waLink = (lang) =>
+  `https://wa.me/${WA_NUMBER}?text=${encodeURIComponent(WA_TEXT[lang])}`
 
 const EMAIL = 'info@twobee.it'
-const EMAIL_LINK = `mailto:${EMAIL}?subject=${encodeURIComponent(
-  'Candidatura — Lavora con noi'
-)}`
+const EMAIL_SUBJECT = {
+  it: 'Candidatura — Lavora con noi',
+  en: 'Application — Careers',
+}
+const emailLink = (lang) =>
+  `mailto:${EMAIL}?subject=${encodeURIComponent(EMAIL_SUBJECT[lang])}`
+
+const COPY = {
+  it: {
+    hero: {
+      eyebrow: '🐝 Lavora con noi',
+      headingLine1: 'Lascia perdere',
+      headingLine2Pre: 'il CV noioso. ',
+      headingHighlight: 'Candidati come nessuno.',
+      bodyPre: 'Niente lettere motivazionali infinite. Registra un ',
+      bodyWord: 'videopalla',
+      bodyPost: ', allega il CV e premi invio. In 60 secondi capiamo chi sei davvero.',
+      emailCta: 'Oppure scrivici via email',
+      tags: ['60 secondi bastano', 'Zero formalità', 'Rispondiamo a tutti'],
+    },
+    band: {
+      caption: 'Il video tondo di WhatsApp. Sì, proprio quello.',
+    },
+    how: {
+      eyebrow: 'Come funziona',
+      heading: 'Tre mosse e sei dentro al processo.',
+      today: 'Oggi',
+      sent: 'Inviato',
+      steps: [
+        {
+          n: '1',
+          title: 'Registra il videopalla',
+          body: 'Apri la chat, tieni premuto il tasto del videomessaggio e raccontaci chi sei. 60 secondi, senza copione.',
+        },
+        {
+          n: '2',
+          title: 'Allega il tuo CV',
+          body: 'PDF, portfolio, profilo LinkedIn: quello che ti rappresenta meglio. Niente moduli infiniti.',
+        },
+        {
+          n: '3',
+          title: 'Premi invia',
+          body: `Mandaci tutto su WhatsApp al ${WA_DISPLAY}. Ti rispondiamo noi, in carne e ossa.`,
+        },
+      ],
+    },
+    phone: {
+      messagePlaceholder: 'Messaggio',
+      bubble1: 'Ehi! Pronto a entrare nel team? 🐝',
+      bubble2Pre: 'Mandaci un ',
+      bubble2Word: 'videopalla',
+      bubble2Post: ' + il tuo CV 🎥',
+      yourVideopalla: 'il tuo videopalla',
+    },
+    cta: {
+      eyebrow: 'Tocca a te',
+      headingLine1: 'Premi registra.',
+      headingLine2: 'Facci sorridere.',
+      body: 'Il talento non si misura in righe di CV. Mandaci il tuo videopalla su WhatsApp: lo guardiamo davvero, uno per uno.',
+      footer: `WhatsApp ${WA_DISPLAY} · Rispondiamo a tutti`,
+    },
+    waButtonLabel: 'Inviaci il videopalla',
+  },
+  en: {
+    hero: {
+      eyebrow: '🐝 Careers',
+      headingLine1: 'Forget the',
+      headingLine2Pre: 'boring resume. ',
+      headingHighlight: 'Apply like no one else.',
+      bodyPre: 'No endless cover letters. Record a ',
+      bodyWord: 'videopalla',
+      bodyPost: ", attach your resume, and hit send. In 60 seconds we'll know who you really are.",
+      emailCta: 'Or email us instead',
+      tags: ['60 seconds is enough', 'Zero formalities', 'We reply to everyone'],
+    },
+    band: {
+      caption: "WhatsApp's round video message. Yes, that one.",
+    },
+    how: {
+      eyebrow: 'How it works',
+      heading: "Three moves and you're in.",
+      today: 'Today',
+      sent: 'Sent',
+      steps: [
+        {
+          n: '1',
+          title: 'Record your videopalla',
+          body: 'Open the chat, hold down the video-message button, and tell us who you are. 60 seconds, no script.',
+        },
+        {
+          n: '2',
+          title: 'Attach your resume',
+          body: 'PDF, portfolio, LinkedIn profile: whatever represents you best. No endless forms.',
+        },
+        {
+          n: '3',
+          title: 'Hit send',
+          body: `Send it all to us on WhatsApp at ${WA_DISPLAY}. A real person will get back to you.`,
+        },
+      ],
+    },
+    phone: {
+      messagePlaceholder: 'Message',
+      bubble1: 'Hey! Ready to join the team? 🐝',
+      bubble2Pre: 'Send us a ',
+      bubble2Word: 'videopalla',
+      bubble2Post: ' + your resume 🎥',
+      yourVideopalla: 'your videopalla',
+    },
+    cta: {
+      eyebrow: 'Your turn',
+      headingLine1: 'Hit record.',
+      headingLine2: 'Make us smile.',
+      body: "Talent isn't measured in lines on a resume. Send us your videopalla on WhatsApp — we actually watch every single one.",
+      footer: `WhatsApp ${WA_DISPLAY} · We reply to everyone`,
+    },
+    waButtonLabel: 'Send us your videopalla',
+  },
+}
 
 export default function CareersPage() {
   const wrapper = useRef(null)
@@ -77,6 +197,8 @@ export default function CareersPage() {
 /* ------------------------------------------------------------------ */
 
 function Hero() {
+  const lang = useLang()
+  const t = COPY[lang].hero
   const root = useRef(null)
 
   useGSAP(
@@ -106,35 +228,35 @@ function Hero() {
         {/* colonna testo */}
         <div>
           <span className="cr-fade eyebrow text-outlined-sm">
-            🐝 Lavora con noi
+            {t.eyebrow}
           </span>
 
           <h1 className="cr-fade text-outlined mt-5 font-display text-4xl font-extrabold leading-[0.92] tracking-tight sm:text-5xl lg:text-6xl xl:text-7xl">
-            Lascia perdere
+            {t.headingLine1}
             <br />
-            il CV noioso.{' '}
-            <span className="text-brand-yellow">Candidati come nessuno.</span>
+            {t.headingLine2Pre}
+            <span className="text-brand-yellow">{t.headingHighlight}</span>
           </h1>
 
           <p className="cr-fade mt-7 max-w-md text-base text-white/75 sm:text-lg">
-            Niente lettere motivazionali infinite. Registra un{' '}
-            <span className="font-semibold text-white">videopalla</span>, allega
-            il CV e premi invio. In 60 secondi capiamo chi sei davvero.
+            {t.bodyPre}
+            <span className="font-semibold text-white">{t.bodyWord}</span>
+            {t.bodyPost}
           </p>
 
           <div className="cr-fade mt-9 flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:gap-4">
             <WaButton />
-            <a href={EMAIL_LINK} className="btn-outline">
-              Oppure scrivici via email
+            <a href={emailLink(lang)} className="btn-outline">
+              {t.emailCta}
             </a>
           </div>
 
           <ul className="cr-fade mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs font-bold uppercase tracking-[0.2em] text-white/55 sm:text-sm">
-            {['60 secondi bastano', 'Zero formalità', 'Rispondiamo a tutti'].map(
-              (t) => (
-                <li key={t} className="inline-flex items-center gap-2">
+            {t.tags.map(
+              (tag) => (
+                <li key={tag} className="inline-flex items-center gap-2">
                   <span className="h-1.5 w-1.5 rounded-full bg-brand-yellow" />
-                  {t}
+                  {tag}
                 </li>
               )
             )}
@@ -155,6 +277,8 @@ function Hero() {
 /* ------------------------------------------------------------------ */
 
 function VideopallaBand() {
+  const lang = useLang()
+  const t = COPY[lang].band
   const root = useRef(null)
 
   useGSAP(
@@ -184,7 +308,7 @@ function VideopallaBand() {
   return (
     <section ref={root} className="relative overflow-hidden py-14 sm:py-20">
       <p className="container-x text-center text-sm font-bold uppercase tracking-[0.3em] text-brand-yellow sm:text-base">
-        Il video tondo di WhatsApp. Sì, proprio quello.
+        {t.caption}
       </p>
 
       <h2
@@ -211,25 +335,9 @@ function VideopallaBand() {
 /* COME FUNZIONA — thread di chat                                      */
 /* ------------------------------------------------------------------ */
 
-const STEPS = [
-  {
-    n: '1',
-    title: 'Registra il videopalla',
-    body: 'Apri la chat, tieni premuto il tasto del videomessaggio e raccontaci chi sei. 60 secondi, senza copione.',
-  },
-  {
-    n: '2',
-    title: 'Allega il tuo CV',
-    body: 'PDF, portfolio, profilo LinkedIn: quello che ti rappresenta meglio. Niente moduli infiniti.',
-  },
-  {
-    n: '3',
-    title: 'Premi invia',
-    body: `Mandaci tutto su WhatsApp al ${WA_DISPLAY}. Ti rispondiamo noi, in carne e ossa.`,
-  },
-]
-
 function HowItWorks() {
+  const lang = useLang()
+  const t = COPY[lang].how
   const root = useRef(null)
 
   useGSAP(
@@ -258,9 +366,9 @@ function HowItWorks() {
     <section ref={root} className="relative">
       <div className="container-x py-16 sm:py-24">
         <div className="mx-auto max-w-2xl text-center">
-          <span className="eyebrow text-outlined-sm">Come funziona</span>
+          <span className="eyebrow text-outlined-sm">{t.eyebrow}</span>
           <h2 className="text-outlined mt-4 font-display text-3xl font-extrabold leading-tight sm:text-4xl md:text-5xl">
-            Tre mosse e sei dentro al processo.
+            {t.heading}
           </h2>
         </div>
 
@@ -268,12 +376,12 @@ function HowItWorks() {
         <div className="mx-auto mt-10 max-w-xl rounded-[2rem] border border-white/10 bg-white/[0.03] p-5 backdrop-blur-sm sm:p-7">
           <div className="mb-5 flex justify-center">
             <span className="rounded-full bg-white/[0.06] px-3 py-1 text-[11px] font-bold uppercase tracking-[0.2em] text-white/45">
-              Oggi
+              {t.today}
             </span>
           </div>
 
           <div className="space-y-3.5">
-            {STEPS.slice(0, 2).map((s) => (
+            {t.steps.slice(0, 2).map((s) => (
               <div
                 key={s.n}
                 className="cr-msg flex max-w-[88%] gap-3 rounded-2xl rounded-tl-md border border-white/10 bg-white/[0.05] p-4"
@@ -296,19 +404,19 @@ function HowItWorks() {
             <div className="cr-msg ml-auto flex max-w-[88%] flex-col items-end">
               <div className="flex gap-3 rounded-2xl rounded-tr-md bg-brand-yellow p-4 text-brand-black">
                 <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-brand-black font-display text-sm font-extrabold text-brand-yellow">
-                  {STEPS[2].n}
+                  {t.steps[2].n}
                 </span>
                 <div>
                   <h3 className="font-display text-base font-bold sm:text-lg">
-                    {STEPS[2].title}
+                    {t.steps[2].title}
                   </h3>
                   <p className="mt-1 text-sm font-medium leading-relaxed text-brand-black/75">
-                    {STEPS[2].body}
+                    {t.steps[2].body}
                   </p>
                 </div>
               </div>
               <span className="mt-1.5 inline-flex items-center gap-1 pr-1 text-[11px] font-semibold text-white/45">
-                Inviato
+                {t.sent}
                 <svg viewBox="0 0 18 12" className="h-3 w-4 text-[#53bdeb]" fill="none">
                   <path
                     d="M1 6.5 4.5 10 11 2.5"
@@ -339,6 +447,8 @@ function HowItWorks() {
 /* ------------------------------------------------------------------ */
 
 function PhoneMockup() {
+  const lang = useLang()
+  const t = COPY[lang].phone
   const root = useRef(null)
 
   useGSAP(
@@ -464,9 +574,11 @@ function PhoneMockup() {
               backgroundSize: '18px 18px',
             }}
           >
-            <Bubble>Ehi! Pronto a entrare nel team? 🐝</Bubble>
+            <Bubble>{t.bubble1}</Bubble>
             <Bubble>
-              Mandaci un <b>videopalla</b> + il tuo CV 🎥
+              {t.bubble2Pre}
+              <b>{t.bubble2Word}</b>
+              {t.bubble2Post}
             </Bubble>
 
             {/* videopalla — nota video circolare */}
@@ -498,7 +610,7 @@ function PhoneMockup() {
           {/* input bar */}
           <div className="flex items-center gap-2 bg-[#0b141a] px-3 pb-4 pt-1">
             <div className="flex flex-1 items-center gap-2 rounded-full bg-[#1f2c34] px-4 py-2.5 text-[13px] text-[#8696a0]">
-              <span>Messaggio</span>
+              <span>{t.messagePlaceholder}</span>
             </div>
             <div className="flex h-10 w-10 items-center justify-center rounded-full bg-[#00a884]">
               <svg viewBox="0 0 24 24" className="h-5 w-5 text-white" fill="currentColor">
@@ -574,6 +686,7 @@ function VideoBall() {
 
 // Placeholder finché non viene caricato public/videopalla.mp4
 function VideoPlaceholder({ hidden }) {
+  const lang = useLang()
   return (
     <div
       className={`absolute inset-0 flex flex-col items-center justify-center ${
@@ -589,7 +702,7 @@ function VideoPlaceholder({ hidden }) {
         <path d="M12 12a5 5 0 1 0 0-10 5 5 0 0 0 0 10zm0 2c-4 0-8 2-8 5v1h16v-1c0-3-4-5-8-5z" />
       </svg>
       <span className="mt-1 text-[10px] font-semibold uppercase tracking-wider text-white/40">
-        il tuo videopalla
+        {COPY[lang].phone.yourVideopalla}
       </span>
       {/* pallino REC */}
       <span className="absolute left-3 top-3 flex items-center gap-1 text-[9px] font-bold text-red-400">
@@ -634,6 +747,8 @@ function Battery() {
 /* ------------------------------------------------------------------ */
 
 function Cta() {
+  const lang = useLang()
+  const t = COPY[lang].cta
   return (
     <section className="relative">
       <div className="relative overflow-hidden bg-brand-yellow text-brand-black">
@@ -658,30 +773,29 @@ function Cta() {
 
         <div className="container-x relative py-20 text-center md:py-28">
           <span className="inline-block text-xs font-bold uppercase tracking-[0.3em] text-brand-black/70 sm:text-sm">
-            Tocca a te
+            {t.eyebrow}
           </span>
           <h2 className="mx-auto mt-5 max-w-4xl font-display text-4xl font-extrabold uppercase leading-[0.95] tracking-tight sm:text-6xl md:text-7xl">
-            Premi registra.
+            {t.headingLine1}
             <br />
-            Facci sorridere.
+            {t.headingLine2}
           </h2>
           <p className="mx-auto mt-6 max-w-xl text-base font-medium leading-snug sm:text-lg md:text-xl">
-            Il talento non si misura in righe di CV. Mandaci il tuo videopalla
-            su WhatsApp: lo guardiamo davvero, uno per uno.
+            {t.body}
           </p>
 
           <div className="mt-11 flex flex-col items-center justify-center gap-4 sm:flex-row">
             <a
-              href={WA_LINK}
+              href={waLink(lang)}
               target="_blank"
               rel="noopener noreferrer"
               className="group inline-flex items-center gap-3 rounded-full bg-brand-black px-10 py-5 text-base font-bold uppercase tracking-wider text-white shadow-[0_18px_60px_-12px_rgba(0,0,0,0.6)] transition-transform hover:scale-[1.03] sm:text-lg md:px-12 md:py-6"
             >
               <WhatsappGlyph />
-              Inviaci il videopalla
+              {COPY[lang].waButtonLabel}
             </a>
             <a
-              href={EMAIL_LINK}
+              href={emailLink(lang)}
               className="inline-flex items-center gap-2 rounded-full border-2 border-brand-black/30 px-8 py-4 text-sm font-bold uppercase tracking-wider text-brand-black transition hover:bg-brand-black hover:text-white sm:text-base"
             >
               {EMAIL}
@@ -689,7 +803,7 @@ function Cta() {
           </div>
 
           <p className="mt-8 text-xs font-bold uppercase tracking-[0.2em] text-brand-black/60 sm:text-sm">
-            WhatsApp {WA_DISPLAY} · Rispondiamo a tutti
+            {t.footer}
           </p>
         </div>
       </div>
@@ -702,15 +816,16 @@ function Cta() {
 /* ------------------------------------------------------------------ */
 
 function WaButton() {
+  const lang = useLang()
   return (
     <a
-      href={WA_LINK}
+      href={waLink(lang)}
       target="_blank"
       rel="noopener noreferrer"
       className="group inline-flex items-center gap-3 rounded-full bg-[#25d366] px-8 py-4 text-sm font-bold uppercase tracking-wider text-[#062a16] shadow-[0_14px_40px_-12px_rgba(37,211,102,0.7)] transition-transform hover:scale-[1.03] sm:text-base"
     >
       <WhatsappGlyph />
-      Inviaci il videopalla
+      {COPY[lang].waButtonLabel}
     </a>
   )
 }

@@ -1,31 +1,72 @@
 import { motion } from 'framer-motion'
+import { useLang } from '../i18n/LanguageContext.jsx'
 
-const steps = [
-  {
-    n: '01',
-    phase: 'Diagnosi',
-    title: 'Analisi delle dispersioni',
-    body: 'Mappiamo dove perdi clienti e budget oggi. Tracciamo i colli di bottiglia del tuo ecosistema prima di toccare qualsiasi campagna.',
+const COPY = {
+  it: {
+    eyebrow: 'Il nostro metodo',
+    headingPre: 'Costruiamo il tuo sistema di acquisizione clienti con',
+    headingHighlight: 'KPI di fatturato reale',
+    headingPost: ', non follower.',
+    steps: [
+      {
+        n: '01',
+        phase: 'Diagnosi',
+        title: 'Analisi delle dispersioni',
+        body: 'Mappiamo dove perdi clienti e budget oggi. Tracciamo i colli di bottiglia del tuo ecosistema prima di toccare qualsiasi campagna.',
+      },
+      {
+        n: '02',
+        phase: 'Sistema',
+        title: 'Architettura di vendita',
+        body: 'Funnel, CRM e automazioni che rendono prevedibile la tua crescita — non un set di ads sparsi.',
+      },
+      {
+        n: '03',
+        phase: 'Execution',
+        title: 'Gestione operativa',
+        body: 'Gestiamo ads, email, content e tracciamenti avanzati. Tu vedi i risultati, non la macchina.',
+      },
+      {
+        n: '04',
+        phase: 'Reporting',
+        title: "Ritorno sull'investimento",
+        body: 'Capiamo insieme da dove provengono i tuoi ricavi: CAC, NCAC, MER, AMER, LTV per comprendere i driver del tuo business.',
+      },
+    ],
   },
-  {
-    n: '02',
-    phase: 'Sistema',
-    title: 'Architettura di vendita',
-    body: 'Funnel, CRM e automazioni che rendono prevedibile la tua crescita — non un set di ads sparsi.',
+  en: {
+    eyebrow: 'Our method',
+    headingPre: 'We build your customer-acquisition system on',
+    headingHighlight: 'real revenue KPIs',
+    headingPost: ', not followers.',
+    steps: [
+      {
+        n: '01',
+        phase: 'Diagnosis',
+        title: 'Leak Analysis',
+        body: "We map where you're losing customers and budget today. We trace the bottlenecks in your ecosystem before touching a single campaign.",
+      },
+      {
+        n: '02',
+        phase: 'System',
+        title: 'Sales Architecture',
+        body: 'Funnels, CRM, and automations that make your growth predictable — not a scattered set of ads.',
+      },
+      {
+        n: '03',
+        phase: 'Execution',
+        title: 'Operational Management',
+        body: 'We manage ads, email, content, and advanced tracking. You see the results, not the machine.',
+      },
+      {
+        n: '04',
+        phase: 'Reporting',
+        title: 'Return on Investment',
+        body: 'Together we figure out where your revenue comes from: CAC, NCAC, MER, AMER, LTV to understand the drivers of your business.',
+      },
+    ],
   },
-  {
-    n: '03',
-    phase: 'Execution',
-    title: 'Gestione operativa',
-    body: 'Gestiamo ads, email, content e tracciamenti avanzati. Tu vedi i risultati, non la macchina.',
-  },
-  {
-    n: '04',
-    phase: 'Reporting',
-    title: "Ritorno sull'investimento",
-    body: 'Capiamo insieme da dove provengono i tuoi ricavi: CAC, NCAC, MER, AMER, LTV per comprendere i driver del tuo business.',
-  },
-]
+}
 
 const HEX_CLIP =
   'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)'
@@ -58,11 +99,13 @@ function PhaseHex({ phase }) {
 }
 
 export default function System() {
+  const lang = useLang()
+  const t = COPY[lang]
   return (
     <section className="section-y">
       <div className="container-x">
         <div className="mx-auto max-w-4xl text-center">
-          <span className="eyebrow">Il nostro metodo</span>
+          <span className="eyebrow">{t.eyebrow}</span>
           <motion.h2
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -70,14 +113,14 @@ export default function System() {
             transition={{ duration: 0.4, ease: 'easeOut' }}
             className="text-outlined mt-4 font-display text-3xl font-extrabold leading-tight sm:text-4xl md:text-5xl"
           >
-            Costruiamo il tuo sistema di acquisizione clienti con{' '}
-            <span className="text-brand-yellow">KPI di fatturato reale</span>,
-            non follower.
+            {t.headingPre}{' '}
+            <span className="text-brand-yellow">{t.headingHighlight}</span>
+            {t.headingPost}
           </motion.h2>
         </div>
 
         <div className="mt-16 grid grid-cols-1 gap-12 sm:grid-cols-2 md:mt-20 md:grid-cols-4 md:gap-8">
-          {steps.map((s, i) => (
+          {t.steps.map((s, i) => (
             <motion.article
               key={s.n}
               initial={{ opacity: 0, y: 24 }}
