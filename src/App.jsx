@@ -25,6 +25,8 @@ import Contact from './sections/Contact.jsx'
 // doesn't pay for code it never renders.
 const HexBgLab = lazy(() => import('./labs/HexBgLab.jsx'))
 const CareersPage = lazy(() => import('./pages/Careers.jsx'))
+// Non linkata in navbar: raggiungibile solo via /calcolatore (mockup per il manager).
+const CalcolatorePage = lazy(() => import('./pages/Calcolatore.jsx'))
 
 gsap.registerPlugin(ScrollTrigger, ScrollSmoother, useGSAP)
 
@@ -86,15 +88,14 @@ export default function App() {
   const { lang, path } = getLangAndPath()
   useSyncHead(lang)
   if (lab === 'hex') return <Suspense fallback={null}><HexBgLab /></Suspense>
-  return (
-    <LanguageProvider lang={lang}>
-      {path === '/lavora-con-noi' ? (
-        <Suspense fallback={null}><CareersPage /></Suspense>
-      ) : (
-        <MainSite />
-      )}
-    </LanguageProvider>
-  )
+  let page = <MainSite />
+  if (path === '/lavora-con-noi') {
+    page = <Suspense fallback={null}><CareersPage /></Suspense>
+  } else if (path === '/calcolatore') {
+    page = <Suspense fallback={null}><CalcolatorePage /></Suspense>
+  }
+  return <LanguageProvider lang={lang}>{page}</LanguageProvider>
+
 }
 
 function MainSite() {

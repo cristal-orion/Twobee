@@ -28,7 +28,7 @@ const COPY = {
   },
 }
 
-export default function Navbar({ subpage = false }) {
+export default function Navbar({ subpage = false, landing = false }) {
   const lang = useLang()
   const t = COPY[lang]
   const [scrolled, setScrolled] = useState(false)
@@ -41,7 +41,7 @@ export default function Navbar({ subpage = false }) {
         ? `${localePath('/', lang)}${href}`
         : href
       : localePath(href, lang)
-  const homeHref = subpage ? localePath('/', lang) : '#top'
+  const homeHref = subpage || landing ? localePath('/', lang) : '#top'
   const ctaHref = resolve('#contatti')
 
   const bare = subpage ? '/lavora-con-noi' : '/'
@@ -53,6 +53,52 @@ export default function Navbar({ subpage = false }) {
     window.addEventListener('scroll', onScroll, { passive: true })
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
+
+  // Variante landing (es. /calcolatore): navbar pura, senza menu.
+  // Solo il logo TwoBee a destra, che riporta al sito completo.
+  if (landing) {
+    return (
+      <header
+        className={[
+          'fixed inset-x-0 top-0 z-50 transition-colors duration-300',
+          scrolled ? 'border-b border-white/5 backdrop-blur-xl' : 'bg-transparent',
+        ].join(' ')}
+        style={
+          scrolled
+            ? {
+                backgroundColor:
+                  'color-mix(in srgb, var(--theme-bg) 70%, transparent)',
+              }
+            : undefined
+        }
+      >
+        <div className="container-x relative flex h-20 items-center sm:h-24">
+          <a
+            href={homeHref}
+            className="relative ml-auto flex items-center transition-transform hover:scale-[1.03]"
+            aria-label="two bee — vai al sito completo"
+            title="Vai al sito completo"
+          >
+            <img
+              src="/logo-white.webp"
+              alt="two bee"
+              className="h-12 w-auto sm:h-14 lg:h-16"
+              style={{ opacity: 'calc(1 - var(--theme-t))' }}
+              draggable={false}
+            />
+            <img
+              src="/logo-black.webp"
+              alt=""
+              aria-hidden
+              className="absolute left-0 top-1/2 h-12 w-auto -translate-y-1/2 sm:h-14 lg:h-16"
+              style={{ opacity: 'var(--theme-t)' }}
+              draggable={false}
+            />
+          </a>
+        </div>
+      </header>
+    )
+  }
 
   return (
     <header
