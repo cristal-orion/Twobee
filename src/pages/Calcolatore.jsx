@@ -2,28 +2,28 @@
  * theme: Twobee brand (honeycomb dark · League Spartan display · Inter body) — preserved, not catalog
  * pre-emit critique: P4 H4 E4 S4 R4 V4
  *
- * ⚠️ MOCKUP — il motore di calcolo è DIMOSTRATIVO. Numeri di esempio dalle slide del
- * piano growth (luglio 2026). Formula/benchmark reali = da definire col manager
- * (vedi "nuovo piano growth/domande-calcolatore.md"). Ogni valore è etichettato come stima.
+ * 🐝 FLAPPY TWOBEE — al posto del calcolatore ROI (che faceva scappare chi non conosce i propri
+ * numeri) c'è un mini-gioco: un esagono giallo che schiva i pain point dell'imprenditore medio.
+ * Quando ci sbatti, un takeover a schermo intero dice "Hai perso su …" → gate contatti →
+ * come lo risolviamo. Endless: prima o poi cadi, e il crash È il gancio.
  *
- * Confine di responsabilità: questa pagina EMETTE gli eventi calc_* sul dataLayer.
- * La mappatura GTM → GA4 / Meta Pixel / CAPI e la destinazione dei lead (CRM/WhatsApp)
- * le collega Gabriele. Qui nessun invio reale: il form sblocca solo il report lato client.
+ * ⚠️ MOCKUP LEAD: il gate emette solo eventi game_* sul dataLayer, NON invia nulla.
+ * La destinazione reale del lead (CRM/WhatsApp/Klaviyo) e la mappatura GTM le collega Gabriele.
  */
 import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
 import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { ScrollSmoother } from 'gsap/ScrollSmoother'
 import { useGSAP } from '@gsap/react'
-import { motion, AnimatePresence } from 'framer-motion'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 
 import Navbar from '../components/Navbar.jsx'
 import Footer from '../components/Footer.jsx'
 import HexBackground from '../components/HexBackground.jsx'
 import CookieBanner from '../components/CookieBanner.jsx'
+import FlappyGame from '../components/FlappyGame.jsx'
 import { localePath, useLang } from '../i18n/LanguageContext.jsx'
 
-gsap.registerPlugin(ScrollTrigger, ScrollSmoother, useGSAP)
+gsap.registerPlugin(useGSAP)
 
 /* ------------------------------------------------------------------ */
 /* dataLayer — la landing emette, Gabriele mappa in GTM                 */
@@ -35,35 +35,13 @@ function track(event, params) {
 }
 
 /* ------------------------------------------------------------------ */
-/* CONFIG NUMERICA — DEMO. min/max/step/default reali → dal manager.    */
-/* `benchmark` = valore "potenziale". `euro` = €/mese per unità di gap   */
-/* (parametro-volume nascosto, qui tarato per riprodurre i mockup).      */
+/* Cal.eu (istanza UE, GDPR) — prenotazione call embeddata.             */
+/* CAL_LINK vuoto ('') = mostra un placeholder finché non c'è il link.   */
 /* ------------------------------------------------------------------ */
-const VERTICALS = {
-  ecommerce: {
-    levers: [
-      { key: 'aov', fmt: 'euro', min: 20, max: 300, step: 5, def: 60, benchmark: 78, euro: 77.8 },
-      { key: 'margine', fmt: 'pct', min: 5, max: 60, step: 1, def: 25, benchmark: 32, euro: 157 },
-      { key: 'traffico', fmt: 'num', min: 500, max: 40000, step: 500, def: 5000, benchmark: 7500, euro: 0.92 },
-    ],
-  },
-  pmi: {
-    levers: [
-      { key: 'valoreCliente', fmt: 'euro', min: 200, max: 20000, step: 100, def: 2000, benchmark: 2600, euro: 2.1 },
-      { key: 'marginalita', fmt: 'pct', min: 5, max: 70, step: 1, def: 30, benchmark: 38, euro: 190 },
-      { key: 'lead', fmt: 'num', min: 5, max: 300, step: 1, def: 30, benchmark: 45, euro: 95 },
-    ],
-  },
-  startup: {
-    levers: [
-      { key: 'cac', fmt: 'euro', min: 10, max: 500, step: 5, def: 80, benchmark: 62, euro: 34, invert: true },
-      { key: 'ltv', fmt: 'euro', min: 50, max: 3000, step: 10, def: 400, benchmark: 560, euro: 6.4 },
-      { key: 'mrr', fmt: 'euro', min: 500, max: 50000, step: 500, def: 5000, benchmark: 7200, euro: 0.78 },
-    ],
-  },
-}
-
-const SEGMENTS = ['ecommerce', 'pmi', 'startup']
+const CAL_LINK = 'two-bee-info-5vs3gb/30min'
+const CAL_ORIGIN = 'https://cal.eu'
+// embed.js servito dall'app della stessa istanza (app.cal.eu → resta in UE)
+const CAL_EMBED_JS = CAL_ORIGIN.replace('https://', 'https://app.') + '/embed/embed.js'
 
 /* ------------------------------------------------------------------ */
 /* COPY it/en                                                           */
@@ -71,60 +49,74 @@ const SEGMENTS = ['ecommerce', 'pmi', 'startup']
 const COPY = {
   it: {
     hero: {
-      eyebrow: '🐝 Calcolatore ROI · gratuito',
-      h1a: 'Quanto puoi far ',
-      h1hl: 'crescere il tuo business?',
-      sub: 'Scegli il tuo settore, muovi 3 leve e scopri quanto fatturato stai lasciando sul tavolo. In meno di un minuto.',
-      trust: ['Nessun impegno', '3 dati bastano', 'Report immediato'],
+      eyebrow: '🐝 Il gioco della crescita · 30 secondi',
+      h1a: 'Quanti ostacoli riesci a ',
+      h1hl: 'schivare da solo?',
+      sub: 'Fai volare l’apina ed evita i pain point che frenano ogni imprenditore. Quando ne colpisci uno… ti mostriamo come lo risolviamo.',
+      trust: ['30 secondi', 'Nessun dato da inserire', 'Zero impegno'],
       social: 'Già al fianco di PMI e brand del Sud Italia',
-      cardTitle: 'Scegli il settore e inserisci 3 dati',
-      liveScore: 'Punteggio',
-      ctaCalc: 'Calcola il mio potenziale',
-      demoNote: 'Stima dimostrativa · formula in definizione',
+      cardTag: 'Flappy Twobee',
+      scoreLabel: 'Schivati',
+      bestLabel: 'Record',
+      instrIdle: 'Tocca o premi Spazio per volare',
+      talkInstead: 'Preferisci saltare il gioco e parlarci direttamente? →',
     },
-    segments: {
-      ecommerce: 'E-commerce',
-      pmi: 'PMI',
-      startup: 'Startup',
-    },
-    levers: {
-      aov: 'Valore medio ordine (AOV)',
-      margine: 'Margine per ordine',
-      traffico: 'Traffico mensile',
-      valoreCliente: 'Valore medio cliente',
-      marginalita: 'Marginalità',
-      lead: 'Lead mensili',
-      cac: 'CAC (costo acquisizione)',
-      ltv: 'LTV (valore cliente)',
-      mrr: 'MRR mensile',
-    },
-    how: {
-      eyebrow: 'Come funziona',
-      heading: 'Tre step e hai il tuo report di crescita.',
-      steps: [
-        { n: '1', title: 'Scegli il settore', body: 'E-commerce, PMI o startup: le domande si adattano al tuo modello di business.' },
-        { n: '2', title: 'Muovi le 3 leve', body: 'Valore, margine, volume. Il punteggio si aggiorna mentre trascini, in tempo reale.' },
-        { n: '3', title: 'Sblocca il report', body: 'Lasci i contatti e ricevi il breakdown completo con le prossime mosse consigliate.' },
-      ],
-    },
-    result: {
-      eyebrow: 'Il tuo report di crescita',
-      generatedFor: 'Generato per',
-      scoreLabel: 'Punteggio complessivo',
-      zones: { crit: 'zona: critica', opt: 'zona: da ottimizzare', good: 'zona: solida' },
-      potentialLabel: 'Potenziale extra stimato',
-      potentialSuffix: 'al mese, agendo sulle 3 leve sotto',
-      perMonth: '/mese',
-      breakdownEyebrow: 'Breakdown per leva',
-      here: 'Sei qui',
-      potentialWord: 'Potenziale',
-      stepsTitle: 'Prossimi passi consigliati',
-      demoNote: 'Anteprima dimostrativa · i numeri sono di esempio (formula reale in definizione)',
+    // pain point = i tubi. Ordine ciclico nel gioco.
+    pains: [
+      {
+        key: 'passaparola',
+        label: 'Dipendenza dal passaparola',
+        loseLine: 'Il passaparola è comodo… finché arriva. Poi cala il silenzio.',
+        solTitle: 'Dal passaparola a un flusso di clienti prevedibile',
+        solBody:
+          'Costruiamo un sistema di acquisizione che ti porta clienti ogni mese, non “quando capita”. Campagne misurabili che si affiancano al passaparola, invece di dipenderne.',
+      },
+      {
+        key: 'budget',
+        label: 'Budget ridotti e fretta',
+        loseLine: 'Poco budget e serve tutto per ieri: la ricetta perfetta per bruciare soldi.',
+        solTitle: 'Budget piccolo, metodo grande',
+        solBody:
+          'Partiamo dai quick win a basso costo, misuriamo ogni euro e reinvestiamo solo ciò che porta ricavi. Veloci, ma senza sprechi.',
+      },
+      {
+        key: 'faidate',
+        label: 'Fai-da-te (mancanza di competenze)',
+        loseLine: 'Fare tutto da soli non è gratis: lo paghi in tempo e occasioni perse.',
+        solTitle: 'Un reparto marketing, senza doverlo assumere',
+        solBody:
+          'Ti diamo un team che fa oggi ciò che tu impareresti in mesi. Tu torni a fare l’imprenditore, al marketing pensiamo noi.',
+      },
+      {
+        key: 'sfiducia',
+        label: 'Sfiducia verso le agenzie',
+        loseLine: 'Ti hanno promesso la luna e consegnato qualche like. Normale essere diffidenti.',
+        solTitle: 'KPI di fatturato, non vanity metrics',
+        solBody:
+          'Lavoriamo su numeri che contano — ricavi, margine, clienti — con report chiari e obiettivi condivisi. Se non porta risultati, non lo facciamo.',
+      },
+      {
+        key: 'differenziazione',
+        label: 'Mancanza di differenziazione',
+        loseLine: 'Se sembri uguale a tutti gli altri, ti resta una sola leva: il prezzo.',
+        solTitle: 'Diventa la scelta ovvia del tuo mercato',
+        solBody:
+          'Costruiamo un posizionamento che ti distingue davvero, così smetti di competere sullo sconto e inizi a competere sul valore.',
+      },
+    ],
+    lose: {
+      eyebrow: '💥 Game over',
+      pre: 'Hai perso su',
+      scored: 'Pain point schivati',
+      discover: 'Scopri come risolverlo',
+      restart: 'Rigioca',
+      solutionEyebrow: 'La nostra risposta',
     },
     gate: {
       eyebrow: '🔒 Ultimo step',
-      title: 'Sblocca il breakdown completo',
-      sub: 'Ti mandiamo il report dettagliato e ti richiamiamo per una call strategica gratuita.',
+      title: 'Sblocca come lo risolviamo',
+      subPre: 'Ti mandiamo la soluzione per «',
+      subPost: '» e ti richiamiamo per una call strategica gratuita.',
       fields: {
         nome: { label: 'Nome e cognome*', placeholder: 'Come ti chiami?' },
         azienda: { label: 'Azienda*', placeholder: 'Nome della tua attività' },
@@ -134,25 +126,33 @@ const COPY = {
       privacyPre: 'Ho letto la',
       privacyLink: 'Privacy Policy',
       privacyPost: ' e autorizzo Two Bee S.r.l. a ricontattarmi.*',
-      submit: 'Sblocca il report',
-      demoBadge: 'Mockup: in demo il form sblocca solo il report, non invia nulla',
+      submit: 'Sblocca la soluzione',
+      demoBadge: 'Mockup: in demo il form sblocca solo la soluzione, non invia nulla',
     },
     call: {
       heading: 'Prenota la tua call strategica gratuita',
-      sub: '20 minuti con il team Two Bee per trasformare queste stime in un piano. Nessun impegno.',
+      sub: '30 minuti con il team Two Bee per trasformare questo ostacolo in un piano. Nessun impegno.',
       button: 'Prenota la call →',
+    },
+    book: {
+      eyebrow: 'Prenota ora',
+      heading: 'Scegli tu quando ne parliamo.',
+      body: '30 minuti, gratis e senza impegno: guardiamo insieme i tuoi numeri e ti diciamo, dati alla mano, se e come possiamo farti crescere.',
+      bullets: ['30 minuti', 'Gratis e senza impegno', 'Con chi lavora davvero al tuo progetto'],
+      placeholder: 'Qui va il calendario Cal per prenotare la call.',
     },
     receive: {
       eyebrow: 'Cosa ricevi',
-      heading: 'Non un numero. Un piano.',
+      heading: 'Non un game over. Un piano.',
       items: [
-        { title: 'Report di crescita personalizzato', body: 'Il breakdown delle 3 leve con il potenziale in euro, tarato sul tuo settore.' },
-        { title: 'Le prossime 3 mosse', body: 'Azioni concrete e prioritizzate per colmare il gap più costoso per primo.' },
-        { title: 'Call strategica con il team', body: '20 minuti con chi costruisce sistemi di crescita, non chi vende fuffa.' },
+        { title: 'La soluzione al tuo ostacolo', body: 'Come affrontiamo, in concreto, il pain point su cui sei caduto — tarato sul tuo business.' },
+        { title: 'Le prossime mosse', body: 'Azioni prioritizzate per colmare per primo il gap più costoso.' },
+        { title: 'Call strategica con il team', body: '30 minuti con chi costruisce sistemi di crescita, non chi vende fuffa.' },
       ],
       whoEyebrow: 'Chi siamo',
       whoTitle: 'Two Bee, sistemi di crescita per le PMI.',
-      whoBody: 'Trasformiamo il marketing in un sistema di acquisizione clienti misurabile, con impatto diretto sui ricavi. Data-driven, KPI di fatturato, zero vanity metrics.',
+      whoBody:
+        'Trasformiamo il marketing in un sistema di acquisizione clienti misurabile, con impatto diretto sui ricavi. Data-driven, KPI di fatturato, zero vanity metrics.',
     },
     fit: {
       eyebrow: 'È per te?',
@@ -166,99 +166,116 @@ const COPY = {
       notForTitle: 'Non fa per te se',
       notForItems: [
         'Cerchi risultati magici senza budget né dati',
-        'Vuoi solo "più like" senza guardare al fatturato',
-        'Non hai tempo per una call di 20 minuti',
+        'Vuoi solo “più like” senza guardare al fatturato',
+        'Non hai tempo per una call di 30 minuti',
       ],
     },
     faq: {
       eyebrow: 'FAQ',
       headingPre: 'Domande ',
       headingHl: 'frequenti',
-      body: 'I dubbi più comuni sul calcolatore e su come lavoriamo.',
+      body: 'I dubbi più comuni sul gioco e su come lavoriamo.',
       faqs: [
-        { q: 'I numeri sono reali?', a: "Il calcolatore restituisce una stima basata sui dati che inserisci. Non è una promessa di risultato: è un ordine di grandezza per capire se vale la pena parlarne. In call entriamo nel dettaglio con i tuoi dati veri." },
-        { q: 'Cosa succede dopo che sblocco il report?', a: 'Ricevi il breakdown completo e ti ricontattiamo per fissare una call gratuita di 20 minuti. Nessun impegno, nessuna carta di credito.' },
-        { q: 'Perché mi chiedete i contatti?', a: 'Per mandarti il report dettagliato e, se lo vuoi, prepararti la call. I tuoi dati li trattiamo secondo la Privacy Policy, niente spam.' },
-        { q: 'Devo essere già un cliente?', a: 'No. Il calcolatore è aperto a tutti. È anzi il modo più veloce per capire se possiamo esserti utili.' },
+        {
+          q: 'Devo essere bravo a giocare?',
+          a: 'No, basta un tap. E onestamente il gioco è fatto apposta per farti sbattere prima o poi: i pain point sono più forti di così.',
+        },
+        {
+          q: 'Cosa c’entra un gioco con la mia azienda?',
+          a: 'I tubi non sono a caso: sono i cinque ostacoli che frenano quasi ogni imprenditore italiano. Se ci sbatti, probabilmente ne vivi almeno uno davvero.',
+        },
+        {
+          q: 'Cosa succede se lascio i contatti?',
+          a: 'Ti mostriamo come risolviamo il pain point su cui sei caduto e ti ricontattiamo per una call gratuita di 30 minuti. Nessun impegno, nessuna carta di credito.',
+        },
+        {
+          q: 'Devo essere già un cliente?',
+          a: 'No. Il gioco è aperto a tutti. È anzi il modo più veloce (e divertente) per capire se possiamo esserti utili.',
+        },
       ],
     },
     finalCta: {
       eyebrow: 'Tocca a te',
-      heading: 'Scopri quanto stai lasciando sul tavolo.',
-      body: 'Un minuto adesso può valere migliaia di euro al mese. Muovi le leve e sblocca il tuo report.',
-      button: 'Vai al calcolatore ↑',
+      heading: 'Quanti pain point riesci a schivare?',
+      body: 'Un tap adesso e scopri quale ostacolo ti frena davvero. Poi lo risolviamo insieme.',
+      button: 'Vai al gioco ↑',
     },
-    // prossimi passi per verticale (DEMO)
-    nextSteps: {
-      ecommerce: [
-        'Introduci bundle e upsell in pagina prodotto per alzare l’AOV.',
-        'Rivedi la struttura dei costi per un margine per ordine più sano.',
-        'Attiva campagne lookalike per aumentare il traffico qualificato.',
-      ],
-      pmi: [
-        'Costruisci un’offerta di ingresso per alzare il valore medio cliente.',
-        'Alza la marginalità ripulendo i servizi a basso ritorno.',
-        'Sistema il funnel di lead gen per aumentare i lead qualificati/mese.',
-      ],
-      startup: [
-        'Ottimizza i canali per abbassare il CAC sotto la soglia sostenibile.',
-        'Lavora su onboarding e retention per far crescere l’LTV.',
-        'Riduci il churn per stabilizzare e far salire l’MRR.',
-      ],
+    team: {
+      eyebrow: 'Il team',
+      headingPre: 'Dietro Two Bee non c’è un freelance. C’è ',
+      headingHl: 'una squadra.',
+      body: 'Molti “esperti di marketing” sono una persona sola dietro un PC. Noi siamo un team di specialisti — strategia, ads, dati, contenuti, automazioni, AI — ognuno con il suo mestiere. Ecco le facce.',
     },
   },
   en: {
     hero: {
-      eyebrow: '🐝 ROI Calculator · free',
-      h1a: 'How much can you ',
-      h1hl: 'grow your business?',
-      sub: 'Pick your industry, move 3 levers and see how much revenue you’re leaving on the table. In under a minute.',
-      trust: ['No commitment', '3 inputs is enough', 'Instant report'],
+      eyebrow: '🐝 The growth game · 30 seconds',
+      h1a: 'How many obstacles can you ',
+      h1hl: 'dodge on your own?',
+      sub: 'Fly the bee and dodge the pain points that hold back every entrepreneur. When you hit one… we show you how we fix it.',
+      trust: ['30 seconds', 'No data to enter', 'Zero commitment'],
       social: 'Already backing SMEs and brands across Southern Italy',
-      cardTitle: 'Pick your industry and enter 3 numbers',
-      liveScore: 'Score',
-      ctaCalc: 'Calculate my potential',
-      demoNote: 'Demonstrative estimate · formula being finalized',
+      cardTag: 'Flappy Twobee',
+      scoreLabel: 'Dodged',
+      bestLabel: 'Best',
+      instrIdle: 'Tap or press Space to fly',
+      talkInstead: 'Rather skip the game and talk to us directly? →',
     },
-    segments: { ecommerce: 'E-commerce', pmi: 'SME', startup: 'Startup' },
-    levers: {
-      aov: 'Average order value (AOV)',
-      margine: 'Margin per order',
-      traffico: 'Monthly traffic',
-      valoreCliente: 'Average customer value',
-      marginalita: 'Margin',
-      lead: 'Monthly leads',
-      cac: 'CAC (acquisition cost)',
-      ltv: 'LTV (customer value)',
-      mrr: 'Monthly MRR',
-    },
-    how: {
-      eyebrow: 'How it works',
-      heading: 'Three steps to your growth report.',
-      steps: [
-        { n: '1', title: 'Pick your industry', body: 'E-commerce, SME or startup: the questions adapt to your business model.' },
-        { n: '2', title: 'Move the 3 levers', body: 'Value, margin, volume. The score updates in real time as you drag.' },
-        { n: '3', title: 'Unlock the report', body: 'Leave your details and get the full breakdown with the recommended next moves.' },
-      ],
-    },
-    result: {
-      eyebrow: 'Your growth report',
-      generatedFor: 'Generated for',
-      scoreLabel: 'Overall score',
-      zones: { crit: 'zone: critical', opt: 'zone: to optimize', good: 'zone: solid' },
-      potentialLabel: 'Estimated extra potential',
-      potentialSuffix: 'per month, acting on the 3 levers below',
-      perMonth: '/mo',
-      breakdownEyebrow: 'Breakdown by lever',
-      here: 'You’re here',
-      potentialWord: 'Potential',
-      stepsTitle: 'Recommended next steps',
-      demoNote: 'Demonstrative preview · numbers are examples (real formula TBD)',
+    pains: [
+      {
+        key: 'passaparola',
+        label: 'Word-of-mouth dependency',
+        loseLine: 'Word of mouth is great… until it stops. Then comes the silence.',
+        solTitle: 'From word of mouth to a predictable client flow',
+        solBody:
+          'We build an acquisition system that brings clients every month, not “whenever it happens”. Measurable campaigns that complement word of mouth instead of relying on it.',
+      },
+      {
+        key: 'budget',
+        label: 'Tight budgets & rush',
+        loseLine: 'Small budget and “needed yesterday”: the perfect recipe for burning money.',
+        solTitle: 'Small budget, big method',
+        solBody:
+          'We start with low-cost quick wins, measure every euro and only reinvest what drives revenue. Fast, but without waste.',
+      },
+      {
+        key: 'faidate',
+        label: 'DIY (lack of skills)',
+        loseLine: 'Doing it all yourself isn’t free: you pay in time and missed chances.',
+        solTitle: 'A marketing department, without hiring one',
+        solBody:
+          'We give you a team that does today what you’d spend months learning. You get back to running the business, we handle the marketing.',
+      },
+      {
+        key: 'sfiducia',
+        label: 'Distrust of agencies',
+        loseLine: 'They promised the moon and delivered a few likes. Fair enough to be wary.',
+        solTitle: 'Revenue KPIs, not vanity metrics',
+        solBody:
+          'We work on numbers that matter — revenue, margin, clients — with clear reports and shared goals. If it doesn’t deliver, we don’t do it.',
+      },
+      {
+        key: 'differenziazione',
+        label: 'No differentiation',
+        loseLine: 'If you look like everyone else, you’re left with one lever: price.',
+        solTitle: 'Become the obvious choice in your market',
+        solBody:
+          'We build positioning that truly sets you apart, so you stop competing on discounts and start competing on value.',
+      },
+    ],
+    lose: {
+      eyebrow: '💥 Game over',
+      pre: 'You lost on',
+      scored: 'Pain points dodged',
+      discover: 'See how we fix it',
+      restart: 'Play again',
+      solutionEyebrow: 'Our answer',
     },
     gate: {
       eyebrow: '🔒 Last step',
-      title: 'Unlock the full breakdown',
-      sub: 'We’ll send the detailed report and call you for a free strategy session.',
+      title: 'Unlock how we fix it',
+      subPre: 'We’ll send the fix for “',
+      subPost: '” and call you for a free strategy session.',
       fields: {
         nome: { label: 'Full name*', placeholder: 'What’s your name?' },
         azienda: { label: 'Company*', placeholder: 'Your business name' },
@@ -268,25 +285,33 @@ const COPY = {
       privacyPre: 'I’ve read the',
       privacyLink: 'Privacy Policy',
       privacyPost: ' and authorize Two Bee S.r.l. to contact me.*',
-      submit: 'Unlock the report',
-      demoBadge: 'Mockup: in demo the form only unlocks the report, it sends nothing',
+      submit: 'Unlock the fix',
+      demoBadge: 'Mockup: in demo the form only unlocks the fix, it sends nothing',
     },
     call: {
       heading: 'Book your free strategy call',
-      sub: '20 minutes with the Two Bee team to turn these estimates into a plan. No commitment.',
+      sub: '30 minutes with the Two Bee team to turn this obstacle into a plan. No commitment.',
       button: 'Book the call →',
+    },
+    book: {
+      eyebrow: 'Book now',
+      heading: 'You pick when we talk.',
+      body: '30 minutes, free and no strings: we look at your numbers together and tell you, data in hand, if and how we can help you grow.',
+      bullets: ['30 minutes', 'Free, no commitment', 'With the people actually on your project'],
+      placeholder: 'The Cal booking calendar goes here.',
     },
     receive: {
       eyebrow: 'What you get',
-      heading: 'Not a number. A plan.',
+      heading: 'Not a game over. A plan.',
       items: [
-        { title: 'Personalized growth report', body: 'The 3-lever breakdown with potential in euros, tuned to your industry.' },
-        { title: 'Your next 3 moves', body: 'Concrete, prioritized actions to close the costliest gap first.' },
-        { title: 'Strategy call with the team', body: '20 minutes with people who build growth systems, not sell fluff.' },
+        { title: 'The fix for your obstacle', body: 'How we tackle, concretely, the pain point you crashed on — tuned to your business.' },
+        { title: 'Your next moves', body: 'Prioritized actions to close the costliest gap first.' },
+        { title: 'Strategy call with the team', body: '30 minutes with people who build growth systems, not sell fluff.' },
       ],
       whoEyebrow: 'Who we are',
       whoTitle: 'Two Bee, growth systems for SMEs.',
-      whoBody: 'We turn marketing into a measurable customer-acquisition system with direct revenue impact. Data-driven, revenue KPIs, zero vanity metrics.',
+      whoBody:
+        'We turn marketing into a measurable customer-acquisition system with direct revenue impact. Data-driven, revenue KPIs, zero vanity metrics.',
     },
     fit: {
       eyebrow: 'Is it for you?',
@@ -301,238 +326,141 @@ const COPY = {
       notForItems: [
         'You want magic results with no budget and no data',
         'You just want “more likes” without looking at revenue',
-        'You don’t have time for a 20-minute call',
+        'You don’t have time for a 30-minute call',
       ],
     },
     faq: {
       eyebrow: 'FAQ',
       headingPre: 'Frequently asked ',
       headingHl: 'questions',
-      body: 'The most common doubts about the calculator and how we work.',
+      body: 'The most common doubts about the game and how we work.',
       faqs: [
-        { q: 'Are the numbers real?', a: 'The calculator returns an estimate based on what you enter. It’s not a guarantee — it’s an order of magnitude to see if it’s worth talking. On the call we dig into your real data.' },
-        { q: 'What happens after I unlock the report?', a: 'You get the full breakdown and we reach out to book a free 20-minute call. No commitment, no credit card.' },
-        { q: 'Why do you ask for my details?', a: 'To send the detailed report and, if you want, prep the call. We handle your data per the Privacy Policy — no spam.' },
-        { q: 'Do I need to be a client already?', a: 'No. The calculator is open to everyone. It’s actually the fastest way to see if we can help.' },
+        {
+          q: 'Do I need to be good at the game?',
+          a: 'No, just one tap. And honestly the game is built to make you crash sooner or later: the pain points are stronger than that.',
+        },
+        {
+          q: 'What does a game have to do with my business?',
+          a: 'The pipes aren’t random: they’re the five obstacles that hold back almost every Italian entrepreneur. If you crash, you probably live at least one for real.',
+        },
+        {
+          q: 'What happens if I leave my details?',
+          a: 'We show you how we solve the pain point you crashed on and reach out to book a free 30-minute call. No commitment, no credit card.',
+        },
+        {
+          q: 'Do I need to be a client already?',
+          a: 'No. The game is open to everyone. It’s actually the fastest (and most fun) way to see if we can help.',
+        },
       ],
     },
     finalCta: {
       eyebrow: 'Your turn',
-      heading: 'See what you’re leaving on the table.',
-      body: 'A minute now can be worth thousands per month. Move the levers and unlock your report.',
-      button: 'Back to the calculator ↑',
+      heading: 'How many pain points can you dodge?',
+      body: 'One tap now and find out which obstacle really holds you back. Then we solve it together.',
+      button: 'Back to the game ↑',
     },
-    nextSteps: {
-      ecommerce: [
-        'Add bundles and upsells on the product page to lift AOV.',
-        'Review your cost structure for a healthier margin per order.',
-        'Launch lookalike campaigns to grow qualified traffic.',
-      ],
-      pmi: [
-        'Build an entry offer to raise average customer value.',
-        'Increase margin by cutting low-return services.',
-        'Fix the lead-gen funnel to grow qualified leads/month.',
-      ],
-      startup: [
-        'Optimize channels to bring CAC below the sustainable line.',
-        'Work on onboarding and retention to grow LTV.',
-        'Cut churn to stabilize and grow MRR.',
-      ],
+    team: {
+      eyebrow: 'The team',
+      headingPre: 'Behind Two Bee there’s no freelancer. There’s ',
+      headingHl: 'a team.',
+      body: 'Many “marketing experts” are one person behind a laptop. We’re a team of specialists — strategy, ads, data, content, automation, AI — each with their craft. Here are the faces.',
     },
   },
-}
-
-/* ------------------------------------------------------------------ */
-/* HELPERS                                                              */
-/* ------------------------------------------------------------------ */
-function defaultsFor(vertical) {
-  const out = {}
-  VERTICALS[vertical].levers.forEach((l) => {
-    out[l.key] = l.def
-  })
-  return out
-}
-
-function fmtNum(n) {
-  return Math.round(n).toLocaleString('it-IT')
-}
-function fmtValue(lever, n) {
-  if (lever.fmt === 'euro') return `€${fmtNum(n)}`
-  if (lever.fmt === 'pct') return `${fmtNum(n)}%`
-  return fmtNum(n)
-}
-function fmtEuro(n) {
-  return `€${fmtNum(n)}`
-}
-
-// Compute demo report. `invert` levers (es. CAC) migliorano scendendo.
-function computeReport(vertical, values) {
-  const levers = VERTICALS[vertical].levers.map((lev) => {
-    const current = values[lev.key]
-    let gap, pct
-    if (lev.invert) {
-      gap = Math.max(0, current - lev.benchmark) // quanto puoi tagliare
-      pct = Math.min(1, lev.benchmark / Math.max(current, 1))
-    } else {
-      gap = Math.max(0, lev.benchmark - current) // quanto puoi guadagnare
-      pct = Math.min(1, current / lev.benchmark)
-    }
-    const euroMonth = Math.round(gap * lev.euro)
-    return { ...lev, current, euroMonth, pct }
-  })
-  const total = levers.reduce((s, l) => s + l.euroMonth, 0)
-  const score = Math.round(
-    (levers.reduce((s, l) => s + l.pct, 0) / levers.length) * 100
-  )
-  const rangeLow = Math.round((total * 0.667) / 100) * 100
-  const rangeHigh = Math.round((total * 1.208) / 100) * 100
-  return { levers, total, score, rangeLow, rangeHigh }
-}
-
-function zoneOf(score, zones) {
-  if (score < 40) return zones.crit
-  if (score < 70) return zones.opt
-  return zones.good
-}
-
-/* ------------------------------------------------------------------ */
-/* ICONE settore                                                        */
-/* ------------------------------------------------------------------ */
-function SegIcon({ type, className }) {
-  const common = { className, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.9, strokeLinecap: 'round', strokeLinejoin: 'round' }
-  if (type === 'ecommerce')
-    return (
-      <svg {...common}>
-        <path d="M3 4h2l1.6 10.4a1.5 1.5 0 0 0 1.5 1.3h8a1.5 1.5 0 0 0 1.5-1.2L20 7H6" />
-        <circle cx="9" cy="20" r="1.2" />
-        <circle cx="17" cy="20" r="1.2" />
-      </svg>
-    )
-  if (type === 'pmi')
-    return (
-      <svg {...common}>
-        <path d="M4 21V5a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v16" />
-        <path d="M15 10h4a1 1 0 0 1 1 1v10" />
-        <path d="M8 8h3M8 12h3M8 16h3M2 21h20" />
-      </svg>
-    )
-  return (
-    <svg {...common}>
-      <path d="M12 3c3 1.5 5 4.5 5 8 0 2-1 4-2 5l-3 2-3-2c-1-1-2-3-2-5 0-3.5 2-6.5 5-8Z" />
-      <circle cx="12" cy="10" r="1.6" />
-      <path d="M8 17c-2 .5-3 2-3 4 2 0 3.5-1 4-3M16 17c2 .5 3 2 3 4-2 0-3.5-1-4-3" />
-    </svg>
-  )
 }
 
 /* ================================================================== */
 /* PAGE                                                                 */
 /* ================================================================== */
 export default function CalcolatorePage() {
-  const wrapper = useRef(null)
-  const content = useRef(null)
-
-  useGSAP(() => {
-    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (reduce) return
-    let smoother
-    if (ScrollTrigger.isTouch !== 1) {
-      smoother = ScrollSmoother.create({
-        wrapper: wrapper.current,
-        content: content.current,
-        smooth: 1.1,
-        effects: false,
-      })
-    }
-    ScrollTrigger.refresh()
-    return () => smoother && smoother.kill()
-  }, [])
-
+  // Niente ScrollSmoother qui: l'auto-scroll dell'embed Cal (che ridimensiona
+  // l'iframe scegliendo giorno/orario) va in conflitto con lo scroll "smussato"
+  // via transform → salti a caso. Scroll nativo = prenotazione fluida.
   useEffect(() => {
-    track('calc_start', { page: 'calcolatore' })
+    track('game_view', { page: 'calcolatore' })
   }, [])
 
   return (
     <div id="top" className="text-white">
       <HexBackground />
       <Navbar landing />
-      <div id="smooth-wrapper" ref={wrapper}>
-        <div id="smooth-content" ref={content}>
-          <main>
-            <Experience />
-            <HowItWorks />
-            <WhatYouGet />
-            <Fit />
-            <FaqSection />
-            <FinalCta />
-          </main>
-          <Footer />
-        </div>
-      </div>
+      <main>
+        <Experience />
+        <BookCall />
+        <WhatYouGet />
+        <TeamHive />
+        <Fit />
+        <FaqSection />
+        <FinalCta />
+      </main>
+      <Footer />
       <CookieBanner />
     </div>
   )
 }
 
 /* ------------------------------------------------------------------ */
-/* EXPERIENCE — hero + calcolatore + risultato (stato condiviso)        */
+/* EXPERIENCE — hero + gioco + takeover di sconfitta                    */
 /* ------------------------------------------------------------------ */
 function Experience() {
   const lang = useLang()
   const t = COPY[lang]
+  const reduce = useReducedMotion()
   const root = useRef(null)
 
-  const [segment, setSegment] = useState('ecommerce')
-  const [values, setValues] = useState(() => defaultsFor('ecommerce'))
-  const [calculated, setCalculated] = useState(false)
-  const [unlocked, setUnlocked] = useState(false)
-
-  const report = computeReport(segment, values)
+  const [gameKey, setGameKey] = useState(0)
+  const [over, setOver] = useState(false)
+  const [painKey, setPainKey] = useState(t.pains[0].key)
+  const [score, setScore] = useState(0)
+  const [best, setBest] = useState(0)
+  const [stage, setStage] = useState('lose') // lose | form | solution
 
   useGSAP(
     () => {
       const fader = gsap.utils.toArray('.cx-fade', root.current)
       gsap.set(fader, { y: 24, opacity: 0 })
-      gsap.to(fader, {
-        y: 0,
-        opacity: 1,
-        duration: 0.8,
-        ease: 'power3.out',
-        stagger: 0.1,
-        delay: 0.15,
-      })
+      gsap.to(fader, { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out', stagger: 0.1, delay: 0.15 })
     },
     { scope: root }
   )
 
-  const changeSegment = (seg) => {
-    if (seg === segment) return
-    setSegment(seg)
-    setValues(defaultsFor(seg))
-    setCalculated(false)
-    setUnlocked(false)
-    track('calc_segment_select', { segmento: seg })
+  // blocco lo scroll di fondo mentre il takeover è aperto
+  useEffect(() => {
+    if (!over) return
+    const prev = document.body.style.overflow
+    document.body.style.overflow = 'hidden'
+    return () => {
+      document.body.style.overflow = prev
+    }
+  }, [over])
+
+  const handleStart = () => track('game_start', { page: 'calcolatore' })
+  const handleCrash = (key, sc) => {
+    const k = key || t.pains[0].key
+    const s = sc || 0
+    setPainKey(k)
+    setScore(s)
+    setBest((b) => Math.max(b, s))
+    setStage('lose')
+    setOver(true)
+    track('game_over', { pain: k, score: s })
+  }
+  const handleDiscover = () => {
+    setStage('form')
+    track('game_lead_gate_visualizzato', { pain: painKey, score })
+  }
+  const handleSubmit = () => {
+    setStage('solution')
+    track('game_lead_inviato', { pain: painKey, score }) // NB: nessun invio reale → Gabriele
+  }
+  const handleCall = () => track('game_cta_call', { pain: painKey })
+  const handleRestart = () => {
+    setOver(false)
+    setStage('lose')
+    setGameKey((k) => k + 1)
+    track('game_restart', {})
   }
 
-  const changeValue = (key, v) => setValues((s) => ({ ...s, [key]: v }))
-
-  const onCalcolate = () => {
-    setCalculated(true)
-    track('calc_risultato_visualizzato', { segmento: segment, score: report.score })
-    setTimeout(() => {
-      const el = document.getElementById('risultato')
-      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      ScrollTrigger.refresh()
-    }, 120)
-  }
-
-  const onUnlock = (e, form) => {
-    e.preventDefault()
-    setUnlocked(form || true)
-    track('calc_lead_inviato', { segmento: segment, score: report.score })
-    setTimeout(() => ScrollTrigger.refresh(), 200)
-    // NB: nessun invio reale. Destinazione lead (CRM/WhatsApp/EmailJS) → Gabriele.
-  }
+  const gamePains = t.pains.map((p) => ({ key: p.key, label: p.label }))
 
   return (
     <section ref={root} className="relative overflow-hidden">
@@ -547,9 +475,7 @@ function Experience() {
             {t.hero.h1a}
             <span className="text-brand-yellow">{t.hero.h1hl}</span>
           </h1>
-          <p className="cx-fade mt-6 max-w-md text-base text-white/75 sm:text-lg">
-            {t.hero.sub}
-          </p>
+          <p className="cx-fade mt-6 max-w-md text-base text-white/75 sm:text-lg">{t.hero.sub}</p>
           <ul className="cx-fade mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs font-bold uppercase tracking-[0.2em] text-white/55 sm:text-sm">
             {t.hero.trust.map((tag) => (
               <li key={tag} className="inline-flex items-center gap-2">
@@ -561,43 +487,241 @@ function Experience() {
           <SocialProof label={t.hero.social} className="cx-fade mt-10" />
         </div>
 
-        {/* colonna calcolatore */}
+        {/* colonna gioco */}
         <div className="cx-fade">
-          <CalculatorCard
-            t={t}
-            segment={segment}
-            onSegment={changeSegment}
-            values={values}
-            onValue={changeValue}
-            score={report.score}
-            onCalcolate={onCalcolate}
+          <FlappyGame
+            key={gameKey}
+            pains={gamePains}
+            best={best}
+            reduce={!!reduce}
+            labels={{
+              tag: t.hero.cardTag,
+              score: t.hero.scoreLabel,
+              best: t.hero.bestLabel,
+              idle: t.hero.instrIdle,
+            }}
+            onStart={handleStart}
+            onCrash={handleCrash}
           />
+          <p className="mt-4 text-center text-xs text-white/40">
+            <a href={`${localePath('/', lang)}#contatti`} className="underline transition hover:text-brand-yellow">
+              {t.hero.talkInstead}
+            </a>
+          </p>
         </div>
       </div>
 
-      {/* RISULTATO */}
-      <AnimatePresence>
-        {calculated && (
-          <motion.div
-            id="risultato"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.5, ease: 'easeOut' }}
-            className="scroll-mt-24"
-          >
-            <ResultReport
-              t={t}
-              lang={lang}
-              segment={segment}
-              report={report}
-              unlocked={unlocked}
-              onUnlock={onUnlock}
-            />
-          </motion.div>
+      {over &&
+        typeof document !== 'undefined' &&
+        createPortal(
+          <LoseTakeover
+            t={t}
+            lang={lang}
+            painKey={painKey}
+            score={score}
+            stage={stage}
+            onDiscover={handleDiscover}
+            onSubmit={handleSubmit}
+            onCall={handleCall}
+            onRestart={handleRestart}
+          />,
+          document.body
         )}
-      </AnimatePresence>
     </section>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/* TAKEOVER DI SCONFITTA — fullscreen: lose → form → solution           */
+/* ------------------------------------------------------------------ */
+function LoseTakeover({ t, lang, painKey, score, stage, onDiscover, onSubmit, onCall, onRestart }) {
+  const pain = t.pains.find((p) => p.key === painKey) || t.pains[0]
+
+  return (
+    <motion.div
+      className="fixed inset-0 z-[120] flex items-center justify-center overflow-y-auto bg-brand-black/95 px-5 py-12 text-white backdrop-blur-md"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      transition={{ duration: 0.25 }}
+    >
+      {/* decoro: esagono gigante sfocato + vignetta */}
+      <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+        <div
+          className="absolute left-1/2 top-1/2 h-[120vmin] w-[120vmin] -translate-x-1/2 -translate-y-1/2 opacity-[0.05]"
+          style={{
+            clipPath: 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)',
+            background: '#FFC501',
+          }}
+        />
+        <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_35%,rgba(0,0,0,0.65))]" />
+      </div>
+
+      <button
+        onClick={onRestart}
+        aria-label="Chiudi"
+        className="absolute right-5 top-5 z-10 flex h-10 w-10 items-center justify-center rounded-full border border-white/15 bg-white/[0.04] text-white/70 transition hover:border-white/40 hover:text-white"
+      >
+        <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none">
+          <path d="M6 6l12 12M18 6L6 18" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" />
+        </svg>
+      </button>
+
+      <div className="relative w-full max-w-xl">
+        <AnimatePresence mode="wait">
+          {stage === 'lose' && (
+            <motion.div
+              key="lose"
+              initial={{ opacity: 0, scale: 0.94, y: 12 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ type: 'spring', stiffness: 220, damping: 20 }}
+              className="text-center"
+            >
+              <span className="text-5xl sm:text-6xl">💥</span>
+              <p className="mt-4 text-[11px] font-bold uppercase tracking-[0.3em] text-white/50">{t.lose.eyebrow}</p>
+              <p className="mt-4 text-sm uppercase tracking-[0.25em] text-white/50">{t.lose.pre}</p>
+              <h2 className="text-outlined mt-2 font-display text-4xl font-extrabold uppercase leading-[0.95] text-brand-yellow sm:text-5xl md:text-6xl">
+                {pain.label}
+              </h2>
+              <p className="mx-auto mt-5 max-w-md text-base text-white/70 sm:text-lg">{pain.loseLine}</p>
+              <p className="mt-6 text-xs uppercase tracking-widest text-white/40">
+                {t.lose.scored}: <span className="font-display font-extrabold text-brand-yellow">{score}</span>
+              </p>
+              <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
+                <button onClick={onDiscover} className="btn-primary w-full sm:w-auto">
+                  {t.lose.discover} →
+                </button>
+                <button
+                  onClick={onRestart}
+                  className="w-full rounded-full border border-white/20 px-8 py-4 text-sm font-bold uppercase tracking-wider text-white/80 transition hover:border-white/50 hover:text-white sm:w-auto"
+                >
+                  {t.lose.restart}
+                </button>
+              </div>
+            </motion.div>
+          )}
+
+          {stage === 'form' && (
+            <motion.div
+              key="form"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.35, ease: 'easeOut' }}
+            >
+              <GateForm t={t} pain={pain} onSubmit={onSubmit} />
+            </motion.div>
+          )}
+
+          {stage === 'solution' && (
+            <motion.div
+              key="solution"
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.4, ease: 'easeOut' }}
+            >
+              <SolutionStage t={t} lang={lang} pain={pain} onCall={onCall} onRestart={onRestart} />
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </motion.div>
+  )
+}
+
+function GateForm({ t, pain, onSubmit }) {
+  const g = t.gate
+  const [form, setForm] = useState({ nome: '', azienda: '', email: '', telefono: '', privacy: false })
+  const onChange = (e) => {
+    const { name, type, value, checked } = e.target
+    setForm((f) => ({ ...f, [name]: type === 'checkbox' ? checked : value }))
+  }
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault()
+        onSubmit(form)
+      }}
+      className="rounded-2xl border border-brand-yellow/25 bg-brand-black/70 p-5 shadow-2xl sm:p-7"
+    >
+      <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-brand-yellow">{g.eyebrow}</span>
+      <h3 className="mt-2 font-display text-xl font-extrabold leading-tight sm:text-2xl">{g.title}</h3>
+      <p className="mt-1.5 text-sm text-white/60">
+        {g.subPre}
+        <span className="text-white/80">{pain.label}</span>
+        {g.subPost}
+      </p>
+
+      <div className="mt-5 grid gap-3 sm:grid-cols-2">
+        <GateField label={g.fields.nome.label} name="nome" value={form.nome} onChange={onChange} placeholder={g.fields.nome.placeholder} required />
+        <GateField label={g.fields.azienda.label} name="azienda" value={form.azienda} onChange={onChange} placeholder={g.fields.azienda.placeholder} required />
+        <GateField label={g.fields.email.label} name="email" type="email" value={form.email} onChange={onChange} placeholder={g.fields.email.placeholder} required />
+        <GateField label={g.fields.telefono.label} name="telefono" type="tel" value={form.telefono} onChange={onChange} placeholder={g.fields.telefono.placeholder} required />
+      </div>
+
+      <label className="mt-4 flex items-start gap-3 text-left text-xs leading-relaxed text-white/60">
+        <input type="checkbox" name="privacy" checked={form.privacy} onChange={onChange} required className="mt-0.5 h-4 w-4 shrink-0 accent-brand-yellow" />
+        <span>
+          {g.privacyPre}{' '}
+          <a href="/privacy-policy.html" target="_blank" rel="noopener noreferrer" className="underline hover:text-brand-yellow">
+            {g.privacyLink}
+          </a>
+          {g.privacyPost}
+        </span>
+      </label>
+
+      <button type="submit" className="btn-primary mt-5 w-full">
+        {g.submit}
+      </button>
+      <p className="mt-3 text-center text-[10px] uppercase tracking-[0.18em] text-white/30">{g.demoBadge}</p>
+    </form>
+  )
+}
+
+function GateField({ label, name, ...rest }) {
+  return (
+    <label className="block">
+      <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-widest text-white/60">{label}</span>
+      <input
+        name={name}
+        {...rest}
+        className="w-full rounded-full border border-white/10 bg-brand-black/60 px-4 py-3 text-sm text-white placeholder-white/30 outline-none transition focus:border-brand-yellow focus:ring-2 focus:ring-brand-yellow/30"
+      />
+    </label>
+  )
+}
+
+function SolutionStage({ t, lang, pain, onCall, onRestart }) {
+  return (
+    <div className="rounded-2xl border border-white/10 bg-brand-dark/80 p-6 shadow-2xl sm:p-8">
+      <span className="rounded-full border border-brand-yellow/30 bg-brand-yellow/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-brand-yellow">
+        {pain.label}
+      </span>
+      <p className="mt-4 text-[11px] font-bold uppercase tracking-[0.25em] text-brand-yellow">{t.lose.solutionEyebrow}</p>
+      <h3 className="mt-2 font-display text-2xl font-extrabold leading-tight sm:text-3xl">{pain.solTitle}</h3>
+      <p className="mt-3 text-base leading-relaxed text-white/70">{pain.solBody}</p>
+
+      <div className="mt-7 rounded-2xl bg-brand-yellow p-5 text-center text-brand-black sm:p-7">
+        <h4 className="font-display text-xl font-extrabold leading-tight sm:text-2xl">{t.call.heading}</h4>
+        <p className="mx-auto mt-2 max-w-md text-sm font-medium text-brand-black/75">{t.call.sub}</p>
+        <a
+          href={`${localePath('/', lang)}#contatti`}
+          onClick={onCall}
+          className="mt-5 inline-flex items-center gap-2 rounded-full bg-brand-black px-8 py-4 text-sm font-bold uppercase tracking-wider text-white transition-transform hover:scale-[1.03]"
+        >
+          {t.call.button}
+        </a>
+      </div>
+
+      <button
+        onClick={onRestart}
+        className="mt-5 w-full rounded-full border border-white/20 px-8 py-4 text-sm font-bold uppercase tracking-wider text-white/80 transition hover:border-white/50 hover:text-white"
+      >
+        {t.lose.restart}
+      </button>
+    </div>
   )
 }
 
@@ -614,9 +738,7 @@ const PARTNER_LOGOS = [
 function SocialProof({ label, className = '' }) {
   return (
     <div className={className}>
-      <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-white/40">
-        {label}
-      </p>
+      <p className="text-[11px] font-semibold uppercase tracking-[0.25em] text-white/40">{label}</p>
       <div className="mt-4 flex flex-wrap items-center gap-x-7 gap-y-4">
         {PARTNER_LOGOS.map((src) => (
           <img
@@ -634,375 +756,66 @@ function SocialProof({ label, className = '' }) {
 }
 
 /* ------------------------------------------------------------------ */
-/* CALCULATOR CARD                                                      */
+/* PRENOTA LA CALL — calendario Cal.com embeddato (tema chiaro + brand). */
 /* ------------------------------------------------------------------ */
-function CalculatorCard({ t, segment, onSegment, values, onValue, score, onCalcolate }) {
-  const levers = VERTICALS[segment].levers
-  return (
-    <div className="relative rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-[0_40px_120px_-40px_rgba(0,0,0,0.9)] backdrop-blur-md sm:p-8">
-      {/* alone giallo dietro la card */}
-      <div
-        aria-hidden
-        className="pointer-events-none absolute -inset-4 -z-10 rounded-[2.5rem] bg-brand-yellow/10 blur-3xl"
-      />
-      <div className="flex items-center justify-between gap-4">
-        <p className="text-xs font-bold uppercase tracking-[0.25em] text-brand-yellow">
-          Calcolatore ROI
-        </p>
-        <div className="flex items-center gap-2 rounded-full border border-white/10 bg-brand-black/50 px-3 py-1.5">
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-white/45">
-            {t.hero.liveScore}
-          </span>
-          <span className="font-display text-lg font-extrabold leading-none text-brand-yellow">
-            {score}
-            <span className="text-xs text-white/40">/100</span>
-          </span>
-        </div>
-      </div>
-
-      <h2 className="mt-4 font-display text-xl font-extrabold leading-tight sm:text-2xl">
-        {t.hero.cardTitle}
-      </h2>
-
-      {/* tabs settore */}
-      <div className="mt-5 grid grid-cols-3 gap-2">
-        {SEGMENTS.map((seg) => {
-          const active = seg === segment
-          return (
-            <button
-              key={seg}
-              type="button"
-              onClick={() => onSegment(seg)}
-              aria-pressed={active}
-              className={[
-                'flex flex-col items-center gap-1.5 rounded-2xl border px-2 py-3 text-center transition',
-                active
-                  ? 'border-brand-yellow bg-brand-yellow text-brand-black'
-                  : 'border-white/10 bg-white/[0.03] text-white/60 hover:border-white/25 hover:text-white',
-              ].join(' ')}
-            >
-              <SegIcon type={seg} className="h-5 w-5" />
-              <span className="text-xs font-bold">{t.segments[seg]}</span>
-            </button>
-          )
-        })}
-      </div>
-
-      {/* slider */}
-      <div className="mt-6 space-y-5">
-        {levers.map((lev) => (
-          <Slider
-            key={lev.key}
-            label={t.levers[lev.key]}
-            lever={lev}
-            value={values[lev.key]}
-            onChange={(v) => onValue(lev.key, v)}
-            onCommit={() => track('calc_step_completato', { segmento: segment, step: lev.key })}
-          />
-        ))}
-      </div>
-
-      <button type="button" onClick={onCalcolate} className="btn-primary mt-7 w-full">
-        {t.hero.ctaCalc}
-      </button>
-      <p className="mt-3 text-center text-[11px] uppercase tracking-[0.18em] text-white/35">
-        {t.hero.demoNote}
-      </p>
-    </div>
-  )
-}
-
-function Slider({ label, lever, value, onChange, onCommit }) {
-  return (
-    <div>
-      <div className="flex items-baseline justify-between gap-3">
-        <span className="text-sm font-medium text-white/80">{label}</span>
-        <span className="font-display text-base font-extrabold text-brand-yellow">
-          {fmtValue(lever, value)}
-        </span>
-      </div>
-      <input
-        type="range"
-        min={lever.min}
-        max={lever.max}
-        step={lever.step}
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        onPointerUp={onCommit}
-        className="mt-2 h-1.5 w-full cursor-pointer appearance-none rounded-full bg-white/15 accent-brand-yellow"
-        aria-label={label}
-      />
-    </div>
-  )
-}
-
-/* ------------------------------------------------------------------ */
-/* RESULT REPORT — score + range + breakdown (gated)                    */
-/* ------------------------------------------------------------------ */
-function ResultReport({ t, lang, segment, report, unlocked, onUnlock }) {
-  const r = t.result
-  const today = new Date().toLocaleDateString(lang === 'en' ? 'en-GB' : 'it-IT', {
-    day: 'numeric',
-    month: 'long',
-    year: 'numeric',
-  })
-
-  return (
-    <div className="container-x pb-20 pt-4 sm:pb-28">
-      <div className="mx-auto max-w-4xl rounded-[2rem] border border-white/10 bg-brand-dark/70 p-6 shadow-2xl backdrop-blur-md sm:p-9">
-        {/* header report */}
-        <div className="flex flex-wrap items-center justify-between gap-3">
-          <span className="eyebrow">{r.eyebrow}</span>
-          <span className="rounded-full border border-brand-yellow/30 bg-brand-yellow/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-brand-yellow">
-            {t.segments[segment]}
-          </span>
-        </div>
-        {unlocked && (
-          <p className="mt-2 text-xs text-white/45">
-            {r.generatedFor} <span className="text-white/70">{unlocked.azienda || '—'}</span> · {today}
-          </p>
-        )}
-
-        {/* score + potenziale */}
-        <div className="mt-5 grid gap-4 sm:grid-cols-2">
-          <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-white/45">
-              {r.scoreLabel}
-            </p>
-            <div className="mt-2 flex items-end gap-2">
-              <span className="font-display text-5xl font-extrabold leading-none">
-                {report.score}
-              </span>
-              <span className="mb-1 text-sm text-white/40">/100</span>
-            </div>
-            <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-white/10">
-              <div
-                className="h-full rounded-full bg-brand-yellow transition-all"
-                style={{ width: `${report.score}%` }}
-              />
-            </div>
-            <p className="mt-2 text-xs font-semibold text-brand-yellow">
-              {zoneOf(report.score, r.zones)}
-            </p>
-          </div>
-
-          <div className="rounded-2xl border border-brand-yellow/20 bg-brand-yellow/[0.06] p-5">
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-white/45">
-              {r.potentialLabel}
-            </p>
-            <div className="mt-2 font-display text-3xl font-extrabold leading-none text-brand-yellow sm:text-4xl">
-              {fmtEuro(report.rangeLow)} – {fmtEuro(report.rangeHigh)}
-            </div>
-            <p className="mt-2 text-xs text-white/50">
-              {r.perMonth} · {r.potentialSuffix}
-            </p>
-          </div>
-        </div>
-
-        {/* breakdown */}
-        <p className="mt-7 text-[11px] font-bold uppercase tracking-[0.25em] text-brand-yellow">
-          {r.breakdownEyebrow}
-        </p>
-        <div className="relative mt-3">
-          <div
-            className={[
-              'grid gap-3',
-              unlocked ? '' : 'pointer-events-none select-none blur-[7px]',
-            ].join(' ')}
-            aria-hidden={!unlocked}
-          >
-            {report.levers.map((l) => (
-              <LeverRow key={l.key} lever={l} t={t} />
-            ))}
-          </div>
-          {!unlocked && (
-            <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent to-brand-dark/90" />
-          )}
-        </div>
-
-        {/* gate oppure prossimi passi */}
-        {unlocked ? (
-          <UnlockedExtra t={t} lang={lang} segment={segment} />
-        ) : (
-          <GateForm t={t} onUnlock={onUnlock} />
-        )}
-      </div>
-    </div>
-  )
-}
-
-function LeverRow({ lever, t }) {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 sm:p-5">
-      <div className="flex items-center justify-between gap-3">
-        <span className="text-sm font-semibold text-white/85">{t.levers[lever.key]}</span>
-        <span className="font-display text-lg font-extrabold text-brand-yellow">
-          +{fmtEuro(lever.euroMonth)}
-          <span className="text-xs font-bold text-white/40">{t.result.perMonth}</span>
-        </span>
-      </div>
-      <div className="relative mt-3 h-2 w-full overflow-hidden rounded-full bg-white/10">
-        <div
-          className="h-full rounded-full bg-brand-yellow/70"
-          style={{ width: `${Math.round(lever.pct * 100)}%` }}
-        />
-        <span className="absolute right-0 top-1/2 h-3 w-0.5 -translate-y-1/2 bg-white/60" />
-      </div>
-      <div className="mt-2 flex items-center justify-between text-[11px] text-white/45">
-        <span>
-          {t.result.here}: {fmtValue(lever, lever.current)}
-        </span>
-        <span>
-          {t.result.potentialWord}: {fmtValue(lever, lever.benchmark)}
-        </span>
-      </div>
-    </div>
-  )
-}
-
-function GateForm({ t, onUnlock }) {
-  const g = t.gate
-  const [form, setForm] = useState({ nome: '', azienda: '', email: '', telefono: '', privacy: false })
-  const onChange = (e) => {
-    const { name, type, value, checked } = e.target
-    setForm((f) => ({ ...f, [name]: type === 'checkbox' ? checked : value }))
-  }
-  useEffect(() => {
-    track('calc_lead_gate_visualizzato', {})
-  }, [])
-  return (
-    <form
-      onSubmit={(e) => onUnlock(e, form)}
-      className="mt-6 rounded-2xl border border-brand-yellow/25 bg-brand-black/50 p-5 sm:p-7"
-    >
-      <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-brand-yellow">
-        {g.eyebrow}
-      </span>
-      <h3 className="mt-2 font-display text-xl font-extrabold leading-tight sm:text-2xl">
-        {g.title}
-      </h3>
-      <p className="mt-1.5 text-sm text-white/60">{g.sub}</p>
-
-      <div className="mt-5 grid gap-3 sm:grid-cols-2">
-        <GateField label={g.fields.nome.label} name="nome" value={form.nome} onChange={onChange} placeholder={g.fields.nome.placeholder} required />
-        <GateField label={g.fields.azienda.label} name="azienda" value={form.azienda} onChange={onChange} placeholder={g.fields.azienda.placeholder} required />
-        <GateField label={g.fields.email.label} name="email" type="email" value={form.email} onChange={onChange} placeholder={g.fields.email.placeholder} required />
-        <GateField label={g.fields.telefono.label} name="telefono" type="tel" value={form.telefono} onChange={onChange} placeholder={g.fields.telefono.placeholder} required />
-      </div>
-
-      <label className="mt-4 flex items-start gap-3 text-left text-xs leading-relaxed text-white/60">
-        <input
-          type="checkbox"
-          name="privacy"
-          checked={form.privacy}
-          onChange={onChange}
-          required
-          className="mt-0.5 h-4 w-4 shrink-0 accent-brand-yellow"
-        />
-        <span>
-          {g.privacyPre}{' '}
-          <a href="/privacy-policy.html" target="_blank" rel="noopener noreferrer" className="underline hover:text-brand-yellow">
-            {g.privacyLink}
-          </a>
-          {g.privacyPost}
-        </span>
-      </label>
-
-      <button type="submit" className="btn-primary mt-5 w-full">
-        {g.submit}
-      </button>
-      <p className="mt-3 text-center text-[10px] uppercase tracking-[0.18em] text-white/30">
-        {g.demoBadge}
-      </p>
-    </form>
-  )
-}
-
-function GateField({ label, name, ...rest }) {
-  return (
-    <label className="block">
-      <span className="mb-1.5 block text-[11px] font-semibold uppercase tracking-widest text-white/60">
-        {label}
-      </span>
-      <input
-        name={name}
-        {...rest}
-        className="w-full rounded-full border border-white/10 bg-brand-black/60 px-4 py-3 text-sm text-white placeholder-white/30 outline-none transition focus:border-brand-yellow focus:ring-2 focus:ring-brand-yellow/30"
-      />
-    </label>
-  )
-}
-
-function UnlockedExtra({ t, lang, segment }) {
-  const steps = t.nextSteps[segment]
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.45, ease: 'easeOut' }}
-      className="mt-7"
-    >
-      <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-brand-yellow">
-        {t.result.stepsTitle}
-      </p>
-      <ol className="mt-3 space-y-2.5">
-        {steps.map((s, i) => (
-          <li key={i} className="flex items-start gap-3 text-sm text-white/75">
-            <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-yellow font-display text-xs font-extrabold text-brand-black">
-              {i + 1}
-            </span>
-            {s}
-          </li>
-        ))}
-      </ol>
-
-      <div className="mt-7 rounded-2xl bg-brand-yellow p-5 text-center text-brand-black sm:p-7">
-        <h3 className="font-display text-xl font-extrabold leading-tight sm:text-2xl">
-          {t.call.heading}
-        </h3>
-        <p className="mx-auto mt-2 max-w-md text-sm font-medium text-brand-black/75">
-          {t.call.sub}
-        </p>
-        <a
-          href={`${localePath('/', lang)}#contatti`}
-          className="mt-5 inline-flex items-center gap-2 rounded-full bg-brand-black px-8 py-4 text-sm font-bold uppercase tracking-wider text-white transition-transform hover:scale-[1.03]"
-        >
-          {t.call.button}
-        </a>
-      </div>
-      <p className="mt-3 text-center text-[10px] uppercase tracking-[0.18em] text-white/30">
-        {t.result.demoNote}
-      </p>
-    </motion.div>
-  )
-}
-
-/* ------------------------------------------------------------------ */
-/* COME FUNZIONA                                                        */
-/* ------------------------------------------------------------------ */
-function HowItWorks() {
+function BookCall() {
   const lang = useLang()
-  const t = COPY[lang].how
-  const root = useRef(null)
+  const t = COPY[lang].book
+  const started = useRef(false)
 
-  useGSAP(
-    () => {
-      const items = gsap.utils.toArray('.hw-step', root.current)
-      gsap.set(items, { opacity: 0, y: 20 })
-      ScrollTrigger.create({
-        trigger: root.current,
-        start: 'top 78%',
-        once: true,
-        onEnter: () =>
-          gsap.to(items, { opacity: 1, y: 0, duration: 0.55, ease: 'power3.out', stagger: 0.15 }),
-      })
-    },
-    { scope: root }
-  )
+  useEffect(() => {
+    if (!CAL_LINK || started.current || typeof window === 'undefined') return
+    started.current = true
+    /* loader ufficiale Cal.com (condensato) */
+    ;(function (C, A, L) {
+      let p = function (a, ar) {
+        a.q.push(ar)
+      }
+      let d = C.document
+      C.Cal =
+        C.Cal ||
+        function () {
+          let cal = C.Cal
+          let ar = arguments
+          if (!cal.loaded) {
+            cal.ns = {}
+            cal.q = cal.q || []
+            d.head.appendChild(d.createElement('script')).src = A
+            cal.loaded = true
+          }
+          if (ar[0] === L) {
+            const api = function () {
+              p(api, arguments)
+            }
+            const namespace = ar[1]
+            api.q = api.q || []
+            if (typeof namespace === 'string') {
+              cal.ns[namespace] = cal.ns[namespace] || api
+              p(cal.ns[namespace], ar)
+              p(cal, ['initNamespace', namespace])
+            } else p(cal, ar)
+            return
+          }
+          p(cal, ar)
+        }
+    })(window, CAL_EMBED_JS, 'init')
+
+    window.Cal('init', { origin: CAL_ORIGIN })
+    window.Cal('inline', {
+      elementOrSelector: '#cal-inline',
+      calLink: CAL_LINK,
+      config: { theme: 'light', layout: 'month_view' },
+    })
+    window.Cal('ui', {
+      theme: 'light',
+      cssVarsPerTheme: { light: { 'cal-brand': '#FFC501' } },
+      hideEventTypeDetails: false,
+      layout: 'month_view',
+    })
+  }, [])
 
   return (
     <section
-      ref={root}
       data-bg-light
       className="relative z-10 rounded-t-[2.5rem] bg-white shadow-[0_-30px_60px_-25px_rgba(0,0,0,0.55)] sm:rounded-t-[3rem]"
       style={{ '--theme-fg': '#0B0B0C', '--theme-bg': '#FFFFFF' }}
@@ -1013,22 +826,36 @@ function HowItWorks() {
           <h2 className="mt-4 font-display text-3xl font-extrabold leading-tight text-brand-black sm:text-4xl md:text-5xl">
             {t.heading}
           </h2>
+          <p className="mx-auto mt-5 max-w-xl text-base leading-relaxed text-brand-black/65">{t.body}</p>
+          <ul className="mt-6 flex flex-wrap items-center justify-center gap-2.5">
+            {t.bullets.map((b) => (
+              <li
+                key={b}
+                className="inline-flex items-center gap-2 rounded-full border border-brand-black/10 bg-brand-black/[0.03] px-4 py-2 text-xs font-bold uppercase tracking-wider text-brand-black/70"
+              >
+                <span className="h-1.5 w-1.5 rounded-full bg-brand-yellow" />
+                {b}
+              </li>
+            ))}
+          </ul>
         </div>
-        <div className="mt-12 grid gap-5 md:grid-cols-3">
-          {t.steps.map((s) => (
-            <div
-              key={s.n}
-              className="hw-step rounded-3xl border border-brand-black/10 bg-brand-black/[0.02] p-7"
-            >
-              <span className="flex h-11 w-11 items-center justify-center rounded-full bg-brand-yellow font-display text-lg font-extrabold text-brand-black">
-                {s.n}
+
+        <div className="mx-auto mt-10 max-w-3xl overflow-hidden rounded-3xl border border-brand-black/10 bg-white shadow-xl">
+          {CAL_LINK ? (
+            <div id="cal-inline" style={{ minHeight: 640, width: '100%' }} />
+          ) : (
+            <div className="flex min-h-[300px] flex-col items-center justify-center gap-3 p-10 text-center">
+              <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-yellow text-brand-black">
+                <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="4" width="18" height="17" rx="2" />
+                  <path d="M3 9h18M8 2v4M16 2v4" />
+                  <path d="M8 14h3M13 14h3" />
+                </svg>
               </span>
-              <h3 className="mt-4 font-display text-xl font-extrabold text-brand-black">
-                {s.title}
-              </h3>
-              <p className="mt-2 text-sm leading-relaxed text-brand-black/65">{s.body}</p>
+              <p className="font-display text-lg font-extrabold text-brand-black">{t.placeholder}</p>
+              <p className="text-xs uppercase tracking-widest text-brand-black/40">Cal.com · CAL_LINK</p>
             </div>
-          ))}
+          )}
         </div>
       </div>
     </section>
@@ -1046,9 +873,7 @@ function WhatYouGet() {
       <div className="container-x grid gap-12 lg:grid-cols-[1fr_0.85fr] lg:items-center">
         <div>
           <span className="eyebrow">{t.eyebrow}</span>
-          <h2 className="mt-4 font-display text-3xl font-extrabold leading-tight sm:text-4xl md:text-5xl">
-            {t.heading}
-          </h2>
+          <h2 className="mt-4 font-display text-3xl font-extrabold leading-tight sm:text-4xl md:text-5xl">{t.heading}</h2>
           <div className="mt-8 space-y-4">
             {t.items.map((it) => (
               <div key={it.title} className="flex gap-4 rounded-2xl border border-white/10 bg-white/[0.03] p-5">
@@ -1076,10 +901,94 @@ function WhatYouGet() {
             }}
           />
           <span className="eyebrow">{t.whoEyebrow}</span>
-          <h3 className="mt-4 font-display text-2xl font-extrabold leading-tight sm:text-3xl">
-            {t.whoTitle}
-          </h3>
+          <h3 className="mt-4 font-display text-2xl font-extrabold leading-tight sm:text-3xl">{t.whoTitle}</h3>
           <p className="mt-4 text-base leading-relaxed text-white/70">{t.whoBody}</p>
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/* TEAM — favo di bolle stile menu Apple Watch (foto B/N + nomi).       */
+/* Riusa le webp B/N già ottimizzate del sito (/team-<id>-bw.webp).     */
+/* ------------------------------------------------------------------ */
+const TEAM = [
+  { id: 'marco', name: 'Marco Lucci', role: 'Founder & Strategist' },
+  { id: 'toto', name: 'Toto Piacente', role: 'Co-Founder & Growth' },
+  { id: 'sabrina', name: 'Sabrina Nastro', role: 'Growth Marketing Strategist' },
+  { id: 'michele', name: 'Michele Cristallo', role: 'AI Specialist' },
+  { id: 'gabriele', name: 'Gabriele Saraiello', role: 'Automation Specialist' },
+  { id: 'annalisa', name: 'Annalisa Smiraglia', role: 'Social Media Manager & Content Creator' },
+  { id: 'agostino', name: 'Agostino Abate', role: 'Media Buyer' },
+  { id: 'claudia', name: 'Claudia Amodei', role: 'AI Executive' },
+].map((m) => ({ ...m, photo: `/team-${m.id}-bw.webp` }))
+
+// riga 2-3-3: i fondatori (Marco+Toto) in cima e più grandi, poi il resto a favo
+const TEAM_ROWS = [
+  [0, 1],
+  [2, 3, 4],
+  [5, 6, 7],
+]
+
+// Facce sempre visibili (trust-critical su landing ads): niente reveal JS,
+// solo float idle CSS + magnify all'hover. Se le animazioni non partono, resta tutto visibile.
+// `big` = riga fondatori (foto e nome più grandi).
+function HiveBubble({ m, i, big = false }) {
+  const cellW = big ? 'w-[clamp(124px,31vw,178px)]' : 'w-[clamp(104px,25vw,146px)]'
+  const circW = big ? 'w-[clamp(112px,28vw,152px)]' : 'w-[clamp(92px,23vw,128px)]'
+  const nameCls = big ? 'text-[15px] sm:text-lg' : 'text-[13px] sm:text-base'
+  return (
+    <div className={`flex ${cellW} flex-col items-center text-center`}>
+      <div
+        className="hive-float"
+        style={{ animation: 'hiveFloat 4.5s ease-in-out infinite', animationDelay: `${(i % 4) * 0.4}s` }}
+      >
+        <div className={`group relative aspect-square ${circW}`}>
+          <div className="absolute inset-0 overflow-hidden rounded-full shadow-lg ring-2 ring-white/10 transition duration-300 group-hover:ring-brand-yellow group-hover:shadow-[0_0_0_7px_rgba(255,197,1,0.14)]">
+            <img
+              src={m.photo}
+              alt={m.name}
+              loading="lazy"
+              decoding="async"
+              className="h-full w-full object-cover transition duration-500 group-hover:scale-105"
+            />
+          </div>
+        </div>
+      </div>
+      <div className={`text-outlined mt-3 font-display font-extrabold leading-tight ${nameCls}`}>{m.name}</div>
+      <div className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.12em] text-brand-yellow sm:text-[11px]">{m.role}</div>
+    </div>
+  )
+}
+
+function TeamHive() {
+  const lang = useLang()
+  const t = COPY[lang].team
+  return (
+    <section className="section-y border-t border-white/5 bg-brand-black">
+      <style>{`
+        @keyframes hiveFloat { 0%, 100% { transform: translateY(0) } 50% { transform: translateY(-6px) } }
+        @media (prefers-reduced-motion: reduce) { .hive-float { animation: none !important } }
+      `}</style>
+      <div className="container-x">
+        <div className="mx-auto max-w-2xl text-center">
+          <span className="eyebrow">{t.eyebrow}</span>
+          <h2 className="text-outlined mt-4 font-display text-3xl font-extrabold leading-tight sm:text-4xl md:text-5xl">
+            {t.headingPre}
+            <span className="text-brand-yellow">{t.headingHl}</span>
+          </h2>
+          <p className="text-outlined-sm mx-auto mt-5 max-w-xl text-base leading-relaxed text-white/70">{t.body}</p>
+        </div>
+
+        <div className="mt-14 flex flex-col items-center gap-y-10 sm:gap-y-12">
+          {TEAM_ROWS.map((row, ri) => (
+            <div key={ri} className="flex justify-center gap-x-4 sm:gap-x-9 lg:gap-x-14">
+              {row.map((idx) => (
+                <HiveBubble key={TEAM[idx].id} m={TEAM[idx]} i={idx} big={ri === 0} />
+              ))}
+            </div>
+          ))}
         </div>
       </div>
     </section>
@@ -1101,9 +1010,7 @@ function Fit() {
       <div className="container-x section-y">
         <div className="mx-auto max-w-2xl text-center">
           <span className="eyebrow">{t.eyebrow}</span>
-          <h2 className="mt-4 font-display text-3xl font-extrabold leading-tight text-brand-black sm:text-4xl md:text-5xl">
-            {t.heading}
-          </h2>
+          <h2 className="mt-4 font-display text-3xl font-extrabold leading-tight text-brand-black sm:text-4xl md:text-5xl">{t.heading}</h2>
         </div>
         <div className="mx-auto mt-12 grid max-w-4xl gap-5 md:grid-cols-2">
           <div className="rounded-3xl border-2 border-brand-yellow bg-brand-yellow/[0.08] p-7">
@@ -1173,10 +1080,7 @@ function FaqSection() {
 function FaqItem({ faq, open, onToggle }) {
   return (
     <div className="overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03]">
-      <button
-        onClick={onToggle}
-        className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left transition hover:bg-white/[0.05]"
-      >
+      <button onClick={onToggle} className="flex w-full items-center justify-between gap-4 px-6 py-5 text-left transition hover:bg-white/[0.05]">
         <span className="font-display text-base font-extrabold sm:text-lg">{faq.q}</span>
         <span
           className={[
@@ -1227,9 +1131,7 @@ function FinalCta() {
         }}
       />
       <div className="container-x relative py-20 text-center md:py-28">
-        <span className="inline-block text-xs font-bold uppercase tracking-[0.3em] text-brand-black/70 sm:text-sm">
-          {t.eyebrow}
-        </span>
+        <span className="inline-block text-xs font-bold uppercase tracking-[0.3em] text-brand-black/70 sm:text-sm">{t.eyebrow}</span>
         <h2 className="mx-auto mt-5 max-w-3xl font-display text-4xl font-extrabold uppercase leading-[0.95] tracking-tight sm:text-5xl md:text-6xl">
           {t.heading}
         </h2>
