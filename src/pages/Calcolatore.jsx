@@ -21,7 +21,7 @@ import Footer from '../components/Footer.jsx'
 import HexBackground from '../components/HexBackground.jsx'
 import CookieBanner from '../components/CookieBanner.jsx'
 import FlappyGame from '../components/FlappyGame.jsx'
-import { localePath, useLang } from '../i18n/LanguageContext.jsx'
+import { useLang } from '../i18n/LanguageContext.jsx'
 
 gsap.registerPlugin(useGSAP)
 
@@ -110,6 +110,7 @@ const COPY = {
       scored: 'Pain point schivati',
       discover: 'Scopri come risolverlo',
       restart: 'Rigioca',
+      bookNow: 'Oppure prenota subito la call →',
       solutionEyebrow: 'La nostra risposta',
     },
     gate: {
@@ -269,6 +270,7 @@ const COPY = {
       scored: 'Pain points dodged',
       discover: 'See how we fix it',
       restart: 'Play again',
+      bookNow: 'Or book the call now →',
       solutionEyebrow: 'Our answer',
     },
     gate: {
@@ -452,7 +454,17 @@ function Experience() {
     setStage('solution')
     track('game_lead_inviato', { pain: painKey, score }) // NB: nessun invio reale → Gabriele
   }
-  const handleCall = () => track('game_cta_call', { pain: painKey })
+  // fine gioco → sempre al calendario: chiude il takeover, resetta il gioco e scrolla al calendario embeddato
+  const goToCalendar = () => {
+    track('game_cta_call', { pain: painKey, score })
+    setOver(false)
+    setStage('lose')
+    setGameKey((k) => k + 1)
+    setTimeout(() => {
+      const el = document.getElementById('prenota')
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }, 90)
+  }
   const handleRestart = () => {
     setOver(false)
     setStage('lose')
@@ -504,7 +516,7 @@ function Experience() {
             onCrash={handleCrash}
           />
           <p className="mt-4 text-center text-xs text-white/40">
-            <a href={`${localePath('/', lang)}#contatti`} className="underline transition hover:text-brand-yellow">
+            <a href="#prenota" className="underline transition hover:text-brand-yellow">
               {t.hero.talkInstead}
             </a>
           </p>
@@ -516,13 +528,12 @@ function Experience() {
         createPortal(
           <LoseTakeover
             t={t}
-            lang={lang}
             painKey={painKey}
             score={score}
             stage={stage}
             onDiscover={handleDiscover}
             onSubmit={handleSubmit}
-            onCall={handleCall}
+            onBook={goToCalendar}
             onRestart={handleRestart}
           />,
           document.body
@@ -534,7 +545,7 @@ function Experience() {
 /* ------------------------------------------------------------------ */
 /* TAKEOVER DI SCONFITTA — fullscreen: lose → form → solution           */
 /* ------------------------------------------------------------------ */
-function LoseTakeover({ t, lang, painKey, score, stage, onDiscover, onSubmit, onCall, onRestart }) {
+function LoseTakeover({ t, painKey, score, stage, onDiscover, onSubmit, onBook, onRestart }) {
   const pain = t.pains.find((p) => p.key === painKey) || t.pains[0]
 
   return (
@@ -599,6 +610,13 @@ function LoseTakeover({ t, lang, painKey, score, stage, onDiscover, onSubmit, on
                   {t.lose.restart}
                 </button>
               </div>
+              <button
+                type="button"
+                onClick={onBook}
+                className="mt-5 text-sm font-semibold text-brand-yellow underline underline-offset-4 transition hover:text-white"
+              >
+                {t.lose.bookNow}
+              </button>
             </motion.div>
           )}
 
@@ -622,7 +640,7 @@ function LoseTakeover({ t, lang, painKey, score, stage, onDiscover, onSubmit, on
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.4, ease: 'easeOut' }}
             >
-              <SolutionStage t={t} lang={lang} pain={pain} onCall={onCall} onRestart={onRestart} />
+              <SolutionStage t={t} pain={pain} onBook={onBook} onRestart={onRestart} />
             </motion.div>
           )}
         </AnimatePresence>
@@ -693,7 +711,7 @@ function GateField({ label, name, ...rest }) {
   )
 }
 
-function SolutionStage({ t, lang, pain, onCall, onRestart }) {
+function SolutionStage({ t, pain, onBook, onRestart }) {
   return (
     <div className="rounded-2xl border border-white/10 bg-brand-dark/80 p-6 shadow-2xl sm:p-8">
       <span className="rounded-full border border-brand-yellow/30 bg-brand-yellow/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-brand-yellow">
@@ -706,13 +724,13 @@ function SolutionStage({ t, lang, pain, onCall, onRestart }) {
       <div className="mt-7 rounded-2xl bg-brand-yellow p-5 text-center text-brand-black sm:p-7">
         <h4 className="font-display text-xl font-extrabold leading-tight sm:text-2xl">{t.call.heading}</h4>
         <p className="mx-auto mt-2 max-w-md text-sm font-medium text-brand-black/75">{t.call.sub}</p>
-        <a
-          href={`${localePath('/', lang)}#contatti`}
-          onClick={onCall}
+        <button
+          type="button"
+          onClick={onBook}
           className="mt-5 inline-flex items-center gap-2 rounded-full bg-brand-black px-8 py-4 text-sm font-bold uppercase tracking-wider text-white transition-transform hover:scale-[1.03]"
         >
           {t.call.button}
-        </a>
+        </button>
       </div>
 
       <button
@@ -816,8 +834,9 @@ function BookCall() {
 
   return (
     <section
+      id="prenota"
       data-bg-light
-      className="relative z-10 rounded-t-[2.5rem] bg-white shadow-[0_-30px_60px_-25px_rgba(0,0,0,0.55)] sm:rounded-t-[3rem]"
+      className="relative z-10 scroll-mt-24 rounded-t-[2.5rem] bg-white shadow-[0_-30px_60px_-25px_rgba(0,0,0,0.55)] sm:rounded-t-[3rem]"
       style={{ '--theme-fg': '#0B0B0C', '--theme-bg': '#FFFFFF' }}
     >
       <div className="container-x section-y">
