@@ -25,7 +25,9 @@ import Contact from './sections/Contact.jsx'
 // doesn't pay for code it never renders.
 const HexBgLab = lazy(() => import('./labs/HexBgLab.jsx'))
 const CareersPage = lazy(() => import('./pages/Careers.jsx'))
-// Non linkata in navbar: raggiungibile via /flappybee (o l'alias storico /calcolatore).
+// Landing gemelle A/B (fuori da navbar/sitemap, solo via URL): stesso "sotto",
+// hero diverso — /flappybee = gioco, /calcolatore = calcolatore ROI.
+const FlappybeePage = lazy(() => import('./pages/Flappybee.jsx'))
 const CalcolatorePage = lazy(() => import('./pages/Calcolatore.jsx'))
 
 gsap.registerPlugin(ScrollTrigger, ScrollSmoother, useGSAP)
@@ -91,7 +93,9 @@ export default function App() {
   let page = <MainSite />
   if (path === '/lavora-con-noi') {
     page = <Suspense fallback={null}><CareersPage /></Suspense>
-  } else if (path === '/flappybee' || path === '/calcolatore') {
+  } else if (path === '/flappybee') {
+    page = <Suspense fallback={null}><FlappybeePage /></Suspense>
+  } else if (path === '/calcolatore') {
     page = <Suspense fallback={null}><CalcolatorePage /></Suspense>
   }
   return <LanguageProvider lang={lang}>{page}</LanguageProvider>
