@@ -24,6 +24,7 @@ import Contact from './sections/Contact.jsx'
 // Route/lab-gated views: split out of the main bundle so the homepage
 // doesn't pay for code it never renders.
 const HexBgLab = lazy(() => import('./labs/HexBgLab.jsx'))
+const HexFloatLab = lazy(() => import('./labs/HexFloatLab.jsx'))
 const CareersPage = lazy(() => import('./pages/Careers.jsx'))
 // Landing gemelle A/B (fuori da navbar/sitemap, solo via URL): stesso "sotto",
 // hero diverso — /flappybee = gioco, /calcolatore = calcolatore ROI.
@@ -90,6 +91,7 @@ export default function App() {
   const { lang, path } = getLangAndPath()
   useSyncHead(lang)
   if (lab === 'hex') return <Suspense fallback={null}><HexBgLab /></Suspense>
+  if (lab === 'hexfloat') return <Suspense fallback={null}><HexFloatLab /></Suspense>
   let page = <MainSite />
   if (path === '/lavora-con-noi') {
     page = <Suspense fallback={null}><CareersPage /></Suspense>
@@ -97,6 +99,8 @@ export default function App() {
     page = <Suspense fallback={null}><FlappybeePage /></Suspense>
   } else if (path === '/calcolatore') {
     page = <Suspense fallback={null}><CalcolatorePage /></Suspense>
+  } else if (path === '/hiddenwork') {
+    page = <Suspense fallback={null}><HexFloatLab /></Suspense>
   }
   return <LanguageProvider lang={lang}>{page}</LanguageProvider>
 
