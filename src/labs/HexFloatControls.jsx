@@ -47,6 +47,7 @@ function formatPropsJSX(props) {
 
 export default function HexFloatControls({ value, onChange, defaults }) {
   const [open, setOpen] = useState(true)
+  const [minimized, setMinimized] = useState(false)
   const [copied, setCopied] = useState(false)
 
   const set = (key, v) => onChange({ ...value, [key]: v })
@@ -75,7 +76,11 @@ export default function HexFloatControls({ value, onChange, defaults }) {
   }
 
   return (
-    <div className="scrollbar-none pointer-events-auto fixed bottom-6 right-6 z-50 max-h-[80vh] w-[300px] overflow-y-auto rounded-2xl border border-white/15 bg-black/80 p-4 text-white backdrop-blur-md">
+    <div
+      className={`scrollbar-none pointer-events-auto fixed bottom-6 right-6 z-50 w-[300px] rounded-2xl border border-white/15 bg-black/80 p-4 text-white backdrop-blur-md ${
+        minimized ? '' : 'max-h-[80vh] overflow-y-auto'
+      }`}
+    >
       <div className="flex items-center justify-between">
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-yellow">
           Hex Float controls
@@ -84,60 +89,73 @@ export default function HexFloatControls({ value, onChange, defaults }) {
           <button type="button" onClick={() => onChange(defaults)} aria-label="Reset" title="Reset" className="hover:text-white">
             ↺
           </button>
+          <button
+            type="button"
+            onClick={() => setMinimized((m) => !m)}
+            aria-label={minimized ? 'Espandi controlli' : 'Minimizza controlli'}
+            title={minimized ? 'Espandi' : 'Minimizza'}
+            className="hover:text-white"
+          >
+            {minimized ? '▢' : '−'}
+          </button>
           <button type="button" onClick={() => setOpen(false)} aria-label="Chiudi controlli" className="hover:text-white">
             ×
           </button>
         </div>
       </div>
 
-      <div className="mt-3 space-y-3">
-        {FIELDS.map((f) => (
-          <label key={f.key} className="block text-[11px]">
-            <div className="mb-1 flex items-center justify-between text-white/70">
-              <span>{f.label}</span>
-              <span className="font-mono text-white/50">{formatValue(value[f.key])}</span>
-            </div>
-            <input
-              type="range"
-              min={f.min}
-              max={f.max}
-              step={f.step}
-              value={value[f.key]}
-              onChange={(e) => set(f.key, Number(e.target.value))}
-              className="w-full accent-brand-yellow"
-            />
-          </label>
-        ))}
+      {!minimized && (
+        <>
+          <div className="mt-3 space-y-3">
+            {FIELDS.map((f) => (
+              <label key={f.key} className="block text-[11px]">
+                <div className="mb-1 flex items-center justify-between text-white/70">
+                  <span>{f.label}</span>
+                  <span className="font-mono text-white/50">{formatValue(value[f.key])}</span>
+                </div>
+                <input
+                  type="range"
+                  min={f.min}
+                  max={f.max}
+                  step={f.step}
+                  value={value[f.key]}
+                  onChange={(e) => set(f.key, Number(e.target.value))}
+                  className="w-full accent-brand-yellow"
+                />
+              </label>
+            ))}
 
-        <div className="block text-[11px]">
-          <div className="mb-1 flex items-center justify-between text-white/70">
-            <span>Gap color</span>
-            <label className="flex items-center gap-1 text-white/50">
+            <div className="block text-[11px]">
+              <div className="mb-1 flex items-center justify-between text-white/70">
+                <span>Gap color</span>
+                <label className="flex items-center gap-1 text-white/50">
+                  <input
+                    type="checkbox"
+                    checked={isAuto}
+                    onChange={(e) => set('gapColor', e.target.checked ? 'auto' : [1, 0.7725, 0.0039])}
+                  />
+                  auto
+                </label>
+              </div>
               <input
-                type="checkbox"
-                checked={isAuto}
-                onChange={(e) => set('gapColor', e.target.checked ? 'auto' : [1, 0.7725, 0.0039])}
+                type="color"
+                disabled={isAuto}
+                value={isAuto ? '#000000' : rgbToHex(value.gapColor)}
+                onChange={(e) => set('gapColor', hexToRgb(e.target.value))}
+                className="h-8 w-full rounded disabled:opacity-30"
               />
-              auto
-            </label>
+            </div>
           </div>
-          <input
-            type="color"
-            disabled={isAuto}
-            value={isAuto ? '#000000' : rgbToHex(value.gapColor)}
-            onChange={(e) => set('gapColor', hexToRgb(e.target.value))}
-            className="h-8 w-full rounded disabled:opacity-30"
-          />
-        </div>
-      </div>
 
-      <button
-        type="button"
-        onClick={copy}
-        className="mt-4 w-full rounded-full bg-brand-yellow px-4 py-2 text-[11px] font-bold uppercase tracking-[0.18em] text-brand-black transition hover:scale-[1.02]"
-      >
-        {copied ? 'Copiato ✓' : 'Copia settings'}
-      </button>
+          <button
+            type="button"
+            onClick={copy}
+            className="mt-4 w-full rounded-full bg-brand-yellow px-4 py-2 text-[11px] font-bold uppercase tracking-[0.18em] text-brand-black transition hover:scale-[1.02]"
+          >
+            {copied ? 'Copiato ✓' : 'Copia settings'}
+          </button>
+        </>
+      )}
     </div>
   )
 }
