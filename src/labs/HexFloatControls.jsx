@@ -75,7 +75,7 @@ export default function HexFloatControls({ value, onChange, defaults }) {
   }
 
   return (
-    <div className="pointer-events-auto fixed bottom-6 right-6 z-50 max-h-[80vh] w-[300px] overflow-y-auto rounded-2xl border border-white/15 bg-black/80 p-4 text-white backdrop-blur-md">
+    <div className="scrollbar-none pointer-events-auto fixed bottom-6 right-6 z-50 max-h-[80vh] w-[300px] overflow-y-auto rounded-2xl border border-white/15 bg-black/80 p-4 text-white backdrop-blur-md">
       <div className="flex items-center justify-between">
         <p className="text-xs font-bold uppercase tracking-[0.18em] text-brand-yellow">
           Hex Float controls

@@ -52,8 +52,8 @@ export default function HexFloatLab() {
     <div className="min-h-screen bg-[#0B0B0C] text-white">
       {/* HexFloat's own canvases are position:absolute, so the wrapper never
           auto-sizes to its children — it needs an explicit height matching
-          the two h-screen sections below, or everything collapses to 0. */}
-      <HexFloat {...hexProps} style={{ height: '200vh' }}>
+          the three h-screen sections below, or everything collapses to 0. */}
+      <HexFloat {...hexProps} style={{ height: '300vh' }}>
         <div className="flex h-screen flex-col items-center justify-center px-6 py-24 text-center">
           <p className="text-xs font-bold uppercase tracking-[0.3em] text-brand-yellow">
             Lab · Hex Float
@@ -93,6 +93,26 @@ export default function HexFloatLab() {
             className="max-h-[70vh] w-auto max-w-full rounded-2xl object-contain shadow-2xl"
           />
         </div>
+
+        {/* Sezione chiara come sul sito principale (es. #servizi/#piani in
+            App.jsx): stesso pattern rounded-t + shadow verso l'alto + LIGHT_VARS,
+            per verificare come si comporta l'effetto hex su sfondo bianco. */}
+        <section
+          data-bg-light
+          className="relative z-10 flex h-screen flex-col items-center justify-center gap-6 rounded-t-[2.5rem] bg-white px-6 py-24 text-center shadow-[0_-30px_60px_-25px_rgba(0,0,0,0.55)] sm:rounded-t-[3rem]"
+          style={{ '--theme-fg': '#0B0B0C', '--theme-bg': '#FFFFFF' }}
+        >
+          <p className="text-xs font-bold uppercase tracking-[0.3em] text-brand-yellow">
+            Test su sezione chiara
+          </p>
+          <h2 className="max-w-2xl font-display text-3xl font-extrabold leading-tight text-brand-black sm:text-4xl">
+            Come si comporta l'effetto hex sopra una sezione bianca?
+          </h2>
+          <p className="max-w-xl text-base text-brand-black/70">
+            Stesso pattern delle sezioni chiare del sito principale: bordo
+            arrotondato verso l'alto, ombra, sfondo bianco.
+          </p>
+        </section>
       </HexFloat>
 
       <div className="pointer-events-none fixed inset-x-0 top-6 z-50 flex justify-center px-6">

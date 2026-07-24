@@ -50,6 +50,14 @@
     -webkit-text-stroke: 0.5px rgba(0, 0, 0, 0.7);
     paint-order: stroke fill;
   }
+
+  .scrollbar-none {
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .scrollbar-none::-webkit-scrollbar {
+    display: none;
+  }
 }
 
 @keyframes marquee-x {
