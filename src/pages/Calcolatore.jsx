@@ -12,8 +12,9 @@
  *
  * ⚠️ MOCKUP — il motore di calcolo è DIMOSTRATIVO. Numeri di esempio dalle slide del
  * piano growth (luglio 2026). Formula/benchmark reali = da definire col manager.
- * Il gate emette solo eventi calc_* sul dataLayer, NON invia nulla: destinazione lead
- * (CRM/WhatsApp/Klaviyo) e mappatura GTM le collega Gabriele.
+ * Il gate invece invia il lead per davvero via EmailJS (stesso account/template del
+ * form contatti principale, vedi src/lib/leadEmail.js) ed emette gli eventi calc_* +
+ * form_submit sul dataLayer. La mappatura GTM → GA4/Meta/Klaviyo la collega Gabriele.
  *
  * NB: niente ScrollSmoother qui (a differenza di App.jsx). L'auto-scroll dell'embed Cal
  * ridimensiona l'iframe e va in conflitto con lo scroll "smussato" via transform → salti
@@ -29,6 +30,7 @@ import Footer from '../components/Footer.jsx'
 import HexBackground from '../components/HexBackground.jsx'
 import CookieBanner from '../components/CookieBanner.jsx'
 import { useLang } from '../i18n/LanguageContext.jsx'
+import { sendLeadEmail, pushLeadFormEvent } from '../lib/leadEmail.js'
 import { track, scrollToBooking, SocialProof, BookCall, TeamHive } from './landingShared.jsx'
 
 gsap.registerPlugin(useGSAP)
@@ -125,7 +127,9 @@ const COPY = {
       privacyLink: 'Privacy Policy',
       privacyPost: ' e autorizzo Two Bee S.r.l. a ricontattarmi.*',
       submit: 'Sblocca il report',
-      demoBadge: 'Mockup: in demo il form sblocca solo il report, non invia nulla',
+      submitSending: 'Invio in corso…',
+      submitError: 'Errore, riprova',
+      errorMsg: 'Qualcosa è andato storto. Riprova o scrivici a',
     },
     faq: {
       eyebrow: 'FAQ',
@@ -251,7 +255,9 @@ const COPY = {
       privacyLink: 'Privacy Policy',
       privacyPost: ' and authorize Two Bee S.r.l. to contact me.*',
       submit: 'Unlock the report',
-      demoBadge: 'Mockup: in demo the form only unlocks the report, it sends nothing',
+      submitSending: 'Sending…',
+      submitError: 'Error, try again',
+      errorMsg: 'Something went wrong. Try again or email us at',
     },
     faq: {
       eyebrow: 'FAQ',
@@ -478,11 +484,9 @@ function Experience() {
     }, 120)
   }
 
-  const onUnlock = (e, form) => {
-    e.preventDefault()
-    setUnlocked(form || true)
+  const onUnlock = (form) => {
+    setUnlocked(form)
     track('calc_lead_inviato', { segmento: segment, score: report.score })
-    // NB: nessun invio reale. Destinazione lead (CRM/WhatsApp/EmailJS) → Gabriele.
   }
 
   return (
@@ -697,7 +701,7 @@ function ResultReport({ t, lang, segment, report, unlocked, onUnlock }) {
         </div>
 
         {/* gate oppure prossimi passi */}
-        {unlocked ? <UnlockedExtra t={t} segment={segment} /> : <GateForm t={t} onUnlock={onUnlock} />}
+        {unlocked ? <UnlockedExtra t={t} segment={segment} /> : <GateForm t={t} segment={segment} score={report.score} onUnlock={onUnlock} />}
       </div>
     </div>
   )
@@ -729,9 +733,10 @@ function LeverRow({ lever, t }) {
   )
 }
 
-function GateForm({ t, onUnlock }) {
+function GateForm({ t, segment, score, onUnlock }) {
   const g = t.gate
   const [form, setForm] = useState({ nome: '', azienda: '', email: '', telefono: '', privacy: false })
+  const [status, setStatus] = useState('idle')
   const onChange = (e) => {
     const { name, type, value, checked } = e.target
     setForm((f) => ({ ...f, [name]: type === 'checkbox' ? checked : value }))
@@ -739,8 +744,29 @@ function GateForm({ t, onUnlock }) {
   useEffect(() => {
     track('calc_lead_gate_visualizzato', {})
   }, [])
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setStatus('sending')
+    try {
+      await sendLeadEmail({
+        ...form,
+        messaggio: `Calcolatore ROI · segmento: ${segment} · punteggio: ${score}/100`,
+      })
+      pushLeadFormEvent({
+        form,
+        formId: 'calcolatore_gate',
+        formLocation: 'landing_calcolatore',
+        sorgente: 'Landing Calcolatore - Calcolatore ROI',
+        extraProps: { Segmento: segment, Punteggio: score },
+      })
+      onUnlock(form)
+    } catch (err) {
+      console.error('EmailJS error', err)
+      setStatus('error')
+    }
+  }
   return (
-    <form onSubmit={(e) => onUnlock(e, form)} className="mt-6 rounded-2xl border border-brand-yellow/25 bg-brand-black/50 p-5 sm:p-7">
+    <form onSubmit={handleSubmit} className="mt-6 rounded-2xl border border-brand-yellow/25 bg-brand-black/50 p-5 sm:p-7">
       <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-brand-yellow">{g.eyebrow}</span>
       <h3 className="mt-2 font-display text-xl font-extrabold leading-tight sm:text-2xl">{g.title}</h3>
       <p className="mt-1.5 text-sm text-white/60">{g.sub}</p>
@@ -763,10 +789,18 @@ function GateForm({ t, onUnlock }) {
         </span>
       </label>
 
-      <button type="submit" className="btn-primary mt-5 w-full">
-        {g.submit}
+      <button
+        type="submit"
+        disabled={status === 'sending'}
+        className="btn-primary mt-5 w-full disabled:cursor-not-allowed disabled:opacity-70"
+      >
+        {status === 'sending' ? g.submitSending : status === 'error' ? g.submitError : g.submit}
       </button>
-      <p className="mt-3 text-center text-[10px] uppercase tracking-[0.18em] text-white/30">{g.demoBadge}</p>
+      {status === 'error' && (
+        <p className="mt-3 text-center text-xs text-red-400">
+          {g.errorMsg} <a href="mailto:info@twobee.it" className="underline">info@twobee.it</a>.
+        </p>
+      )}
     </form>
   )
 }

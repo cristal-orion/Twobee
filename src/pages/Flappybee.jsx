@@ -12,8 +12,25 @@
  * (TeamHive) e Calendario (BookCall) sono condivise e IDENTICHE tra le due (da
  * ./landingShared.jsx): il resto del "sotto" qui resta a tema-gioco.
  *
- * ⚠️ MOCKUP LEAD: il gate emette solo eventi game_* sul dataLayer, NON invia nulla.
- * La destinazione reale del lead (CRM/WhatsApp/Klaviyo) e la mappatura GTM le collega Gabriele.
+ * Il gate invia il lead via EmailJS (stesso account/template del form contatti
+ * principale, vedi src/lib/leadEmail.js) ed emette gli eventi game_* + form_submit
+ * sul dataLayer. La mappatura GTM → GA4/Meta/Klaviyo la collega Gabriele.
+ *
+ * 🏆 CLASSIFICA — solo su questa landing (il calcolatore non ha un punteggio).
+ * Due percorsi per entrarci, entrambi legati a un contatto vero — MAI un invio
+ * diretto dalla sola schermata di game over:
+ *   - form (principale): il nickname si scrive già sulla schermata 'lose' (visibile
+ *     subito appena si perde), ma "Salva record" non salva nulla di per sé — apre
+ *     il gate form (stesso stage di "Scopri come risolverlo"), che porta il
+ *     nickname con sé. Solo inviando QUEL form (nome azienda, email, telefono)
+ *     parte l'invio vero: lead + punteggio insieme (vedi GateForm/handleSubmit).
+ *   - booking (chi salta il form e prenota subito): non c'è nessun form da
+ *     riusare, quindi lì (solo lì) c'è il widget flottante LeaderboardEntry,
+ *     sbloccato dall'evento embed Cal `bookingSuccessful` (agganciato in
+ *     BookCall via landingShared.jsx).
+ * Backend: Google Apps Script su Google Sheet, vedi src/lib/leaderboard.js e
+ * FLAPPYBEE-LEADERBOARD-SETUP.md per il deploy — finché l'URL non è configurato
+ * la sezione "Classifica" mostra "in arrivo" e nickname/widget restano nascosti.
  */
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
@@ -27,6 +44,8 @@ import HexBackground from '../components/HexBackground.jsx'
 import CookieBanner from '../components/CookieBanner.jsx'
 import FlappyGame from '../components/FlappyGame.jsx'
 import { useLang } from '../i18n/LanguageContext.jsx'
+import { sendLeadEmail, pushLeadFormEvent } from '../lib/leadEmail.js'
+import { fetchLeaderboard, submitScore, isLeaderboardConfigured } from '../lib/leaderboard.js'
 import { track, scrollToBooking, SocialProof, BookCall, TeamHive } from './landingShared.jsx'
 
 gsap.registerPlugin(useGSAP)
@@ -104,6 +123,31 @@ const COPY = {
       bookNow: 'Oppure prenota subito la call →',
       solutionEyebrow: 'La nostra risposta',
     },
+    leaderboard: {
+      eyebrow: '🏆 Classifica',
+      heading: 'I migliori apicoltori',
+      body: 'Manda i contatti o prenota una call per entrare in classifica con il tuo punteggio.',
+      rank: '#',
+      scoreLabel: 'Punti',
+      empty: 'Nessun punteggio ancora: sii il primo a entrare in classifica.',
+      loading: 'Carico la classifica…',
+      errorMsg: 'Classifica non disponibile al momento.',
+      comingSoon: 'Classifica in arrivo.',
+      entryEyebrow: '🏆 Sei sbloccato',
+      entryTitle: 'Entra in classifica',
+      entryBody: (score) => `Il tuo punteggio (${score}) può entrare in classifica.`,
+      entryPlaceholder: 'Come vuoi comparire in classifica?',
+      entrySubmit: 'Entra in classifica',
+      entrySending: 'Invio…',
+      entryDone: 'Sei in classifica! 🎉',
+      entryError: 'Errore, riprova.',
+      // variante inline, dentro al gate form (percorso principale: un solo invio = lead + classifica)
+      formEyebrow: '🏆 Bonus',
+      formNote: (score) => `Lascia un nickname e il tuo punteggio (${score}) entra anche in classifica — facoltativo.`,
+      saveRecordEyebrow: '🏆 Vuoi salvare il record?',
+      saveRecordCta: 'Salva record',
+      saveRecordNote: 'Ultimo step: conferma con i tuoi contatti.',
+    },
     gate: {
       eyebrow: '🔒 Ultimo step',
       title: 'Sblocca come lo risolviamo',
@@ -119,7 +163,9 @@ const COPY = {
       privacyLink: 'Privacy Policy',
       privacyPost: ' e autorizzo Two Bee S.r.l. a ricontattarmi.*',
       submit: 'Sblocca la soluzione',
-      demoBadge: 'Mockup: in demo il form sblocca solo la soluzione, non invia nulla',
+      submitSending: 'Invio in corso…',
+      submitError: 'Errore, riprova',
+      errorMsg: 'Qualcosa è andato storto. Riprova o scrivici a',
     },
     faq: {
       eyebrow: 'FAQ',
@@ -251,6 +297,30 @@ const COPY = {
       bookNow: 'Or book the call now →',
       solutionEyebrow: 'Our answer',
     },
+    leaderboard: {
+      eyebrow: '🏆 Leaderboard',
+      heading: 'Top beekeepers',
+      body: 'Send your details or book a call to enter the leaderboard with your score.',
+      rank: '#',
+      scoreLabel: 'Score',
+      empty: 'No scores yet: be the first on the leaderboard.',
+      loading: 'Loading leaderboard…',
+      errorMsg: 'Leaderboard unavailable right now.',
+      comingSoon: 'Leaderboard coming soon.',
+      entryEyebrow: '🏆 Unlocked',
+      entryTitle: 'Join the leaderboard',
+      entryBody: (score) => `Your score (${score}) can join the leaderboard.`,
+      entryPlaceholder: 'How should we show your name?',
+      entrySubmit: 'Join the leaderboard',
+      entrySending: 'Sending…',
+      entryDone: "You're on the leaderboard! 🎉",
+      entryError: 'Error, try again.',
+      formEyebrow: '🏆 Bonus',
+      formNote: (score) => `Add a nickname and your score (${score}) also joins the leaderboard — optional.`,
+      saveRecordEyebrow: '🏆 Want to save your record?',
+      saveRecordCta: 'Save record',
+      saveRecordNote: 'Last step: confirm with your details.',
+    },
     gate: {
       eyebrow: '🔒 Last step',
       title: 'Unlock how we fix it',
@@ -266,7 +336,9 @@ const COPY = {
       privacyLink: 'Privacy Policy',
       privacyPost: ' and authorize Two Bee S.r.l. to contact me.*',
       submit: 'Unlock the fix',
-      demoBadge: 'Mockup: in demo the form only unlocks the fix, it sends nothing',
+      submitSending: 'Sending…',
+      submitError: 'Error, try again',
+      errorMsg: 'Something went wrong. Try again or email us at',
     },
     faq: {
       eyebrow: 'FAQ',
@@ -347,13 +419,32 @@ export default function FlappybeePage() {
     track('game_view', { page: 'flappybee' })
   }, [])
 
+  // Classifica: nel percorso "form" il nickname è un campo in più DENTRO al gate
+  // form stesso (un solo invio → lead + classifica insieme). Nel percorso
+  // "prenota una call" non c'è nessun form da riusare, quindi lì (solo lì) serve
+  // il widget flottante separato, sbloccato dall'evento bookingSuccessful di Cal.
+  const [lastScore, setLastScore] = useState({ score: 0, painKey: null })
+  const [bookingUnlocked, setBookingUnlocked] = useState(false)
+  const [leaderboardVersion, setLeaderboardVersion] = useState(0)
+  const refreshLeaderboard = () => setLeaderboardVersion((v) => v + 1)
+
   return (
     <div id="top" className="text-white">
       <HexBackground />
       <Navbar landing />
       <main>
-        <Experience />
-        <BookCall variant={VARIANT} />
+        <Experience
+          onScoreConfirmed={(painKey, score) => setLastScore({ score, painKey })}
+          onLeaderboardJoined={refreshLeaderboard}
+        />
+        <LeaderboardBoard refreshKey={leaderboardVersion} />
+        <BookCall
+          variant={VARIANT}
+          onBookingSuccessful={() => {
+            setBookingUnlocked(true)
+            track('game_leaderboard_unlocked', { source: 'booking' })
+          }}
+        />
         <WhatYouGet />
         <TeamHive />
         <Fit />
@@ -362,6 +453,14 @@ export default function FlappybeePage() {
       </main>
       <Footer />
       <CookieBanner />
+      {bookingUnlocked && lastScore.score > 0 && (
+        <LeaderboardEntry
+          score={lastScore.score}
+          painKey={lastScore.painKey}
+          source="booking"
+          onSubmitted={refreshLeaderboard}
+        />
+      )}
     </div>
   )
 }
@@ -369,7 +468,7 @@ export default function FlappybeePage() {
 /* ------------------------------------------------------------------ */
 /* EXPERIENCE — hero + gioco + takeover di sconfitta                    */
 /* ------------------------------------------------------------------ */
-function Experience() {
+function Experience({ onScoreConfirmed, onLeaderboardJoined }) {
   const lang = useLang()
   const t = COPY[lang]
   const reduce = useReducedMotion()
@@ -411,6 +510,7 @@ function Experience() {
     setStage('lose')
     setOver(true)
     track('game_over', { pain: k, score: s })
+    onScoreConfirmed?.(k, s)
   }
   const handleDiscover = () => {
     setStage('form')
@@ -418,7 +518,8 @@ function Experience() {
   }
   const handleSubmit = () => {
     setStage('solution')
-    track('game_lead_inviato', { pain: painKey, score }) // NB: nessun invio reale → Gabriele
+    track('game_lead_inviato', { pain: painKey, score })
+    onLeaderboardJoined?.()
   }
   // fine gioco → sempre al calendario: chiude il takeover, resetta il gioco e scrolla al calendario embeddato
   const goToCalendar = () => {
@@ -515,6 +616,11 @@ function Experience() {
 /* ------------------------------------------------------------------ */
 function LoseTakeover({ t, painKey, score, stage, onDiscover, onSubmit, onBook, onRestart }) {
   const pain = t.pains.find((p) => p.key === painKey) || t.pains[0]
+  const lb = t.leaderboard
+  // Nickname per la classifica: raccolto già sulla schermata 'lose' (così è visibile
+  // subito appena si perde), ma resta solo un valore in memoria finché non si passa
+  // dal gate form — è lì che parte davvero l'invio a lead + classifica insieme.
+  const [nickname, setNickname] = useState(() => (typeof window !== 'undefined' ? window.localStorage.getItem('flappybee_nickname') || '' : ''))
 
   return (
     <motion.div
@@ -567,6 +673,36 @@ function LoseTakeover({ t, painKey, score, stage, onDiscover, onSubmit, onBook, 
               <p className="mt-6 text-xs uppercase tracking-widest text-white/40">
                 {t.lose.scored}: <span className="font-display font-extrabold text-brand-yellow">{score}</span>
               </p>
+
+              {isLeaderboardConfigured() && (
+                <div className="mx-auto mt-5 max-w-xs">
+                  <p className="text-[11px] font-bold uppercase tracking-widest text-brand-yellow">{lb.saveRecordEyebrow}</p>
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault()
+                      if (nickname.trim()) onDiscover()
+                    }}
+                    className="mt-2 flex gap-2"
+                  >
+                    <input
+                      type="text"
+                      value={nickname}
+                      onChange={(e) => setNickname(e.target.value)}
+                      placeholder={lb.entryPlaceholder}
+                      maxLength={24}
+                      className="w-full min-w-0 rounded-full border border-brand-yellow/30 bg-brand-black/60 px-4 py-2.5 text-sm text-white placeholder-white/30 outline-none transition focus:border-brand-yellow focus:ring-2 focus:ring-brand-yellow/30"
+                    />
+                    <button
+                      type="submit"
+                      className="shrink-0 rounded-full bg-brand-yellow px-5 py-2.5 text-xs font-bold uppercase tracking-wider text-brand-black transition hover:scale-105"
+                    >
+                      {lb.saveRecordCta}
+                    </button>
+                  </form>
+                  <p className="mt-2 text-[11px] text-white/40">{lb.saveRecordNote}</p>
+                </div>
+              )}
+
               <div className="mt-8 flex flex-col items-center justify-center gap-3 sm:flex-row">
                 <button onClick={onDiscover} className="btn-primary w-full sm:w-auto">
                   {t.lose.discover} →
@@ -596,7 +732,7 @@ function LoseTakeover({ t, painKey, score, stage, onDiscover, onSubmit, onBook, 
               exit={{ opacity: 0, y: -8 }}
               transition={{ duration: 0.35, ease: 'easeOut' }}
             >
-              <GateForm t={t} pain={pain} onSubmit={onSubmit} />
+              <GateForm t={t} pain={pain} score={score} onSubmit={onSubmit} nickname={nickname} onNicknameChange={setNickname} />
             </motion.div>
           )}
 
@@ -617,19 +753,50 @@ function LoseTakeover({ t, painKey, score, stage, onDiscover, onSubmit, onBook, 
   )
 }
 
-function GateForm({ t, pain, onSubmit }) {
+function GateForm({ t, pain, score, onSubmit, nickname, onNicknameChange }) {
   const g = t.gate
+  const lb = t.leaderboard
   const [form, setForm] = useState({ nome: '', azienda: '', email: '', telefono: '', privacy: false })
+  const [status, setStatus] = useState('idle')
   const onChange = (e) => {
     const { name, type, value, checked } = e.target
     setForm((f) => ({ ...f, [name]: type === 'checkbox' ? checked : value }))
   }
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    setStatus('sending')
+    try {
+      await sendLeadEmail({
+        ...form,
+        messaggio: `Flappy Twobee · pain point: ${pain.label} · punteggio: ${score}`,
+      })
+      pushLeadFormEvent({
+        form,
+        formId: 'flappybee_gate',
+        formLocation: 'landing_flappybee',
+        sorgente: 'Landing Flappybee - Gioco',
+        extraProps: { 'Pain point': pain.label, Punteggio: score },
+      })
+      const clean = nickname.trim()
+      if (clean && isLeaderboardConfigured()) {
+        try {
+          await submitScore({ nickname: clean, score, source: 'form', painKey: pain.key })
+          window.localStorage.setItem('flappybee_nickname', clean)
+          track('game_leaderboard_join', { source: 'form', score, pain: pain.key })
+        } catch (lbErr) {
+          // il lead è comunque partito: la classifica è un bonus, non blocca il funnel
+          console.error('Leaderboard submit error', lbErr)
+        }
+      }
+      onSubmit(form)
+    } catch (err) {
+      console.error('EmailJS error', err)
+      setStatus('error')
+    }
+  }
   return (
     <form
-      onSubmit={(e) => {
-        e.preventDefault()
-        onSubmit(form)
-      }}
+      onSubmit={handleSubmit}
       className="rounded-2xl border border-brand-yellow/25 bg-brand-black/70 p-5 shadow-2xl sm:p-7"
     >
       <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-brand-yellow">{g.eyebrow}</span>
@@ -647,6 +814,21 @@ function GateForm({ t, pain, onSubmit }) {
         <GateField label={g.fields.telefono.label} name="telefono" type="tel" value={form.telefono} onChange={onChange} placeholder={g.fields.telefono.placeholder} required />
       </div>
 
+      {isLeaderboardConfigured() && (
+        <div className="mt-4 rounded-xl border border-brand-yellow/20 bg-brand-yellow/[0.06] p-3.5">
+          <span className="text-[11px] font-bold uppercase tracking-widest text-brand-yellow">{lb.formEyebrow}</span>
+          <p className="mt-1 text-xs text-white/60">{lb.formNote(score)}</p>
+          <input
+            type="text"
+            value={nickname}
+            onChange={(e) => onNicknameChange(e.target.value)}
+            placeholder={lb.entryPlaceholder}
+            maxLength={24}
+            className="mt-2.5 w-full rounded-full border border-white/10 bg-brand-black/60 px-4 py-2.5 text-sm text-white placeholder-white/30 outline-none transition focus:border-brand-yellow focus:ring-2 focus:ring-brand-yellow/30"
+          />
+        </div>
+      )}
+
       <label className="mt-4 flex items-start gap-3 text-left text-xs leading-relaxed text-white/60">
         <input type="checkbox" name="privacy" checked={form.privacy} onChange={onChange} required className="mt-0.5 h-4 w-4 shrink-0 accent-brand-yellow" />
         <span>
@@ -658,10 +840,18 @@ function GateForm({ t, pain, onSubmit }) {
         </span>
       </label>
 
-      <button type="submit" className="btn-primary mt-5 w-full">
-        {g.submit}
+      <button
+        type="submit"
+        disabled={status === 'sending'}
+        className="btn-primary mt-5 w-full disabled:cursor-not-allowed disabled:opacity-70"
+      >
+        {status === 'sending' ? g.submitSending : status === 'error' ? g.submitError : g.submit}
       </button>
-      <p className="mt-3 text-center text-[10px] uppercase tracking-[0.18em] text-white/30">{g.demoBadge}</p>
+      {status === 'error' && (
+        <p className="mt-3 text-center text-xs text-red-400">
+          {g.errorMsg} <a href="mailto:info@twobee.it" className="underline">info@twobee.it</a>.
+        </p>
+      )}
     </form>
   )
 }
@@ -708,6 +898,153 @@ function SolutionStage({ t, pain, onBook, onRestart }) {
       >
         {t.lose.restart}
       </button>
+    </div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/* CLASSIFICA — top 10 pubblica, letta dal Google Sheet (src/lib/leaderboard.js). */
+/* Entry pubblica: nickname scelto liberamente, non il nome del form contatti     */
+/* (privacy). Vedi FLAPPYBEE-LEADERBOARD-SETUP.md per il deploy del backend.      */
+/* ------------------------------------------------------------------ */
+function LeaderboardBoard({ refreshKey }) {
+  const lang = useLang()
+  const t = COPY[lang].leaderboard
+  const [state, setState] = useState('loading') // loading | ready | error
+  const [entries, setEntries] = useState([])
+
+  useEffect(() => {
+    if (!isLeaderboardConfigured()) {
+      setState('ready')
+      setEntries([])
+      return
+    }
+    let cancelled = false
+    setState('loading')
+    fetchLeaderboard()
+      .then((data) => {
+        if (cancelled) return
+        setEntries(data)
+        setState('ready')
+      })
+      .catch(() => {
+        if (!cancelled) setState('error')
+      })
+    return () => {
+      cancelled = true
+    }
+  }, [refreshKey])
+
+  return (
+    <section className="section-y bg-brand-black">
+      <div className="container-x">
+        <div className="mx-auto max-w-2xl text-center">
+          <span className="eyebrow">{t.eyebrow}</span>
+          <h2 className="mt-4 font-display text-3xl font-extrabold leading-tight sm:text-4xl md:text-5xl">{t.heading}</h2>
+          <p className="mt-4 text-base text-white/65">{t.body}</p>
+        </div>
+
+        <div className="mx-auto mt-10 max-w-xl overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03]">
+          {!isLeaderboardConfigured() ? (
+            <p className="px-6 py-10 text-center text-sm text-white/40">{t.comingSoon}</p>
+          ) : state === 'loading' ? (
+            <p className="px-6 py-10 text-center text-sm text-white/40">{t.loading}</p>
+          ) : state === 'error' ? (
+            <p className="px-6 py-10 text-center text-sm text-white/40">{t.errorMsg}</p>
+          ) : entries.length === 0 ? (
+            <p className="px-6 py-10 text-center text-sm text-white/40">{t.empty}</p>
+          ) : (
+            <ol>
+              {entries.map((entry, i) => (
+                <li
+                  key={`${entry.nickname}-${i}`}
+                  className={`flex items-center justify-between gap-4 px-6 py-4 ${i > 0 ? 'border-t border-white/5' : ''}`}
+                >
+                  <span className="flex items-center gap-4">
+                    <span className="w-6 text-right font-display font-extrabold text-brand-yellow">{i + 1}</span>
+                    <span className="font-semibold text-white/90">{entry.nickname}</span>
+                  </span>
+                  <span className="font-display font-extrabold text-white/70">{entry.score}</span>
+                </li>
+              ))}
+            </ol>
+          )}
+        </div>
+      </div>
+    </section>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/* ISCRIZIONE IN CLASSIFICA — widget flottante, appare quando eligible  */
+/* (form inviato o call prenotata) e resta finché non lo si chiude.     */
+/* ------------------------------------------------------------------ */
+function LeaderboardEntry({ score, painKey, source, onSubmitted }) {
+  const lang = useLang()
+  const t = COPY[lang].leaderboard
+  const [nickname, setNickname] = useState(() => (typeof window !== 'undefined' ? window.localStorage.getItem('flappybee_nickname') || '' : ''))
+  const [status, setStatus] = useState('idle') // idle | sending | done | error
+  const [closed, setClosed] = useState(false)
+
+  if (closed || !isLeaderboardConfigured()) return null
+
+  const handleSubmit = async (e) => {
+    e.preventDefault()
+    const clean = nickname.trim()
+    if (!clean) return
+    setStatus('sending')
+    try {
+      await submitScore({ nickname: clean, score, source, painKey })
+      window.localStorage.setItem('flappybee_nickname', clean)
+      track('game_leaderboard_join', { source, score, pain: painKey })
+      setStatus('done')
+      onSubmitted?.()
+    } catch (err) {
+      console.error('Leaderboard submit error', err)
+      setStatus('error')
+    }
+  }
+
+  return (
+    <div className="pointer-events-none fixed inset-x-0 bottom-6 z-[110] flex justify-center px-4">
+      <div className="pointer-events-auto relative w-full max-w-sm rounded-2xl border border-brand-yellow/30 bg-brand-black/95 p-5 shadow-2xl backdrop-blur-md">
+        <button
+          type="button"
+          onClick={() => setClosed(true)}
+          aria-label="Chiudi"
+          className="absolute right-3 top-3 text-white/40 hover:text-white"
+        >
+          ×
+        </button>
+        <span className="text-[11px] font-bold uppercase tracking-[0.25em] text-brand-yellow">{t.entryEyebrow}</span>
+        <h3 className="mt-1.5 font-display text-lg font-extrabold leading-tight">{t.entryTitle}</h3>
+        {status === 'done' ? (
+          <p className="mt-2 text-sm text-white/80">{t.entryDone}</p>
+        ) : (
+          <form onSubmit={handleSubmit} className="mt-3">
+            <p className="text-xs text-white/60">{t.entryBody(score)}</p>
+            <div className="mt-3 flex gap-2">
+              <input
+                type="text"
+                value={nickname}
+                onChange={(e) => setNickname(e.target.value)}
+                placeholder={t.entryPlaceholder}
+                maxLength={24}
+                required
+                className="w-full min-w-0 rounded-full border border-white/10 bg-brand-black/60 px-4 py-2.5 text-sm text-white placeholder-white/30 outline-none transition focus:border-brand-yellow focus:ring-2 focus:ring-brand-yellow/30"
+              />
+              <button
+                type="submit"
+                disabled={status === 'sending'}
+                className="btn-primary shrink-0 px-5 py-2.5 text-xs disabled:cursor-not-allowed disabled:opacity-70"
+              >
+                {status === 'sending' ? t.entrySending : t.entrySubmit}
+              </button>
+            </div>
+            {status === 'error' && <p className="mt-2 text-xs text-red-400">{t.entryError}</p>}
+          </form>
+        )}
+      </div>
     </div>
   )
 }

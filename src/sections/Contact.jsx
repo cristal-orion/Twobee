@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import emailjs from '@emailjs/browser'
 import { useLang } from '../i18n/LanguageContext.jsx'
+import { sendLeadEmail, pushLeadFormEvent } from '../lib/leadEmail.js'
 
 const COPY = {
   it: {
@@ -91,49 +91,6 @@ const COPY = {
   },
 }
 
-const EMAILJS_SERVICE_ID = 'service_jjfdxbn'
-const EMAILJS_TEMPLATE_ID = 'template_peotzqb'
-const EMAILJS_PUBLIC_KEY = 'gHeKJYysSLwOsJUcT'
-
-function normalizePhone(raw) {
-  const cleaned = String(raw || '').replace(/[\s\-().]/g, '')
-  if (!cleaned) return null
-  if (cleaned.startsWith('+')) return cleaned
-  if (cleaned.startsWith('00')) return '+' + cleaned.slice(2)
-  return '+39' + cleaned
-}
-
-function splitName(fullName) {
-  const parts = String(fullName || '').trim().split(/\s+/)
-  if (parts.length === 0) return { first: '', last: '' }
-  if (parts.length === 1) return { first: parts[0], last: '' }
-  return { first: parts[0], last: parts.slice(1).join(' ') }
-}
-
-function pushFormSubmitEvent(form) {
-  if (typeof window === 'undefined') return
-  const { first, last } = splitName(form.nome)
-  window.dataLayer = window.dataLayer || []
-  window.dataLayer.push({
-    event: 'form_submit',
-    form_id: 'audit_request',
-    form_location: 'landing_main',
-    user_data: {
-      email: form.email,
-      first_name: first,
-      last_name: last,
-      phone_number: normalizePhone(form.telefono),
-      organization: form.azienda.trim() || null,
-    },
-    properties: {
-      Sorgente: 'Landing TwoBee - Form Audit Gratuito',
-      Azienda: form.azienda.trim() || null,
-      Messaggio: form.messaggio.trim() || null,
-      'Data richiesta': new Date().toISOString(),
-    },
-  })
-}
-
 export default function Contact() {
   const lang = useLang()
   const t = COPY[lang]
@@ -172,20 +129,13 @@ export default function Contact() {
     e.preventDefault()
     setStatus('sending')
     try {
-      await emailjs.send(
-        EMAILJS_SERVICE_ID,
-        EMAILJS_TEMPLATE_ID,
-        {
-          nome: form.nome,
-          azienda: form.azienda,
-          email: form.email,
-          telefono: form.telefono,
-          messaggio: form.messaggio.trim() || '(nessun messaggio)',
-          reply_to: form.email,
-        },
-        { publicKey: EMAILJS_PUBLIC_KEY }
-      )
-      pushFormSubmitEvent(form)
+      await sendLeadEmail(form)
+      pushLeadFormEvent({
+        form,
+        formId: 'audit_request',
+        formLocation: 'landing_main',
+        sorgente: 'Landing TwoBee - Form Audit Gratuito',
+      })
       setStatus('sent')
     } catch (err) {
       console.error('EmailJS error', err)

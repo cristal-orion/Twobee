@@ -118,12 +118,14 @@ export function SocialProof({ label, className = '' }) {
 /* CONDIVISA e identica tra le due landing. Emette landing_book_view     */
 /* (con variant) quando la sezione entra in viewport.                    */
 /* ------------------------------------------------------------------ */
-export function BookCall({ variant }) {
+export function BookCall({ variant, onBookingSuccessful }) {
   const lang = useLang()
   const t = SHARED_COPY[lang].book
   const started = useRef(false)
   const seen = useRef(false)
   const sectionRef = useRef(null)
+  const onBookingRef = useRef(onBookingSuccessful)
+  onBookingRef.current = onBookingSuccessful
 
   // loader Cal.eu (una sola volta)
   useEffect(() => {
@@ -174,6 +176,13 @@ export function BookCall({ variant }) {
       cssVarsPerTheme: { light: { 'cal-brand': '#FFC501' } },
       hideEventTypeDetails: false,
       layout: 'month_view',
+    })
+    // prenotazione confermata nell'iframe (evento embed Cal, cross-instance ma
+    // stesso codice OSS di cal.com → documentato anche su cal.eu): usato per
+    // sbloccare la classifica di Flappy Twobee (solo chi passa da /flappybee).
+    window.Cal('on', {
+      action: 'bookingSuccessful',
+      callback: () => onBookingRef.current?.(),
     })
   }, [])
 
