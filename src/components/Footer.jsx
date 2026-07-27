@@ -6,6 +6,7 @@ const COPY = {
     linkedinLabel: 'LinkedIn TwoBee',
     instagramLabel: 'Instagram TwoBee',
     careers: 'Lavora con noi',
+    test: '📋 Test di crescita',
     game: '🐝 Flappy Twobee',
     privacy: 'Privacy Policy',
     cookie: 'Cookie Policy',
@@ -16,6 +17,7 @@ const COPY = {
     linkedinLabel: 'LinkedIn TwoBee',
     instagramLabel: 'Instagram TwoBee',
     careers: 'Careers',
+    test: '📋 Growth test',
     game: '🐝 Flappy Twobee',
     privacy: 'Privacy Policy',
     cookie: 'Cookie Policy',
@@ -90,6 +92,9 @@ export default function Footer() {
         <div className="flex flex-col items-center gap-1 text-xs text-white/55 sm:items-end">
           <a href={localePath('/lavora-con-noi', lang)} className="hover:text-brand-yellow">
             {t.careers}
+          </a>
+          <a href={localePath('/test-crescita', lang)} className="hover:text-brand-yellow">
+            {t.test}
           </a>
           <a href={localePath('/flappybee', lang)} className="hover:text-brand-yellow">
             {t.game}

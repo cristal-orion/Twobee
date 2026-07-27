@@ -1,6 +1,6 @@
 /* Invio lead condiviso via EmailJS (stesso account/template del form contatti
  * principale) + evento dataLayer per il mapping GTM. Usato da Contact.jsx,
- * Flappybee.jsx e Calcolatore.jsx così le tre landing puntano allo stesso posto. */
+ * Flappybee.jsx e TestCrescita.jsx così le tre landing puntano allo stesso posto. */
 import emailjs from '@emailjs/browser'
 
 const EMAILJS_SERVICE_ID = 'service_jjfdxbn'

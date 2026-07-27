@@ -2,7 +2,12 @@
  * theme: Twobee brand (honeycomb dark · League Spartan display · Inter body) — preserved, not catalog
  * pre-emit critique: P4 H4 E4 S4 R4 V4
  *
- * 📋 SCORECARD DI CRESCITA (/calcolatore) — variante "diagnosi" della coppia A/B.
+ * 📋 SCORECARD DI CRESCITA (/test-crescita) — variante "diagnosi" della coppia A/B.
+ *
+ * La rotta si chiamava /calcolatore finché la meccanica era il calcolatore ROI.
+ * Rinominata quando la pagina è diventata indicizzabile: lo slug finisce nei
+ * risultati di ricerca, e "calcolatore" descriveva una cosa che qui non c'è più.
+ * Nessun redirect da /calcolatore: non era ancora linkata da nessuna parte.
  *
  * PROTOTIPO (2026-07-27) che sostituisce il calcolatore ROI a slider. Perché:
  * il calcolatore chiedeva AOV, marginalità, CAC, LTV — cioè proprio i numeri che
@@ -46,7 +51,9 @@ import { track, scrollToBooking, SocialProof, BookCall, TeamHive } from './landi
 
 gsap.registerPlugin(useGSAP)
 
-const VARIANT = 'calcolatore'
+// ⚠️ Gabriele: il valore era 'calcolatore' finché la rotta si chiamava così.
+// Rinominato con la rotta — se hai già trigger GTM su variant='calcolatore', vanno aggiornati.
+const VARIANT = 'test-crescita'
 const MECHANIC = 'scorecard' // distingue il prototipo dal vecchio calcolatore nei report
 
 /* ------------------------------------------------------------------ */
@@ -473,10 +480,10 @@ const COPY = {
 /* ================================================================== */
 /* PAGE                                                                 */
 /* ================================================================== */
-export default function CalcolatorePage() {
+export default function TestCrescitaPage() {
   useEffect(() => {
     track('landing_view', { variant: VARIANT, mechanic: MECHANIC })
-    track('calc_view', { page: 'calcolatore', mechanic: MECHANIC })
+    track('calc_view', { page: 'test-crescita', mechanic: MECHANIC })
   }, [])
 
   return (
@@ -909,8 +916,8 @@ function GateForm({ t, report, onUnlock }) {
       pushLeadFormEvent({
         form,
         formId: 'scorecard_gate',
-        formLocation: 'landing_calcolatore',
-        sorgente: 'Landing Calcolatore - Scorecard di crescita',
+        formLocation: 'landing_test_crescita',
+        sorgente: 'Landing Test di crescita - Scorecard',
         extraProps: { Punteggio: report.score, Zona: report.zone, Falle: gapList },
       })
       onUnlock(form)

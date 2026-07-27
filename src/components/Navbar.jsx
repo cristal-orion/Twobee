@@ -54,7 +54,7 @@ export default function Navbar({ subpage = false, landing = false }) {
     return () => window.removeEventListener('scroll', onScroll)
   }, [])
 
-  // Variante landing (es. /calcolatore): navbar pura, senza menu.
+  // Variante landing (es. /test-crescita): navbar pura, senza menu.
   // Solo il logo TwoBee a destra, che riporta al sito completo.
   if (landing) {
     return (

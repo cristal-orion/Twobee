@@ -3,11 +3,11 @@
  *
  * MODULO CONDIVISO DELLE LANDING GEMELLE (A/B test)
  * -------------------------------------------------
- * /flappybee (gioco) e /calcolatore (calcolatore ROI) condividono SOLO le due
+ * /flappybee (gioco) e /test-crescita (scorecard) condividono SOLO le due
  * sezioni che DEVONO essere identiche per l'A/B test: **Team** (TeamHive) e
  * **Calendario/Cal** (BookCall). Tutto il resto del "sotto" (Cosa ricevi, È per
  * te?, CTA finale) resta page-local con copy coerente al proprio meccanismo:
- * la /flappybee tiene il copy a tema-gioco, la /calcolatore quello a tema-report.
+ * la /flappybee tiene il copy a tema-gioco, la /test-crescita quello a tema-diagnosi.
  *
  * Qui vivono anche le utility comuni (tracking, costanti Cal, SocialProof) per
  * non duplicarle. Confine di responsabilità: qui si EMETTONO gli eventi sul
@@ -25,7 +25,7 @@ export function track(event, params) {
   window.dataLayer.push({ event, ...params })
 }
 
-/* Eventi A/B comuni (campo `variant`: 'flappy' | 'calcolatore').
+/* Eventi A/B comuni (campo `variant`: 'flappy' | 'test-crescita').
  * Confrontano le due landing a parità di funnel:
  *   - landing_view      → vista pagina (mount)
  *   - landing_book_view → l'utente RAGGIUNGE il calendario (sezione in viewport)

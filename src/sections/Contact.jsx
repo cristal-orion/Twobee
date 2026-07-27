@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { motion, AnimatePresence } from 'framer-motion'
-import { useLang } from '../i18n/LanguageContext.jsx'
+import { localePath, useLang } from '../i18n/LanguageContext.jsx'
 import { sendLeadEmail, pushLeadFormEvent } from '../lib/leadEmail.js'
 
 const COPY = {
@@ -13,6 +13,8 @@ const COPY = {
       'Prenota la tua Growth Call: in 45 minuti capisci dove stai perdendo clienti e quanto può rendere un sistema fatto bene.',
     ctaMain: 'PRENOTA LA TUA CALL',
     tags: ['Gratis', '45 minuti', 'Costruiamo insieme'],
+    testPre: 'Non sei ancora pronto per una call?',
+    testLink: 'Fai il test in 90 secondi',
     close: 'Chiudi',
     modalEyebrow: 'Prenota la tua call',
     modalHeadingPre: 'Lasciaci i tuoi ',
@@ -55,6 +57,8 @@ const COPY = {
       "Book your Growth Call: in 45 minutes you'll see where you're losing customers and what a well-built system can be worth.",
     ctaMain: 'BOOK YOUR CALL',
     tags: ['Free', '45 minutes', "Let's build it together"],
+    testPre: 'Not ready for a call yet?',
+    testLink: 'Take the 90-second test',
     close: 'Close',
     modalEyebrow: 'Book your call',
     modalHeadingPre: 'Leave us your ',
@@ -218,6 +222,26 @@ export default function Contact() {
                 </li>
               ))}
             </ul>
+
+            {/* Uscita laterale per chi arriva in fondo e non prenota: la
+                scorecard chiede molto meno di una call e resta un lead. */}
+            <p className="mt-8 text-sm font-medium text-brand-black/70">
+              {t.testPre}{' '}
+              <a
+                href={localePath('/test-crescita', lang)}
+                onClick={() => {
+                  window.dataLayer = window.dataLayer || []
+                  window.dataLayer.push({
+                    event: 'test_promo_click',
+                    location: 'contact',
+                    cta: 'text',
+                  })
+                }}
+                className="font-bold underline decoration-brand-black/30 underline-offset-4 transition hover:decoration-brand-black"
+              >
+                {t.testLink} →
+              </a>
+            </p>
           </motion.div>
         </div>
       </div>

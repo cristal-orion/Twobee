@@ -16,6 +16,7 @@ import Services from './sections/Services.jsx'
 import Audience from './sections/Audience.jsx'
 import Capabilities from './sections/Capabilities.jsx'
 import System from './sections/System.jsx'
+import Scorecard from './sections/Scorecard.jsx'
 import Pricing from './sections/Pricing.jsx'
 import Game from './sections/Game.jsx'
 import Team from './sections/Team.jsx'
@@ -27,10 +28,12 @@ import Contact from './sections/Contact.jsx'
 const HexBgLab = lazy(() => import('./labs/HexBgLab.jsx'))
 const HexFloatLab = lazy(() => import('./labs/HexFloatLab.jsx'))
 const CareersPage = lazy(() => import('./pages/Careers.jsx'))
-// Landing gemelle A/B (fuori da navbar/sitemap, solo via URL): stesso "sotto",
-// hero diverso — /flappybee = gioco, /calcolatore = calcolatore ROI.
+// Landing gemelle A/B: stesso "sotto", hero diverso — /flappybee = gioco,
+// /test-crescita = scorecard diagnostica. Entrambe indicizzate e con un
+// ingresso dalla home, ma in posizioni diverse (il test prima dei piani, il
+// gioco dopo): nei report l'A/B va segmentato per sorgente, non sommato.
 const FlappybeePage = lazy(() => import('./pages/Flappybee.jsx'))
-const CalcolatorePage = lazy(() => import('./pages/Calcolatore.jsx'))
+const TestCrescitaPage = lazy(() => import('./pages/TestCrescita.jsx'))
 
 gsap.registerPlugin(ScrollTrigger, ScrollSmoother, useGSAP)
 
@@ -72,8 +75,22 @@ const SITE = 'https://twobee.it'
 // Lo stesso index.html è servito su ogni rotta, quindi title/description/canonical
 // statici descrivono la home: senza questi override una sottopagina si presenta a
 // Google come duplicato della home (canonical → "/") e non viene indicizzata.
-// Le rotte NON elencate qui (le landing A/B, i lab) restano volutamente così.
+// Le rotte NON elencate qui (i lab) restano volutamente così.
 const PAGE_HEAD = {
+  '/test-crescita': {
+    it: {
+      title: 'Test: quanto è prevedibile la crescita della tua azienda? | TwoBee',
+      description:
+        'Otto domande, novanta secondi, nessun numero da sapere: scopri dove perde colpi il tuo sistema di acquisizione clienti e quali sono le tre mosse da fare prima.',
+      locale: 'it_IT',
+    },
+    en: {
+      title: 'Test: how predictable is your company’s growth? | TwoBee',
+      description:
+        'Eight questions, ninety seconds, no figures to look up: find out where your customer-acquisition system leaks and the three moves to make first.',
+      locale: 'en_US',
+    },
+  },
   '/flappybee': {
     it: {
       title: 'Flappy Twobee | Il gioco dei pain point delle PMI',
@@ -143,8 +160,8 @@ export default function App() {
     page = <Suspense fallback={null}><CareersPage /></Suspense>
   } else if (path === '/flappybee') {
     page = <Suspense fallback={null}><FlappybeePage /></Suspense>
-  } else if (path === '/calcolatore') {
-    page = <Suspense fallback={null}><CalcolatorePage /></Suspense>
+  } else if (path === '/test-crescita') {
+    page = <Suspense fallback={null}><TestCrescitaPage /></Suspense>
   } else if (path === '/hiddenwork') {
     page = <Suspense fallback={null}><HexFloatLab /></Suspense>
   }
@@ -240,6 +257,7 @@ function MainSite() {
             <section id="sistema">
               <System />
             </section>
+            <Scorecard />
             <section
               id="piani"
               data-bg-light

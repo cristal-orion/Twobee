@@ -16,6 +16,11 @@
 
 Tutti i piani includono: contratto minimo 6 mesi, report mensile entro il 5°, nessun costo nascosto, clausola di uscita a 90 giorni senza penali.
 
+## Strumenti gratuiti
+
+- [Test di crescita](https://twobee.it/test-crescita) — scorecard di autovalutazione in 8 domande (si risponde sì / in parte / no, nessun dato aziendale richiesto). Restituisce un punteggio 0-100 sulla prevedibilità della crescita, le falle principali e le tre mosse prioritarie. È un'autovalutazione, non una stima di fatturato.
+- [Flappy Twobee](https://twobee.it/flappybee) — mini-gioco sui cinque pain point che frenano le PMI italiane, con classifica pubblica dei punteggi.
+
 ## Contatti
 
 - Email: info@twobee.it

@@ -8,7 +8,7 @@
  * Quando ci sbatti, un takeover a schermo intero dice "Hai perso su …" → gate contatti →
  * come lo risolviamo. Endless: prima o poi cadi, e il crash È il gancio.
  *
- * La gemella è /calcolatore (src/pages/Calcolatore.jsx). Solo le sezioni Team
+ * La gemella è /test-crescita (src/pages/TestCrescita.jsx). Solo le sezioni Team
  * (TeamHive) e Calendario (BookCall) sono condivise e IDENTICHE tra le due (da
  * ./landingShared.jsx): il resto del "sotto" qui resta a tema-gioco.
  *
@@ -16,7 +16,7 @@
  * principale, vedi src/lib/leadEmail.js) ed emette gli eventi game_* + form_submit
  * sul dataLayer. La mappatura GTM → GA4/Meta/Klaviyo la collega Gabriele.
  *
- * 🏆 CLASSIFICA — solo su questa landing (il calcolatore non ha un punteggio).
+ * 🏆 CLASSIFICA — solo su questa landing (la scorecard non ha un punteggio di gioco).
  * Due percorsi per entrarci, entrambi legati a un contatto vero — MAI un invio
  * diretto dalla sola schermata di game over:
  *   - form (principale): il nickname si scrive già sulla schermata 'lose' (visibile
