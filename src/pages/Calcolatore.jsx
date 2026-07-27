@@ -2,18 +2,29 @@
  * theme: Twobee brand (honeycomb dark · League Spartan display · Inter body) — preserved, not catalog
  * pre-emit critique: P4 H4 E4 S4 R4 V4
  *
- * 🧮 CALCOLATORE ROI (/calcolatore) — variante "calcolatore" della coppia di landing A/B.
- * Scegli il settore, muovi 3 leve e scopri quanto fatturato stai lasciando sul tavolo.
- * Il gate sblocca il breakdown completo + i prossimi passi + la CTA alla call.
+ * 📋 SCORECARD DI CRESCITA (/calcolatore) — variante "diagnosi" della coppia A/B.
+ *
+ * PROTOTIPO (2026-07-27) che sostituisce il calcolatore ROI a slider. Perché:
+ * il calcolatore chiedeva AOV, marginalità, CAC, LTV — cioè proprio i numeri che
+ * l'imprenditore target non conosce (e chi li conosce non ha bisogno di noi). Qui
+ * NON si chiede nessuna cifra: 8 domande sì / in parte / no sulla prevedibilità
+ * della crescita → punteggio /100, zona, le 3 falle principali e (dopo il gate)
+ * le 3 azioni prioritizzate. Una domanda per schermata, tutto a tap.
+ *
+ * Vantaggio anche di sostanza: l'output è un'AUTOVALUTAZIONE, non una stima di
+ * fatturato → nessuna promessa di risultato da difendere, coerente col
+ * posizionamento "KPI reali, non fuffa".
+ *
+ * ⚠️ Da definire con Marco/Toto prima del live: il testo delle 8 domande è una
+ * prima passata, e manca un benchmark reale ("il punteggio medio di chi fa il
+ * test è X") — volutamente NON inventato, vedi BENCHMARK sotto.
  *
  * La gemella è /flappybee (src/pages/Flappybee.jsx). Solo le sezioni Team
  * (TeamHive) e Calendario (BookCall) sono condivise e IDENTICHE tra le due (da
- * ./landingShared.jsx): il resto del "sotto" qui resta a tema-report.
+ * ./landingShared.jsx): il resto del "sotto" qui resta a tema-diagnosi.
  *
- * ⚠️ MOCKUP — il motore di calcolo è DIMOSTRATIVO. Numeri di esempio dalle slide del
- * piano growth (luglio 2026). Formula/benchmark reali = da definire col manager.
- * Il gate invece invia il lead per davvero via EmailJS (stesso account/template del
- * form contatti principale, vedi src/lib/leadEmail.js) ed emette gli eventi calc_* +
+ * Il gate invia il lead per davvero via EmailJS (stesso account/template del form
+ * contatti principale, vedi src/lib/leadEmail.js) ed emette gli eventi calc_* +
  * form_submit sul dataLayer. La mappatura GTM → GA4/Meta/Klaviyo la collega Gabriele.
  *
  * NB: niente ScrollSmoother qui (a differenza di App.jsx). L'auto-scroll dell'embed Cal
@@ -36,87 +47,160 @@ import { track, scrollToBooking, SocialProof, BookCall, TeamHive } from './landi
 gsap.registerPlugin(useGSAP)
 
 const VARIANT = 'calcolatore'
+const MECHANIC = 'scorecard' // distingue il prototipo dal vecchio calcolatore nei report
 
 /* ------------------------------------------------------------------ */
-/* CONFIG NUMERICA — DEMO. min/max/step/default reali → dal manager.    */
-/* `benchmark` = valore "potenziale". `euro` = €/mese per unità di gap   */
-/* (parametro-volume nascosto, qui tarato per riprodurre i mockup).      */
+/* MOTORE — 8 domande, 3 risposte. Nessun dato aziendale richiesto.     */
+/* Ordine = ordine di somministrazione: si parte dalle più facili.       */
 /* ------------------------------------------------------------------ */
-const VERTICALS = {
-  ecommerce: {
-    levers: [
-      { key: 'aov', fmt: 'euro', min: 20, max: 300, step: 5, def: 60, benchmark: 78, euro: 77.8 },
-      { key: 'margine', fmt: 'pct', min: 5, max: 60, step: 1, def: 25, benchmark: 32, euro: 157 },
-      { key: 'traffico', fmt: 'num', min: 500, max: 40000, step: 500, def: 5000, benchmark: 7500, euro: 0.92 },
-    ],
-  },
-  pmi: {
-    levers: [
-      { key: 'valoreCliente', fmt: 'euro', min: 200, max: 20000, step: 100, def: 2000, benchmark: 2600, euro: 2.1 },
-      { key: 'marginalita', fmt: 'pct', min: 5, max: 70, step: 1, def: 30, benchmark: 38, euro: 190 },
-      { key: 'lead', fmt: 'num', min: 5, max: 300, step: 1, def: 30, benchmark: 45, euro: 95 },
-    ],
-  },
-  startup: {
-    levers: [
-      { key: 'cac', fmt: 'euro', min: 10, max: 500, step: 5, def: 80, benchmark: 62, euro: 34, invert: true },
-      { key: 'ltv', fmt: 'euro', min: 50, max: 3000, step: 10, def: 400, benchmark: 560, euro: 6.4 },
-      { key: 'mrr', fmt: 'euro', min: 500, max: 50000, step: 500, def: 5000, benchmark: 7200, euro: 0.78 },
-    ],
-  },
+const QUESTIONS = [
+  'origine',
+  'canali',
+  'previsione',
+  'followup',
+  'misura',
+  'cac',
+  'valore',
+  'autonomia',
+]
+
+const ANSWER_SCORE = { yes: 2, partial: 1, no: 0 }
+// gravità della falla: chi risponde "no" ha un problema più urgente di chi è "in parte"
+const GAP_WEIGHT = { yes: 0, partial: 1, no: 2 }
+const MAX_SCORE = QUESTIONS.length * 2
+
+// Confronto di settore: NON inventato. Quando avrete abbastanza test compilati
+// (o un dato di fonte citabile), mettete qui la media e si accende da sola la
+// riga di benchmark nel risultato.
+const BENCHMARK = null // es. { avg: 48, source: 'media di 214 test compilati' }
+
+function computeScorecard(answers, lang) {
+  const raw = QUESTIONS.reduce((s, k) => s + ANSWER_SCORE[answers[k]], 0)
+  const score = Math.round((raw / MAX_SCORE) * 100)
+  const gaps = QUESTIONS.map((key) => ({ key, weight: GAP_WEIGHT[answers[key]] }))
+    .filter((g) => g.weight > 0)
+    .sort((a, b) => b.weight - a.weight) // stabile: a pari gravità resta l'ordine delle domande
+    .slice(0, 3)
+  // i due numeri "economici": non saperli è la norma, e diventa il gancio all'audit
+  const missesEconomics = answers.cac !== 'yes' || answers.valore !== 'yes'
+  const zone = score < 41 ? 'crit' : score < 71 ? 'fragile' : 'solid'
+  return { score, raw, gaps, zone, missesEconomics, lang }
 }
 
-const SEGMENTS = ['ecommerce', 'pmi', 'startup']
-
 /* ------------------------------------------------------------------ */
-/* COPY it/en — SOLO i pezzi specifici del calcolatore (hero, segments, */
-/* levers, result, gate, faq, nextSteps). Il copy condiviso vive in     */
-/* ./landingShared.jsx.                                                 */
+/* COPY it/en — SOLO i pezzi specifici della scorecard. Il copy          */
+/* condiviso (Team, Cal) vive in ./landingShared.jsx.                   */
 /* ------------------------------------------------------------------ */
 const COPY = {
   it: {
     hero: {
-      eyebrow: '🐝 Calcolatore ROI · gratuito',
-      h1a: 'Quanto puoi far ',
-      h1hl: 'crescere il tuo business?',
-      sub: 'Scegli il tuo settore, muovi 3 leve e scopri quanto fatturato stai lasciando sul tavolo. In meno di un minuto.',
-      trust: ['Nessun impegno', '3 dati bastano', 'Report immediato'],
+      eyebrow: '🐝 Scorecard di crescita · 8 domande',
+      h1a: 'Quanto è ',
+      h1hl: 'prevedibile la tua crescita?',
+      sub: 'Otto domande, novanta secondi. Nessun numero da sapere: rispondi sì, in parte o no e ti diciamo dove perde colpi il tuo sistema di acquisizione.',
+      trust: ['90 secondi', 'Nessun numero da sapere', 'Risultato immediato'],
       social: 'Già al fianco di PMI e brand del Sud Italia',
-      cardTitle: 'Scegli il settore e inserisci 3 dati',
-      liveScore: 'Punteggio',
-      ctaCalc: 'Calcola il mio potenziale',
-      demoNote: 'Stima dimostrativa · formula in definizione',
+      talkInstead: 'Preferisci saltare il test e parlarci direttamente? →',
     },
-    segments: { ecommerce: 'E-commerce', pmi: 'PMI', startup: 'Startup' },
-    levers: {
-      aov: 'Valore medio ordine (AOV)',
-      margine: 'Margine per ordine',
-      traffico: 'Traffico mensile',
-      valoreCliente: 'Valore medio cliente',
-      marginalita: 'Marginalità',
-      lead: 'Lead mensili',
-      cac: 'CAC (costo acquisizione)',
-      ltv: 'LTV (valore cliente)',
-      mrr: 'MRR mensile',
+    quiz: {
+      tag: 'Scorecard',
+      progress: 'di',
+      answers: { yes: 'Sì', partial: 'In parte', no: 'No' },
+      back: '← Indietro',
+      note: 'Non chiediamo fatturato, margini o dati aziendali. Solo otto tap.',
+      openingTitle: 'Otto domande sul tuo sistema di acquisizione',
+      openingBody: 'Rispondi di istinto: la prima risposta è quasi sempre quella vera. Se una domanda ti sembra difficile, la risposta è “no” — ed è già un’informazione utile.',
+      start: 'Inizia il test',
+    },
+    questions: {
+      origine: {
+        area: 'Tracciamento',
+        q: 'Sai da dove è arrivato il tuo ultimo cliente?',
+        gap: 'Non sai da dove arrivano i clienti',
+        why: 'Senza l’origine non puoi replicare quello che funziona né tagliare quello che non funziona: ogni euro speso resta una scommessa.',
+        fix: 'Tracciamento base su form, chiamate e messaggi, più una domanda in fase di contatto: in due settimane sai da dove arriva ogni richiesta.',
+      },
+      canali: {
+        area: 'Canali',
+        q: 'Se domani il passaparola si fermasse, hai un altro canale che ti porta richieste?',
+        gap: 'Un solo canale che porta clienti',
+        why: 'Un business con un solo rubinetto non è in crescita: è in equilibrio precario. Quando quel canale rallenta, rallenta tutto insieme.',
+        fix: 'Apriamo un secondo canale misurabile accanto al passaparola, con un budget piccolo e un obiettivo di costo per richiesta definito prima di partire.',
+      },
+      previsione: {
+        area: 'Prevedibilità',
+        q: 'Sai dire quante richieste di nuovi clienti arriveranno il mese prossimo?',
+        gap: 'Il mese prossimo è un’incognita',
+        why: 'Senza una previsione non puoi programmare acquisti, magazzino né assunzioni: l’azienda vive di mesi buoni e mesi da recuperare.',
+        fix: 'Costruiamo uno storico su pochi indicatori stabili: dopo 60-90 giorni il mese successivo diventa una previsione, non una speranza.',
+      },
+      followup: {
+        area: 'Follow-up',
+        q: 'Chi ti chiede un preventivo e non compra subito viene ricontattato in modo sistematico?',
+        gap: 'Le richieste tiepide si perdono',
+        why: 'La maggior parte di chi chiede non compra subito. Senza un follow-up organizzato stai regalando clienti già interessati alla concorrenza.',
+        fix: 'CRM leggero più una sequenza di ricontatto automatica (email, messaggi, promemoria al commerciale): recuperi vendite già pagate in pubblicità.',
+      },
+      misura: {
+        area: 'Misurazione',
+        q: 'Riesci a dire quali soldi spesi in marketing hanno prodotto fatturato e quali no?',
+        gap: 'Spesa marketing non collegata ai ricavi',
+        why: 'Se non separi la spesa che produce da quella che brucia, il budget si taglia a sensazione — e spesso si taglia la parte che funzionava.',
+        fix: 'Colleghiamo spesa, richieste e vendite in un unico report mensile: si vede a occhio dove reinvestire e dove smettere.',
+      },
+      cac: {
+        area: 'Numeri chiave',
+        q: 'Sai quanto ti costa, in media, portare a casa un cliente nuovo?',
+        gap: 'Costo di acquisizione sconosciuto',
+        why: 'Senza questo numero non sai se stai comprando clienti in perdita, e non puoi decidere quanto è sensato investire per crescere.',
+        fix: 'Lo calcoliamo insieme in audit con i dati che hai già: da lì definiamo quanto puoi permetterti di spendere per cliente.',
+      },
+      valore: {
+        area: 'Numeri chiave',
+        q: 'Sai quanto ti lascia in cassa un cliente nell’arco di un anno?',
+        gap: 'Valore del cliente sconosciuto',
+        why: 'È il numero che dice quanto puoi investire per acquisire. Senza, ogni budget pubblicitario è deciso a occhio.',
+        fix: 'Ricostruiamo il valore medio del cliente a 12 mesi dai tuoi incassi reali: diventa il tetto sostenibile di ogni campagna.',
+      },
+      autonomia: {
+        area: 'Sistema',
+        q: 'Se per due settimane non tocchi il marketing, continua ad arrivare qualcosa?',
+        gap: 'Il marketing dipende da te',
+        why: 'Se si ferma quando ti fermi tu, non è un sistema: è un lavoro in più — il tuo, con il tempo che è la risorsa che ti costa di più.',
+        fix: 'Automazioni e presidio esterno sulle attività ripetitive: tu resti sulle decisioni, il flusso di richieste va avanti comunque.',
+      },
     },
     result: {
-      eyebrow: 'Il tuo report di crescita',
-      generatedFor: 'Generato per',
-      scoreLabel: 'Punteggio complessivo',
-      zones: { crit: 'zona: critica', opt: 'zona: da ottimizzare', good: 'zona: solida' },
-      potentialLabel: 'Potenziale extra stimato',
-      potentialSuffix: 'al mese, agendo sulle 3 leve sotto',
-      perMonth: '/mese',
-      breakdownEyebrow: 'Breakdown per leva',
-      here: 'Sei qui',
-      potentialWord: 'Potenziale',
-      stepsTitle: 'Prossimi passi consigliati',
-      demoNote: 'Anteprima dimostrativa · i numeri sono di esempio (formula reale in definizione)',
+      eyebrow: 'La tua scorecard',
+      scoreLabel: 'Prevedibilità della crescita',
+      zones: {
+        crit: {
+          label: 'zona: crescita affidata al caso',
+          verdict: 'Oggi la crescita non è un sistema: dipende dal passaparola e dalla fortuna. La buona notizia è che in questa fase i primi interventi sono anche i più rapidi da vedere.',
+        },
+        fragile: {
+          label: 'zona: crescita fragile',
+          verdict: 'Le basi ci sono, ma i pezzi non parlano tra loro: i risultati arrivano e poi svaniscono, senza che sia chiaro il perché. Qui si lavora sui collegamenti, non da zero.',
+        },
+        solid: {
+          label: 'zona: crescita sotto controllo',
+          verdict: 'Hai già un sistema che gira. Il lavoro qui non è costruire ma ottimizzare: costo per cliente, marginalità, valore nel tempo.',
+        },
+      },
+      gapsEyebrow: 'Le tue falle principali',
+      gapsNone: 'Nessuna falla evidente: sei nel gruppo di testa. In call si ragiona di ottimizzazione, non di ricostruzione.',
+      lockedHint: 'Sbloccale tutte con i tuoi contatti',
+      economicsNote:
+        'Non conosci il costo di acquisizione o il valore di un cliente? È la norma, non una colpa: sono esattamente i primi due numeri che mettiamo a terra in audit.',
+      benchmarkLabel: 'Punteggio medio di chi fa questo test',
+      stepsTitle: 'Le tue prossime 3 mosse',
+      restart: 'Rifai il test',
+      honestNote: 'Autovalutazione, non una stima di fatturato: nessun numero è stato inventato.',
     },
     gate: {
       eyebrow: '🔒 Ultimo step',
-      title: 'Sblocca il breakdown completo',
-      sub: 'Ti mandiamo il report dettagliato e ti richiamiamo per una call strategica gratuita.',
+      title: 'Sblocca la diagnosi completa',
+      sub: 'Ti mandiamo la scorecard con tutte le falle e le mosse consigliate, e ti richiamiamo per una call strategica gratuita.',
       fields: {
         nome: { label: 'Nome e cognome*', placeholder: 'Come ti chiami?' },
         azienda: { label: 'Azienda*', placeholder: 'Nome della tua attività' },
@@ -126,7 +210,7 @@ const COPY = {
       privacyPre: 'Ho letto la',
       privacyLink: 'Privacy Policy',
       privacyPost: ' e autorizzo Two Bee S.r.l. a ricontattarmi.*',
-      submit: 'Sblocca il report',
+      submit: 'Sblocca la diagnosi',
       submitSending: 'Invio in corso…',
       submitError: 'Errore, riprova',
       errorMsg: 'Qualcosa è andato storto. Riprova o scrivici a',
@@ -135,25 +219,37 @@ const COPY = {
       eyebrow: 'FAQ',
       headingPre: 'Domande ',
       headingHl: 'frequenti',
-      body: 'I dubbi più comuni sul calcolatore e su come lavoriamo.',
+      body: 'I dubbi più comuni sulla scorecard e su come lavoriamo.',
       faqs: [
-        { q: 'I numeri sono reali?', a: 'Il calcolatore restituisce una stima basata sui dati che inserisci. Non è una promessa di risultato: è un ordine di grandezza per capire se vale la pena parlarne. In call entriamo nel dettaglio con i tuoi dati veri.' },
-        { q: 'Cosa succede dopo che sblocco il report?', a: 'Ricevi il breakdown completo e ti ricontattiamo per fissare una call gratuita di 30 minuti. Nessun impegno, nessuna carta di credito.' },
-        { q: 'Perché mi chiedete i contatti?', a: 'Per mandarti il report dettagliato e, se lo vuoi, prepararti la call. I tuoi dati li trattiamo secondo la Privacy Policy, niente spam.' },
-        { q: 'Devo essere già un cliente?', a: 'No. Il calcolatore è aperto a tutti. È anzi il modo più veloce per capire se possiamo esserti utili.' },
+        {
+          q: 'Devo conoscere i miei numeri per farla?',
+          a: 'No, ed è il punto: non chiediamo fatturato, margini o costi. Rispondi sì, in parte o no. Se scopri che a metà delle domande rispondi “no”, il test ha già fatto il suo lavoro.',
+        },
+        {
+          q: 'Il punteggio è una stima di quanto potrei fatturare?',
+          a: 'No. È un’autovalutazione di quanto la tua crescita è governabile oggi. Non promettiamo percentuali di fatturato in una pagina web: quelle si guardano con i tuoi dati veri, in call.',
+        },
+        {
+          q: 'Cosa succede dopo che sblocco la diagnosi?',
+          a: 'Vedi tutte le falle emerse e le tre mosse consigliate, e ti ricontattiamo per una call gratuita di 30 minuti. Nessun impegno, nessuna carta di credito.',
+        },
+        {
+          q: 'Devo essere già un cliente?',
+          a: 'No. La scorecard è aperta a tutti ed è il modo più veloce per capire se possiamo esserti utili — o se non ne hai bisogno.',
+        },
       ],
     },
     call: {
       heading: 'Prenota la tua call strategica gratuita',
-      sub: '30 minuti con il team Two Bee per trasformare queste stime in un piano. Nessun impegno.',
+      sub: '30 minuti con il team Two Bee per trasformare queste falle in un piano. Nessun impegno.',
       button: 'Prenota la call →',
     },
     receive: {
       eyebrow: 'Cosa ricevi',
-      heading: 'Non un numero. Un piano.',
+      heading: 'Non un punteggio. Una diagnosi.',
       items: [
-        { title: 'Report di crescita personalizzato', body: 'Il breakdown delle 3 leve con il potenziale in euro, tarato sul tuo settore.' },
-        { title: 'Le prossime 3 mosse', body: 'Azioni concrete e prioritizzate per colmare il gap più costoso per primo.' },
+        { title: 'Le falle del tuo sistema', body: 'Quali pezzi mancano tra “un cliente ti trova” e “un cliente compra”, in ordine di urgenza.' },
+        { title: 'Le prossime 3 mosse', body: 'Azioni concrete e prioritizzate, tarate su ciò che è emerso dalle tue risposte.' },
         { title: 'Call strategica con il team', body: '30 minuti con chi costruisce sistemi di crescita, non chi vende fuffa.' },
       ],
       whoEyebrow: 'Chi siamo',
@@ -179,72 +275,120 @@ const COPY = {
     },
     finalCta: {
       eyebrow: 'Tocca a te',
-      heading: 'Scopri quanto stai lasciando sul tavolo.',
-      body: 'Un minuto adesso può valere migliaia di euro al mese. Muovi le leve e sblocca il tuo report.',
-      button: 'Vai al calcolatore ↑',
-    },
-    // prossimi passi per verticale (DEMO)
-    nextSteps: {
-      ecommerce: [
-        'Introduci bundle e upsell in pagina prodotto per alzare l’AOV.',
-        'Rivedi la struttura dei costi per un margine per ordine più sano.',
-        'Attiva campagne lookalike per aumentare il traffico qualificato.',
-      ],
-      pmi: [
-        'Costruisci un’offerta di ingresso per alzare il valore medio cliente.',
-        'Alza la marginalità ripulendo i servizi a basso ritorno.',
-        'Sistema il funnel di lead gen per aumentare i lead qualificati/mese.',
-      ],
-      startup: [
-        'Ottimizza i canali per abbassare il CAC sotto la soglia sostenibile.',
-        'Lavora su onboarding e retention per far crescere l’LTV.',
-        'Riduci il churn per stabilizzare e far salire l’MRR.',
-      ],
+      heading: 'Otto domande. Poi sai dove stai perdendo clienti.',
+      body: 'Novanta secondi adesso, nessun dato da cercare. Poi decidi tu se vale una call.',
+      button: 'Vai alla scorecard ↑',
     },
   },
   en: {
     hero: {
-      eyebrow: '🐝 ROI Calculator · free',
-      h1a: 'How much can you ',
-      h1hl: 'grow your business?',
-      sub: 'Pick your industry, move 3 levers and see how much revenue you’re leaving on the table. In under a minute.',
-      trust: ['No commitment', '3 inputs is enough', 'Instant report'],
+      eyebrow: '🐝 Growth scorecard · 8 questions',
+      h1a: 'How ',
+      h1hl: 'predictable is your growth?',
+      sub: 'Eight questions, ninety seconds. No numbers required: answer yes, partly or no and we’ll tell you where your acquisition system leaks.',
+      trust: ['90 seconds', 'No numbers required', 'Instant result'],
       social: 'Already backing SMEs and brands across Southern Italy',
-      cardTitle: 'Pick your industry and enter 3 numbers',
-      liveScore: 'Score',
-      ctaCalc: 'Calculate my potential',
-      demoNote: 'Demonstrative estimate · formula being finalized',
+      talkInstead: 'Rather skip the test and talk to us directly? →',
     },
-    segments: { ecommerce: 'E-commerce', pmi: 'SME', startup: 'Startup' },
-    levers: {
-      aov: 'Average order value (AOV)',
-      margine: 'Margin per order',
-      traffico: 'Monthly traffic',
-      valoreCliente: 'Average customer value',
-      marginalita: 'Margin',
-      lead: 'Monthly leads',
-      cac: 'CAC (acquisition cost)',
-      ltv: 'LTV (customer value)',
-      mrr: 'Monthly MRR',
+    quiz: {
+      tag: 'Scorecard',
+      progress: 'of',
+      answers: { yes: 'Yes', partial: 'Partly', no: 'No' },
+      back: '← Back',
+      note: 'We don’t ask for revenue, margins or company data. Just eight taps.',
+      openingTitle: 'Eight questions about your acquisition system',
+      openingBody: 'Answer on instinct: the first answer is almost always the true one. If a question feels hard, the answer is “no” — and that’s already useful information.',
+      start: 'Start the test',
+    },
+    questions: {
+      origine: {
+        area: 'Tracking',
+        q: 'Do you know where your last customer came from?',
+        gap: 'You don’t know where customers come from',
+        why: 'Without the source you can’t repeat what works or cut what doesn’t: every euro spent stays a bet.',
+        fix: 'Basic tracking on forms, calls and messages, plus one question at first contact: within two weeks you know where every enquiry comes from.',
+      },
+      canali: {
+        area: 'Channels',
+        q: 'If word of mouth stopped tomorrow, do you have another channel bringing enquiries?',
+        gap: 'Only one channel brings customers',
+        why: 'A business with a single tap isn’t growing, it’s balancing. When that channel slows down, everything slows down with it.',
+        fix: 'We open a second measurable channel alongside word of mouth, with a small budget and a target cost per enquiry set before we start.',
+      },
+      previsione: {
+        area: 'Predictability',
+        q: 'Can you say how many new customer enquiries will arrive next month?',
+        gap: 'Next month is a guess',
+        why: 'With no forecast you can’t plan stock, purchases or hires: the company lives on good months and catch-up months.',
+        fix: 'We build history on a few stable indicators: after 60-90 days next month becomes a forecast, not a hope.',
+      },
+      followup: {
+        area: 'Follow-up',
+        q: 'Does someone systematically follow up people who ask for a quote and don’t buy right away?',
+        gap: 'Warm enquiries slip away',
+        why: 'Most people who ask don’t buy immediately. With no organised follow-up you’re handing already-interested customers to competitors.',
+        fix: 'A light CRM plus an automated follow-up sequence (email, messages, sales reminders): you recover sales you already paid for in advertising.',
+      },
+      misura: {
+        area: 'Measurement',
+        q: 'Can you tell which marketing spend produced revenue and which didn’t?',
+        gap: 'Marketing spend isn’t tied to revenue',
+        why: 'If you can’t separate spend that produces from spend that burns, budget gets cut on gut feeling — often cutting the part that worked.',
+        fix: 'We connect spend, enquiries and sales in one monthly report: it becomes obvious where to reinvest and where to stop.',
+      },
+      cac: {
+        area: 'Key numbers',
+        q: 'Do you know what it costs you, on average, to win a new customer?',
+        gap: 'Acquisition cost unknown',
+        why: 'Without this number you don’t know whether you’re buying customers at a loss, and you can’t decide how much it makes sense to invest to grow.',
+        fix: 'We work it out together in the audit from data you already have: from there we set what you can afford to spend per customer.',
+      },
+      valore: {
+        area: 'Key numbers',
+        q: 'Do you know how much a customer leaves in your pocket over a year?',
+        gap: 'Customer value unknown',
+        why: 'It’s the number that says how much you can invest to acquire. Without it, every ad budget is set by eye.',
+        fix: 'We rebuild the average 12-month customer value from your real revenue: it becomes the sustainable ceiling for every campaign.',
+      },
+      autonomia: {
+        area: 'System',
+        q: 'If you don’t touch marketing for two weeks, does anything still come in?',
+        gap: 'Marketing depends on you',
+        why: 'If it stops when you stop, it isn’t a system: it’s one more job — yours, paid in the resource that costs you most.',
+        fix: 'Automation and outside ownership of the repetitive work: you stay on decisions, the flow of enquiries keeps going.',
+      },
     },
     result: {
-      eyebrow: 'Your growth report',
-      generatedFor: 'Generated for',
-      scoreLabel: 'Overall score',
-      zones: { crit: 'zone: critical', opt: 'zone: to optimize', good: 'zone: solid' },
-      potentialLabel: 'Estimated extra potential',
-      potentialSuffix: 'per month, acting on the 3 levers below',
-      perMonth: '/mo',
-      breakdownEyebrow: 'Breakdown by lever',
-      here: 'You’re here',
-      potentialWord: 'Potential',
-      stepsTitle: 'Recommended next steps',
-      demoNote: 'Demonstrative preview · numbers are examples (real formula TBD)',
+      eyebrow: 'Your scorecard',
+      scoreLabel: 'Growth predictability',
+      zones: {
+        crit: {
+          label: 'zone: growth left to chance',
+          verdict: 'Right now growth isn’t a system: it depends on word of mouth and luck. The good news is that at this stage the first fixes are also the fastest to show.',
+        },
+        fragile: {
+          label: 'zone: fragile growth',
+          verdict: 'The basics are there, but the pieces don’t talk to each other: results arrive and then fade, without it being clear why. Here we work on the joins, not from scratch.',
+        },
+        solid: {
+          label: 'zone: growth under control',
+          verdict: 'You already have a system running. The work here isn’t building but optimising: cost per customer, margin, value over time.',
+        },
+      },
+      gapsEyebrow: 'Your main leaks',
+      gapsNone: 'No obvious leaks: you’re in the leading group. On a call we’d talk optimisation, not rebuilding.',
+      lockedHint: 'Unlock them all with your details',
+      economicsNote:
+        'Don’t know your acquisition cost or customer value? That’s the norm, not a failing: they’re exactly the first two numbers we nail down in the audit.',
+      benchmarkLabel: 'Average score of people taking this test',
+      stepsTitle: 'Your next 3 moves',
+      restart: 'Retake the test',
+      honestNote: 'A self-assessment, not a revenue estimate: no number here was invented.',
     },
     gate: {
       eyebrow: '🔒 Last step',
-      title: 'Unlock the full breakdown',
-      sub: 'We’ll send the detailed report and call you for a free strategy session.',
+      title: 'Unlock the full diagnosis',
+      sub: 'We’ll send the scorecard with every leak and the recommended moves, and call you for a free strategy session.',
       fields: {
         nome: { label: 'Full name*', placeholder: 'What’s your name?' },
         azienda: { label: 'Company*', placeholder: 'Your business name' },
@@ -254,7 +398,7 @@ const COPY = {
       privacyPre: 'I’ve read the',
       privacyLink: 'Privacy Policy',
       privacyPost: ' and authorize Two Bee S.r.l. to contact me.*',
-      submit: 'Unlock the report',
+      submit: 'Unlock the diagnosis',
       submitSending: 'Sending…',
       submitError: 'Error, try again',
       errorMsg: 'Something went wrong. Try again or email us at',
@@ -263,25 +407,37 @@ const COPY = {
       eyebrow: 'FAQ',
       headingPre: 'Frequently asked ',
       headingHl: 'questions',
-      body: 'The most common doubts about the calculator and how we work.',
+      body: 'The most common doubts about the scorecard and how we work.',
       faqs: [
-        { q: 'Are the numbers real?', a: 'The calculator returns an estimate based on what you enter. It’s not a guarantee — it’s an order of magnitude to see if it’s worth talking. On the call we dig into your real data.' },
-        { q: 'What happens after I unlock the report?', a: 'You get the full breakdown and we reach out to book a free 30-minute call. No commitment, no credit card.' },
-        { q: 'Why do you ask for my details?', a: 'To send the detailed report and, if you want, prep the call. We handle your data per the Privacy Policy — no spam.' },
-        { q: 'Do I need to be a client already?', a: 'No. The calculator is open to everyone. It’s actually the fastest way to see if we can help.' },
+        {
+          q: 'Do I need to know my numbers to take it?',
+          a: 'No, and that’s the point: we don’t ask for revenue, margins or costs. You answer yes, partly or no. If you find yourself answering “no” to half of them, the test has already done its job.',
+        },
+        {
+          q: 'Is the score an estimate of what I could earn?',
+          a: 'No. It’s a self-assessment of how governable your growth is today. We don’t promise revenue percentages on a web page: those get looked at with your real data, on a call.',
+        },
+        {
+          q: 'What happens after I unlock the diagnosis?',
+          a: 'You see every leak that came up and the three recommended moves, and we reach out to book a free 30-minute call. No commitment, no credit card.',
+        },
+        {
+          q: 'Do I need to be a client already?',
+          a: 'No. The scorecard is open to everyone and it’s the fastest way to see whether we can help — or whether you don’t need us.',
+        },
       ],
     },
     call: {
       heading: 'Book your free strategy call',
-      sub: '30 minutes with the Two Bee team to turn these estimates into a plan. No commitment.',
+      sub: '30 minutes with the Two Bee team to turn these leaks into a plan. No commitment.',
       button: 'Book the call →',
     },
     receive: {
       eyebrow: 'What you get',
-      heading: 'Not a number. A plan.',
+      heading: 'Not a score. A diagnosis.',
       items: [
-        { title: 'Personalized growth report', body: 'The 3-lever breakdown with potential in euros, tuned to your industry.' },
-        { title: 'Your next 3 moves', body: 'Concrete, prioritized actions to close the costliest gap first.' },
+        { title: 'Your system’s leaks', body: 'Which pieces are missing between “a customer finds you” and “a customer buys”, in order of urgency.' },
+        { title: 'Your next 3 moves', body: 'Concrete, prioritized actions based on what your answers revealed.' },
         { title: 'Strategy call with the team', body: '30 minutes with people who build growth systems, not sell fluff.' },
       ],
       whoEyebrow: 'Who we are',
@@ -307,109 +463,11 @@ const COPY = {
     },
     finalCta: {
       eyebrow: 'Your turn',
-      heading: 'See what you’re leaving on the table.',
-      body: 'A minute now can be worth thousands per month. Move the levers and unlock your report.',
-      button: 'Back to the calculator ↑',
-    },
-    nextSteps: {
-      ecommerce: [
-        'Add bundles and upsells on the product page to lift AOV.',
-        'Review your cost structure for a healthier margin per order.',
-        'Launch lookalike campaigns to grow qualified traffic.',
-      ],
-      pmi: [
-        'Build an entry offer to raise average customer value.',
-        'Increase margin by cutting low-return services.',
-        'Fix the lead-gen funnel to grow qualified leads/month.',
-      ],
-      startup: [
-        'Optimize channels to bring CAC below the sustainable line.',
-        'Work on onboarding and retention to grow LTV.',
-        'Cut churn to stabilize and grow MRR.',
-      ],
+      heading: 'Eight questions. Then you know where you’re losing customers.',
+      body: 'Ninety seconds now, nothing to look up. Then you decide if it’s worth a call.',
+      button: 'Back to the scorecard ↑',
     },
   },
-}
-
-/* ------------------------------------------------------------------ */
-/* HELPERS                                                              */
-/* ------------------------------------------------------------------ */
-function defaultsFor(vertical) {
-  const out = {}
-  VERTICALS[vertical].levers.forEach((l) => {
-    out[l.key] = l.def
-  })
-  return out
-}
-
-function fmtNum(n) {
-  return Math.round(n).toLocaleString('it-IT')
-}
-function fmtValue(lever, n) {
-  if (lever.fmt === 'euro') return `€${fmtNum(n)}`
-  if (lever.fmt === 'pct') return `${fmtNum(n)}%`
-  return fmtNum(n)
-}
-function fmtEuro(n) {
-  return `€${fmtNum(n)}`
-}
-
-// Compute demo report. `invert` levers (es. CAC) migliorano scendendo.
-function computeReport(vertical, values) {
-  const levers = VERTICALS[vertical].levers.map((lev) => {
-    const current = values[lev.key]
-    let gap, pct
-    if (lev.invert) {
-      gap = Math.max(0, current - lev.benchmark) // quanto puoi tagliare
-      pct = Math.min(1, lev.benchmark / Math.max(current, 1))
-    } else {
-      gap = Math.max(0, lev.benchmark - current) // quanto puoi guadagnare
-      pct = Math.min(1, current / lev.benchmark)
-    }
-    const euroMonth = Math.round(gap * lev.euro)
-    return { ...lev, current, euroMonth, pct }
-  })
-  const total = levers.reduce((s, l) => s + l.euroMonth, 0)
-  const score = Math.round((levers.reduce((s, l) => s + l.pct, 0) / levers.length) * 100)
-  const rangeLow = Math.round((total * 0.667) / 100) * 100
-  const rangeHigh = Math.round((total * 1.208) / 100) * 100
-  return { levers, total, score, rangeLow, rangeHigh }
-}
-
-function zoneOf(score, zones) {
-  if (score < 40) return zones.crit
-  if (score < 70) return zones.opt
-  return zones.good
-}
-
-/* ------------------------------------------------------------------ */
-/* ICONE settore                                                        */
-/* ------------------------------------------------------------------ */
-function SegIcon({ type, className }) {
-  const common = { className, viewBox: '0 0 24 24', fill: 'none', stroke: 'currentColor', strokeWidth: 1.9, strokeLinecap: 'round', strokeLinejoin: 'round' }
-  if (type === 'ecommerce')
-    return (
-      <svg {...common}>
-        <path d="M3 4h2l1.6 10.4a1.5 1.5 0 0 0 1.5 1.3h8a1.5 1.5 0 0 0 1.5-1.2L20 7H6" />
-        <circle cx="9" cy="20" r="1.2" />
-        <circle cx="17" cy="20" r="1.2" />
-      </svg>
-    )
-  if (type === 'pmi')
-    return (
-      <svg {...common}>
-        <path d="M4 21V5a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1v16" />
-        <path d="M15 10h4a1 1 0 0 1 1 1v10" />
-        <path d="M8 8h3M8 12h3M8 16h3M2 21h20" />
-      </svg>
-    )
-  return (
-    <svg {...common}>
-      <path d="M12 3c3 1.5 5 4.5 5 8 0 2-1 4-2 5l-3 2-3-2c-1-1-2-3-2-5 0-3.5 2-6.5 5-8Z" />
-      <circle cx="12" cy="10" r="1.6" />
-      <path d="M8 17c-2 .5-3 2-3 4 2 0 3.5-1 4-3M16 17c2 .5 3 2 3 4-2 0-3.5-1-4-3" />
-    </svg>
-  )
 }
 
 /* ================================================================== */
@@ -417,8 +475,8 @@ function SegIcon({ type, className }) {
 /* ================================================================== */
 export default function CalcolatorePage() {
   useEffect(() => {
-    track('landing_view', { variant: VARIANT })
-    track('calc_view', { page: 'calcolatore' })
+    track('landing_view', { variant: VARIANT, mechanic: MECHANIC })
+    track('calc_view', { page: 'calcolatore', mechanic: MECHANIC })
   }, [])
 
   return (
@@ -441,19 +499,18 @@ export default function CalcolatorePage() {
 }
 
 /* ------------------------------------------------------------------ */
-/* EXPERIENCE — hero + calcolatore + risultato (stato condiviso)        */
+/* EXPERIENCE — hero + scorecard + risultato (stato condiviso)          */
 /* ------------------------------------------------------------------ */
 function Experience() {
   const lang = useLang()
   const t = COPY[lang]
   const root = useRef(null)
 
-  const [segment, setSegment] = useState('ecommerce')
-  const [values, setValues] = useState(() => defaultsFor('ecommerce'))
-  const [calculated, setCalculated] = useState(false)
+  // step: -1 = schermata di apertura, 0..7 = domande, 8 = fatto
+  const [step, setStep] = useState(-1)
+  const [answers, setAnswers] = useState({})
+  const [report, setReport] = useState(null)
   const [unlocked, setUnlocked] = useState(false)
-
-  const report = computeReport(segment, values)
 
   useGSAP(
     () => {
@@ -464,29 +521,46 @@ function Experience() {
     { scope: root }
   )
 
-  const changeSegment = (seg) => {
-    if (seg === segment) return
-    setSegment(seg)
-    setValues(defaultsFor(seg))
-    setCalculated(false)
-    setUnlocked(false)
-    track('calc_segment_select', { segmento: seg })
+  const onStart = () => {
+    setStep(0)
+    track('calc_start', { mechanic: MECHANIC })
   }
 
-  const changeValue = (key, v) => setValues((s) => ({ ...s, [key]: v }))
-
-  const onCalcolate = () => {
-    setCalculated(true)
-    track('calc_risultato_visualizzato', { segmento: segment, score: report.score })
+  const onAnswer = (value) => {
+    const key = QUESTIONS[step]
+    const next = { ...answers, [key]: value }
+    setAnswers(next)
+    track('calc_step_completato', { mechanic: MECHANIC, step: step + 1, domanda: key, risposta: value })
+    if (step + 1 < QUESTIONS.length) {
+      setStep(step + 1)
+      return
+    }
+    // ultima risposta → calcolo e scroll al risultato
+    const r = computeScorecard(next, lang)
+    setReport(r)
+    setStep(QUESTIONS.length)
+    track('calc_risultato_visualizzato', { mechanic: MECHANIC, score: r.score, zona: r.zone })
     setTimeout(() => {
       const el = document.getElementById('risultato')
       if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }, 120)
+    }, 140)
+  }
+
+  const onBack = () => setStep((s) => Math.max(0, s - 1))
+
+  const onRestart = () => {
+    setAnswers({})
+    setReport(null)
+    setUnlocked(false)
+    setStep(0)
+    track('calc_restart', { mechanic: MECHANIC })
+    const el = document.getElementById('top')
+    if (el) el.scrollIntoView({ behavior: 'smooth' })
   }
 
   const onUnlock = (form) => {
     setUnlocked(form)
-    track('calc_lead_inviato', { segmento: segment, score: report.score })
+    track('calc_lead_inviato', { mechanic: MECHANIC, score: report.score, zona: report.zone })
   }
 
   return (
@@ -514,23 +588,24 @@ function Experience() {
           <SocialProof label={t.hero.social} className="cx-fade mt-10" />
         </div>
 
-        {/* colonna calcolatore */}
+        {/* colonna scorecard */}
         <div className="cx-fade">
-          <CalculatorCard
-            t={t}
-            segment={segment}
-            onSegment={changeSegment}
-            values={values}
-            onValue={changeValue}
-            score={report.score}
-            onCalcolate={onCalcolate}
-          />
+          <ScorecardCard t={t} step={step} answers={answers} onStart={onStart} onAnswer={onAnswer} onBack={onBack} />
+          <p className="mt-4 text-center text-xs text-white/40">
+            <a
+              href="#prenota"
+              onClick={() => track('landing_book_cta', { variant: VARIANT, source: 'hero_skip' })}
+              className="underline transition hover:text-brand-yellow"
+            >
+              {t.hero.talkInstead}
+            </a>
+          </p>
         </div>
       </div>
 
       {/* RISULTATO */}
       <AnimatePresence>
-        {calculated && (
+        {report && (
           <motion.div
             id="risultato"
             initial={{ opacity: 0, y: 30 }}
@@ -539,7 +614,7 @@ function Experience() {
             transition={{ duration: 0.5, ease: 'easeOut' }}
             className="scroll-mt-24"
           >
-            <ResultReport t={t} lang={lang} segment={segment} report={report} unlocked={unlocked} onUnlock={onUnlock} />
+            <ResultReport t={t} lang={lang} report={report} unlocked={unlocked} onUnlock={onUnlock} onRestart={onRestart} />
           </motion.div>
         )}
       </AnimatePresence>
@@ -547,125 +622,182 @@ function Experience() {
   )
 }
 
+// Esagono + check: chiusura del quiz on-brand (l'emoji 📋 stonava col resto).
+function DoneMark() {
+  return (
+    <svg
+      viewBox="0 0 64 72"
+      className="h-16 w-auto drop-shadow-[0_0_22px_rgba(255,197,1,0.35)] sm:h-20"
+      fill="none"
+      aria-hidden
+    >
+      <path
+        d="M32 2.5 61.5 19.25V52.75L32 69.5 2.5 52.75V19.25Z"
+        fill="rgba(255,197,1,0.12)"
+        stroke="#FFC501"
+        strokeWidth="2.5"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M21 36.5 28.5 44 44 28"
+        stroke="#FFC501"
+        strokeWidth="3.4"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  )
+}
+
 /* ------------------------------------------------------------------ */
-/* CALCULATOR CARD                                                      */
+/* SCORECARD CARD — una domanda per schermata, tre tap possibili        */
 /* ------------------------------------------------------------------ */
-function CalculatorCard({ t, segment, onSegment, values, onValue, score, onCalcolate }) {
-  const levers = VERTICALS[segment].levers
+function ScorecardCard({ t, step, answers, onStart, onAnswer, onBack }) {
+  const q = t.quiz
+  const total = QUESTIONS.length
+  const done = step >= total
+  const idx = Math.min(Math.max(step, 0), total - 1)
+  const key = QUESTIONS[idx]
+  const question = t.questions[key]
+  const progress = done ? 100 : step < 0 ? 0 : (step / total) * 100
+
   return (
     <div className="relative rounded-[2rem] border border-white/10 bg-white/[0.04] p-6 shadow-[0_40px_120px_-40px_rgba(0,0,0,0.9)] backdrop-blur-md sm:p-8">
       {/* alone giallo dietro la card */}
       <div aria-hidden className="pointer-events-none absolute -inset-4 -z-10 rounded-[2.5rem] bg-brand-yellow/10 blur-3xl" />
+
       <div className="flex items-center justify-between gap-4">
-        <p className="text-xs font-bold uppercase tracking-[0.25em] text-brand-yellow">Calcolatore ROI</p>
-        <div className="flex items-center gap-2 rounded-full border border-white/10 bg-brand-black/50 px-3 py-1.5">
-          <span className="text-[10px] font-semibold uppercase tracking-wider text-white/45">{t.hero.liveScore}</span>
-          <span className="font-display text-lg font-extrabold leading-none text-brand-yellow">
-            {score}
-            <span className="text-xs text-white/40">/100</span>
+        <p className="text-xs font-bold uppercase tracking-[0.25em] text-brand-yellow">{q.tag}</p>
+        {step >= 0 && !done && (
+          <span className="rounded-full border border-white/10 bg-brand-black/50 px-3 py-1.5 text-[11px] font-semibold text-white/60">
+            <span className="font-display font-extrabold text-brand-yellow">{step + 1}</span> {q.progress} {total}
           </span>
-        </div>
+        )}
       </div>
 
-      <h2 className="mt-4 font-display text-xl font-extrabold leading-tight sm:text-2xl">{t.hero.cardTitle}</h2>
+      {/* barra di avanzamento */}
+      <div className="mt-4 h-1.5 w-full overflow-hidden rounded-full bg-white/10">
+        <div className="h-full rounded-full bg-brand-yellow transition-all duration-300" style={{ width: `${progress}%` }} />
+      </div>
 
-      {/* tabs settore */}
-      <div className="mt-5 grid grid-cols-3 gap-2">
-        {SEGMENTS.map((seg) => {
-          const active = seg === segment
-          return (
-            <button
-              key={seg}
-              type="button"
-              onClick={() => onSegment(seg)}
-              aria-pressed={active}
-              className={[
-                'flex flex-col items-center gap-1.5 rounded-2xl border px-2 py-3 text-center transition',
-                active
-                  ? 'border-brand-yellow bg-brand-yellow text-brand-black'
-                  : 'border-white/10 bg-white/[0.03] text-white/60 hover:border-white/25 hover:text-white',
-              ].join(' ')}
+      <div className="min-h-[19rem] sm:min-h-[21rem]">
+        <AnimatePresence mode="wait">
+          {step < 0 ? (
+            <motion.div
+              key="opening"
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -8 }}
+              transition={{ duration: 0.3, ease: 'easeOut' }}
+              className="flex min-h-[19rem] flex-col justify-center sm:min-h-[21rem]"
             >
-              <SegIcon type={seg} className="h-5 w-5" />
-              <span className="text-xs font-bold">{t.segments[seg]}</span>
-            </button>
-          )
-        })}
-      </div>
+              <h2 className="font-display text-xl font-extrabold leading-tight sm:text-2xl">{q.openingTitle}</h2>
+              <p className="mt-3 text-sm leading-relaxed text-white/65">{q.openingBody}</p>
+              <button type="button" onClick={onStart} className="btn-primary mt-7 w-full">
+                {q.start}
+              </button>
+            </motion.div>
+          ) : done ? (
+            <motion.div
+              key="done"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="flex min-h-[19rem] flex-col items-center justify-center text-center sm:min-h-[21rem]"
+            >
+              <DoneMark />
+              <p className="mt-5 text-sm font-semibold text-white/70">{t.result.eyebrow} ↓</p>
+            </motion.div>
+          ) : (
+            <motion.div
+              key={key}
+              initial={{ opacity: 0, x: 24 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -24 }}
+              transition={{ duration: 0.25, ease: 'easeOut' }}
+              className="flex min-h-[19rem] flex-col sm:min-h-[21rem]"
+              aria-live="polite"
+            >
+              <p className="mt-6 text-[11px] font-bold uppercase tracking-[0.25em] text-white/40">{question.area}</p>
+              <h2 className="mt-3 font-display text-xl font-extrabold leading-tight sm:text-2xl">{question.q}</h2>
 
-      {/* slider */}
-      <div className="mt-6 space-y-5">
-        {levers.map((lev) => (
-          <Slider
-            key={lev.key}
-            label={t.levers[lev.key]}
-            lever={lev}
-            value={values[lev.key]}
-            onChange={(v) => onValue(lev.key, v)}
-            onCommit={() => track('calc_step_completato', { segmento: segment, step: lev.key })}
-          />
-        ))}
-      </div>
+              <div className="mt-auto space-y-2.5 pt-7">
+                {['yes', 'partial', 'no'].map((value) => {
+                  const active = answers[key] === value
+                  return (
+                    <button
+                      key={value}
+                      type="button"
+                      onClick={() => onAnswer(value)}
+                      className={[
+                        'flex w-full items-center justify-between gap-3 rounded-2xl border px-5 py-4 text-left text-sm font-bold uppercase tracking-wider transition',
+                        active
+                          ? 'border-brand-yellow bg-brand-yellow text-brand-black'
+                          : 'border-white/10 bg-white/[0.03] text-white/75 hover:border-brand-yellow/60 hover:bg-brand-yellow/[0.06] hover:text-white',
+                      ].join(' ')}
+                    >
+                      {q.answers[value]}
+                      <svg viewBox="0 0 24 24" className="h-4 w-4 opacity-50" fill="none">
+                        <path d="M5 12h14M13 5l7 7-7 7" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
+                      </svg>
+                    </button>
+                  )
+                })}
+              </div>
 
-      <button type="button" onClick={onCalcolate} className="btn-primary mt-7 w-full">
-        {t.hero.ctaCalc}
-      </button>
-      <p className="mt-3 text-center text-[11px] uppercase tracking-[0.18em] text-white/35">{t.hero.demoNote}</p>
-    </div>
-  )
-}
-
-function Slider({ label, lever, value, onChange, onCommit }) {
-  return (
-    <div>
-      <div className="flex items-baseline justify-between gap-3">
-        <span className="text-sm font-medium text-white/80">{label}</span>
-        <span className="font-display text-base font-extrabold text-brand-yellow">{fmtValue(lever, value)}</span>
+              <div className="mt-4 flex items-center justify-between gap-3">
+                {step > 0 ? (
+                  <button type="button" onClick={onBack} className="text-xs font-semibold text-white/45 transition hover:text-white">
+                    {q.back}
+                  </button>
+                ) : (
+                  <span />
+                )}
+                <p className="text-right text-[11px] leading-snug text-white/30">{q.note}</p>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
-      <input
-        type="range"
-        min={lever.min}
-        max={lever.max}
-        step={lever.step}
-        value={value}
-        onChange={(e) => onChange(Number(e.target.value))}
-        onPointerUp={onCommit}
-        className="mt-2 h-1.5 w-full cursor-pointer appearance-none rounded-full bg-white/15 accent-brand-yellow"
-        aria-label={label}
-      />
     </div>
   )
 }
 
 /* ------------------------------------------------------------------ */
-/* RESULT REPORT — score + range + breakdown (gated)                    */
+/* RISULTATO — punteggio + zona + falle (le prime gated) + gate         */
 /* ------------------------------------------------------------------ */
-function ResultReport({ t, lang, segment, report, unlocked, onUnlock }) {
+function ResultReport({ t, lang, report, unlocked, onUnlock, onRestart }) {
   const r = t.result
+  const zone = r.zones[report.zone]
   const today = new Date().toLocaleDateString(lang === 'en' ? 'en-GB' : 'it-IT', {
     day: 'numeric',
     month: 'long',
     year: 'numeric',
   })
+  // la prima falla è in chiaro (dà valore subito), le altre restano dietro al gate
+  const freeGaps = unlocked ? report.gaps : report.gaps.slice(0, 1)
+  const lockedGaps = unlocked ? [] : report.gaps.slice(1)
 
   return (
     <div className="container-x pb-20 pt-4 sm:pb-28">
       <div className="mx-auto max-w-4xl rounded-[2rem] border border-white/10 bg-brand-dark/70 p-6 shadow-2xl backdrop-blur-md sm:p-9">
-        {/* header report */}
         <div className="flex flex-wrap items-center justify-between gap-3">
           <span className="eyebrow">{r.eyebrow}</span>
-          <span className="rounded-full border border-brand-yellow/30 bg-brand-yellow/10 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-brand-yellow">
-            {t.segments[segment]}
-          </span>
+          <button
+            type="button"
+            onClick={onRestart}
+            className="rounded-full border border-white/15 px-3 py-1 text-[11px] font-bold uppercase tracking-wider text-white/50 transition hover:border-white/40 hover:text-white"
+          >
+            {r.restart}
+          </button>
         </div>
         {unlocked && (
           <p className="mt-2 text-xs text-white/45">
-            {r.generatedFor} <span className="text-white/70">{unlocked.azienda || '—'}</span> · {today}
+            {unlocked.azienda || '—'} · {today}
           </p>
         )}
 
-        {/* score + potenziale */}
-        <div className="mt-5 grid gap-4 sm:grid-cols-2">
+        {/* punteggio + verdetto */}
+        <div className="mt-5 grid gap-4 sm:grid-cols-[0.8fr_1.2fr]">
           <div className="rounded-2xl border border-white/10 bg-white/[0.03] p-5">
             <p className="text-[11px] font-semibold uppercase tracking-widest text-white/45">{r.scoreLabel}</p>
             <div className="mt-2 flex items-end gap-2">
@@ -675,65 +807,85 @@ function ResultReport({ t, lang, segment, report, unlocked, onUnlock }) {
             <div className="mt-3 h-2 w-full overflow-hidden rounded-full bg-white/10">
               <div className="h-full rounded-full bg-brand-yellow transition-all" style={{ width: `${report.score}%` }} />
             </div>
-            <p className="mt-2 text-xs font-semibold text-brand-yellow">{zoneOf(report.score, r.zones)}</p>
+            <p className="mt-2 text-xs font-semibold text-brand-yellow">{zone.label}</p>
+            {BENCHMARK && (
+              <p className="mt-3 border-t border-white/10 pt-3 text-[11px] text-white/40">
+                {r.benchmarkLabel}: <span className="font-display font-extrabold text-white/70">{BENCHMARK.avg}</span>
+                <span className="block text-white/25">{BENCHMARK.source}</span>
+              </p>
+            )}
           </div>
 
           <div className="rounded-2xl border border-brand-yellow/20 bg-brand-yellow/[0.06] p-5">
-            <p className="text-[11px] font-semibold uppercase tracking-widest text-white/45">{r.potentialLabel}</p>
-            <div className="mt-2 font-display text-3xl font-extrabold leading-none text-brand-yellow sm:text-4xl">
-              {fmtEuro(report.rangeLow)} – {fmtEuro(report.rangeHigh)}
-            </div>
-            <p className="mt-2 text-xs text-white/50">
-              {r.perMonth} · {r.potentialSuffix}
-            </p>
+            <p className="text-base leading-relaxed text-white/80">{zone.verdict}</p>
           </div>
         </div>
 
-        {/* breakdown */}
-        <p className="mt-7 text-[11px] font-bold uppercase tracking-[0.25em] text-brand-yellow">{r.breakdownEyebrow}</p>
-        <div className="relative mt-3">
-          <div className={['grid gap-3', unlocked ? '' : 'pointer-events-none select-none blur-[7px]'].join(' ')} aria-hidden={!unlocked}>
-            {report.levers.map((l) => (
-              <LeverRow key={l.key} lever={l} t={t} />
+        {/* falle */}
+        <p className="mt-7 text-[11px] font-bold uppercase tracking-[0.25em] text-brand-yellow">{r.gapsEyebrow}</p>
+        {report.gaps.length === 0 ? (
+          <p className="mt-3 rounded-2xl border border-white/10 bg-white/[0.04] p-5 text-sm text-white/70">{r.gapsNone}</p>
+        ) : (
+          <div className="mt-3 space-y-3">
+            {freeGaps.map((g, i) => (
+              <GapRow key={g.key} n={i + 1} copy={t.questions[g.key]} severe={g.weight === 2} />
             ))}
+            {lockedGaps.length > 0 && (
+              <div className="relative">
+                <div className="pointer-events-none select-none space-y-3 blur-[7px]" aria-hidden>
+                  {lockedGaps.map((g, i) => (
+                    <GapRow key={g.key} n={freeGaps.length + i + 1} copy={t.questions[g.key]} severe={g.weight === 2} />
+                  ))}
+                </div>
+                <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent to-brand-dark/90" />
+                <p className="absolute inset-x-0 bottom-3 text-center text-[11px] font-bold uppercase tracking-widest text-white/50">
+                  {r.lockedHint}
+                </p>
+              </div>
+            )}
           </div>
-          {!unlocked && <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-transparent to-brand-dark/90" />}
-        </div>
+        )}
 
-        {/* gate oppure prossimi passi */}
-        {unlocked ? <UnlockedExtra t={t} segment={segment} /> : <GateForm t={t} segment={segment} score={report.score} onUnlock={onUnlock} />}
+        {report.missesEconomics && (
+          <p className="mt-4 rounded-2xl border border-white/10 bg-white/[0.03] p-4 text-sm leading-relaxed text-white/60">
+            {r.economicsNote}
+          </p>
+        )}
+
+        {/* gate oppure mosse + CTA call */}
+        {unlocked ? <UnlockedExtra t={t} report={report} /> : <GateForm t={t} report={report} onUnlock={onUnlock} />}
+
+        <p className="mt-5 text-center text-[10px] uppercase tracking-[0.18em] text-white/30">{r.honestNote}</p>
       </div>
     </div>
   )
 }
 
-function LeverRow({ lever, t }) {
+function GapRow({ n, copy, severe }) {
   return (
     <div className="rounded-2xl border border-white/10 bg-white/[0.04] p-4 sm:p-5">
-      <div className="flex items-center justify-between gap-3">
-        <span className="text-sm font-semibold text-white/85">{t.levers[lever.key]}</span>
-        <span className="font-display text-lg font-extrabold text-brand-yellow">
-          +{fmtEuro(lever.euroMonth)}
-          <span className="text-xs font-bold text-white/40">{t.result.perMonth}</span>
+      <div className="flex items-start gap-3">
+        <span
+          className={[
+            'mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full font-display text-xs font-extrabold',
+            severe ? 'bg-brand-yellow text-brand-black' : 'border border-brand-yellow/40 text-brand-yellow',
+          ].join(' ')}
+        >
+          {n}
         </span>
-      </div>
-      <div className="relative mt-3 h-2 w-full overflow-hidden rounded-full bg-white/10">
-        <div className="h-full rounded-full bg-brand-yellow/70" style={{ width: `${Math.round(lever.pct * 100)}%` }} />
-        <span className="absolute right-0 top-1/2 h-3 w-0.5 -translate-y-1/2 bg-white/60" />
-      </div>
-      <div className="mt-2 flex items-center justify-between text-[11px] text-white/45">
-        <span>
-          {t.result.here}: {fmtValue(lever, lever.current)}
-        </span>
-        <span>
-          {t.result.potentialWord}: {fmtValue(lever, lever.benchmark)}
-        </span>
+        <div>
+          <div className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
+            <h3 className="font-display text-base font-extrabold sm:text-lg">{copy.gap}</h3>
+            <span className="text-[10px] font-bold uppercase tracking-widest text-white/35">{copy.area}</span>
+          </div>
+          <p className="mt-1.5 text-sm leading-relaxed text-white/65">{copy.why}</p>
+        </div>
       </div>
     </div>
   )
 }
 
-function GateForm({ t, segment, score, onUnlock }) {
+function GateForm({ t, report, onUnlock }) {
   const g = t.gate
   const [form, setForm] = useState({ nome: '', azienda: '', email: '', telefono: '', privacy: false })
   const [status, setStatus] = useState('idle')
@@ -742,22 +894,24 @@ function GateForm({ t, segment, score, onUnlock }) {
     setForm((f) => ({ ...f, [name]: type === 'checkbox' ? checked : value }))
   }
   useEffect(() => {
-    track('calc_lead_gate_visualizzato', {})
-  }, [])
+    track('calc_lead_gate_visualizzato', { mechanic: MECHANIC, score: report.score })
+  }, [report.score])
   const handleSubmit = async (e) => {
     e.preventDefault()
     setStatus('sending')
+    // le falle in chiaro nella mail: chi risponde al lead sa già da dove partire in call
+    const gapList = report.gaps.map((gp) => t.questions[gp.key].gap).join('; ') || '—'
     try {
       await sendLeadEmail({
         ...form,
-        messaggio: `Calcolatore ROI · segmento: ${segment} · punteggio: ${score}/100`,
+        messaggio: `Scorecard di crescita · punteggio: ${report.score}/100 · zona: ${report.zone} · falle: ${gapList}`,
       })
       pushLeadFormEvent({
         form,
-        formId: 'calcolatore_gate',
+        formId: 'scorecard_gate',
         formLocation: 'landing_calcolatore',
-        sorgente: 'Landing Calcolatore - Calcolatore ROI',
-        extraProps: { Segmento: segment, Punteggio: score },
+        sorgente: 'Landing Calcolatore - Scorecard di crescita',
+        extraProps: { Punteggio: report.score, Zona: report.zone, Falle: gapList },
       })
       onUnlock(form)
     } catch (err) {
@@ -818,28 +972,31 @@ function GateField({ label, name, ...rest }) {
   )
 }
 
-// Sbloccato: prossimi passi + CTA alla call. Il CTA funnela al calendario
-// on-page (#prenota), NON alla home #contatti (parità con /flappybee).
-function UnlockedExtra({ t, segment }) {
+// Sbloccato: le mosse consigliate (una per falla) + CTA alla call. Il CTA funnela
+// al calendario on-page (#prenota), NON alla home #contatti (parità con /flappybee).
+function UnlockedExtra({ t, report }) {
   const call = t.call
-  const steps = t.nextSteps[segment]
   const onBook = () => {
     track('landing_book_cta', { variant: VARIANT, source: 'result' })
     scrollToBooking()
   }
   return (
     <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: 'easeOut' }} className="mt-7">
-      <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-brand-yellow">{t.result.stepsTitle}</p>
-      <ol className="mt-3 space-y-2.5">
-        {steps.map((s, i) => (
-          <li key={i} className="flex items-start gap-3 text-sm text-white/75">
-            <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-yellow font-display text-xs font-extrabold text-brand-black">
-              {i + 1}
-            </span>
-            {s}
-          </li>
-        ))}
-      </ol>
+      {report.gaps.length > 0 && (
+        <>
+          <p className="text-[11px] font-bold uppercase tracking-[0.25em] text-brand-yellow">{t.result.stepsTitle}</p>
+          <ol className="mt-3 space-y-2.5">
+            {report.gaps.map((g, i) => (
+              <li key={g.key} className="flex items-start gap-3 text-sm text-white/75">
+                <span className="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-brand-yellow font-display text-xs font-extrabold text-brand-black">
+                  {i + 1}
+                </span>
+                {t.questions[g.key].fix}
+              </li>
+            ))}
+          </ol>
+        </>
+      )}
 
       <div className="mt-7 rounded-2xl bg-brand-yellow p-5 text-center text-brand-black sm:p-7">
         <h3 className="font-display text-xl font-extrabold leading-tight sm:text-2xl">{call.heading}</h3>
@@ -852,13 +1009,12 @@ function UnlockedExtra({ t, segment }) {
           {call.button}
         </button>
       </div>
-      <p className="mt-3 text-center text-[10px] uppercase tracking-[0.18em] text-white/30">{t.result.demoNote}</p>
     </motion.div>
   )
 }
 
 /* ------------------------------------------------------------------ */
-/* COSA RICEVI + CHI SIAMO — page-local, copy a tema-report.           */
+/* COSA RICEVI + CHI SIAMO — page-local, copy a tema-diagnosi.          */
 /* ------------------------------------------------------------------ */
 function WhatYouGet() {
   const lang = useLang()
@@ -956,7 +1112,7 @@ function Fit() {
 }
 
 /* ------------------------------------------------------------------ */
-/* CTA FINALE — page-local, torna al calcolatore in cima.              */
+/* CTA FINALE — page-local, torna alla scorecard in cima.               */
 /* ------------------------------------------------------------------ */
 function FinalCta() {
   const lang = useLang()
