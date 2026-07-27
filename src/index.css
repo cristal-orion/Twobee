@@ -65,6 +65,27 @@
   to { transform: translate3d(-50%, 0, 0); }
 }
 
+/* anteprima del gioco in home (sections/Game.jsx): tubi che scorrono + apina che
+   li infila. Le classi si applicano solo quando la card è in viewport.
+   I due keyframe hanno LA STESSA durata e partono insieme. Un tubo disegnato a
+   x=X% passa davanti all'apina (centro ~30% della cornice) al tempo (X-24)/100
+   della durata: con PIPES a 30/56/80/104% i passaggi cadono al 6/32/56/80%.
+   Ogni coppia di stop (es. 12%→26% + 26%→38%) porta l'apina alla quota
+   dell'apertura PRIMA del passaggio e la tiene lì mentre il tubo le scorre
+   addosso, così non tocca mai un tubo. Se cambiano PIPES (x o gap) in Game.jsx
+   o la durata dei due keyframe, questi stop vanno rifatti. */
+@keyframes bee-fly {
+  0% { top: 56%; transform: rotate(2deg); }
+  12% { top: 56%; transform: rotate(-14deg); }
+  26% { top: 28%; transform: rotate(0deg); }
+  38% { top: 28%; transform: rotate(16deg); }
+  50% { top: 49%; transform: rotate(0deg); }
+  62% { top: 49%; transform: rotate(-12deg); }
+  74% { top: 38%; transform: rotate(0deg); }
+  86% { top: 38%; transform: rotate(16deg); }
+  100% { top: 56%; transform: rotate(2deg); }
+}
+
 @layer components {
   .marquee {
     overflow: hidden;
@@ -82,6 +103,18 @@
   }
   @media (prefers-reduced-motion: reduce) {
     .marquee-track { animation: none; }
+  }
+
+  .game-preview-track {
+    animation: marquee-x 14s linear infinite;
+    will-change: transform;
+  }
+  .game-preview-bee {
+    animation: bee-fly 14s ease-in-out infinite;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .game-preview-track,
+    .game-preview-bee { animation: none; }
   }
 }
 

@@ -38,6 +38,24 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://twobee.it/lavora-con-noi" />
   </url>
   <url>
+    <loc>https://twobee.it/flappybee</loc>
+    <lastmod>2026-07-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+    <xhtml:link rel="alternate" hreflang="it" href="https://twobee.it/flappybee" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://twobee.it/en/flappybee" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://twobee.it/flappybee" />
+  </url>
+  <url>
+    <loc>https://twobee.it/en/flappybee</loc>
+    <lastmod>2026-07-27</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.5</priority>
+    <xhtml:link rel="alternate" hreflang="it" href="https://twobee.it/flappybee" />
+    <xhtml:link rel="alternate" hreflang="en" href="https://twobee.it/en/flappybee" />
+    <xhtml:link rel="alternate" hreflang="x-default" href="https://twobee.it/flappybee" />
+  </url>
+  <url>
     <loc>https://twobee.it/privacy-policy.html</loc>
     <lastmod>2026-05-08</lastmod>
     <changefreq>yearly</changefreq>

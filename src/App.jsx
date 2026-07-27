@@ -4,7 +4,7 @@ import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { ScrollSmoother } from 'gsap/ScrollSmoother'
 import { useGSAP } from '@gsap/react'
 
-import { LanguageProvider } from './i18n/LanguageContext.jsx'
+import { LanguageProvider, localePath } from './i18n/LanguageContext.jsx'
 import Navbar from './components/Navbar.jsx'
 import Footer from './components/Footer.jsx'
 import HexBackground from './components/HexBackground.jsx'
@@ -17,6 +17,7 @@ import Audience from './sections/Audience.jsx'
 import Capabilities from './sections/Capabilities.jsx'
 import System from './sections/System.jsx'
 import Pricing from './sections/Pricing.jsx'
+import Game from './sections/Game.jsx'
 import Team from './sections/Team.jsx'
 import Faq from './sections/Faq.jsx'
 import Contact from './sections/Contact.jsx'
@@ -66,30 +67,75 @@ const HEAD_COPY = {
   },
 }
 
+const SITE = 'https://twobee.it'
+
+// Lo stesso index.html è servito su ogni rotta, quindi title/description/canonical
+// statici descrivono la home: senza questi override una sottopagina si presenta a
+// Google come duplicato della home (canonical → "/") e non viene indicizzata.
+// Le rotte NON elencate qui (le landing A/B, i lab) restano volutamente così.
+const PAGE_HEAD = {
+  '/flappybee': {
+    it: {
+      title: 'Flappy Twobee | Il gioco dei pain point delle PMI',
+      description:
+        'Fai volare l’apina e schiva i cinque ostacoli che frenano la crescita delle PMI italiane. 30 secondi, niente da compilare: quando ne colpisci uno ti mostriamo come lo risolviamo.',
+      locale: 'it_IT',
+    },
+    en: {
+      title: 'Flappy Twobee | The SME pain-point game',
+      description:
+        'Fly the bee and dodge the five obstacles that hold back Italian SMEs. 30 seconds, nothing to fill in: hit one and we show you how we fix it.',
+      locale: 'en_US',
+    },
+  },
+  '/lavora-con-noi': {
+    it: {
+      title: 'Lavora con noi | TwoBee',
+      description:
+        'Niente lettere motivazionali infinite: candidati con un videomessaggio da 60 secondi su WhatsApp e il tuo CV. Rispondiamo a tutti.',
+      locale: 'it_IT',
+    },
+    en: {
+      title: 'Careers | TwoBee',
+      description:
+        'No endless cover letters: apply with a 60-second WhatsApp video message and your resume. We reply to everyone.',
+      locale: 'en_US',
+    },
+  },
+}
+
 // No per-locale HTML build (single index.html serves / and /en/), so the
 // <html lang>/title/meta swap happens client-side on mount instead.
-function useSyncHead(lang) {
+function useSyncHead(lang, path) {
   useEffect(() => {
-    const copy = HEAD_COPY[lang]
+    const page = PAGE_HEAD[path]
+    const copy = (page && page[lang]) || HEAD_COPY[lang]
     document.documentElement.lang = lang
     document.title = copy.title
-    const setMeta = (selector, content) => {
+    const setAttr = (selector, attr, value) => {
       const el = document.querySelector(selector)
-      if (el) el.setAttribute('content', content)
+      if (el) el.setAttribute(attr, value)
     }
+    const setMeta = (selector, content) => setAttr(selector, 'content', content)
     setMeta('meta[name="description"]', copy.description)
     setMeta('meta[property="og:title"]', copy.title)
     setMeta('meta[property="og:description"]', copy.description)
     setMeta('meta[property="og:locale"]', copy.locale)
     setMeta('meta[name="twitter:title"]', copy.title)
     setMeta('meta[name="twitter:description"]', copy.description)
-  }, [lang])
+    if (!page) return
+    setAttr('link[rel="canonical"]', 'href', SITE + localePath(path, lang))
+    setMeta('meta[property="og:url"]', SITE + localePath(path, lang))
+    setAttr('link[rel="alternate"][hreflang="it"]', 'href', SITE + localePath(path, 'it'))
+    setAttr('link[rel="alternate"][hreflang="en"]', 'href', SITE + localePath(path, 'en'))
+    setAttr('link[rel="alternate"][hreflang="x-default"]', 'href', SITE + localePath(path, 'it'))
+  }, [lang, path])
 }
 
 export default function App() {
   const lab = getLab()
   const { lang, path } = getLangAndPath()
-  useSyncHead(lang)
+  useSyncHead(lang, path)
   if (lab === 'hex') return <Suspense fallback={null}><HexBgLab /></Suspense>
   if (lab === 'hexfloat') return <Suspense fallback={null}><HexFloatLab /></Suspense>
   let page = <MainSite />
@@ -202,6 +248,7 @@ function MainSite() {
             >
               <Pricing />
             </section>
+            <Game />
             <section id="team">
               <Team />
             </section>
