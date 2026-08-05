@@ -34,6 +34,7 @@ const CareersPage = lazy(() => import('./pages/Careers.jsx'))
 // gioco dopo): nei report l'A/B va segmentato per sorgente, non sommato.
 const FlappybeePage = lazy(() => import('./pages/Flappybee.jsx'))
 const TestCrescitaPage = lazy(() => import('./pages/TestCrescita.jsx'))
+const CaseStudiesPage = lazy(() => import('./pages/CaseStudies.jsx'))
 
 gsap.registerPlugin(ScrollTrigger, ScrollSmoother, useGSAP)
 
@@ -72,6 +73,14 @@ const HEAD_COPY = {
 
 const SITE = 'https://twobee.it'
 
+// Rotte online ma fuori dall'indice. Non basta ometterle da sitemap.xml e dai
+// link: /casestudy gira nelle proposte commerciali (mail, WhatsApp, PDF) e da
+// quei link i crawler la raggiungono comunque. Serve il noindex esplicito.
+// Title e description restano: servono alla scheda di anteprima quando il link
+// viene condiviso. Per farla indicizzare basta togliere la rotta da qui e
+// aggiungerla a sitemap.xml, llms.txt e al <noscript> di index.html.
+const NOINDEX_PATHS = ['/casestudy']
+
 // Lo stesso index.html è servito su ogni rotta, quindi title/description/canonical
 // statici descrivono la home: senza questi override una sottopagina si presenta a
 // Google come duplicato della home (canonical → "/") e non viene indicizzata.
@@ -102,6 +111,20 @@ const PAGE_HEAD = {
       title: 'Flappy Twobee | The SME pain-point game',
       description:
         'Fly the bee and dodge the five obstacles that hold back Italian SMEs. 30 seconds, nothing to fill in: hit one and we show you how we fix it.',
+      locale: 'en_US',
+    },
+  },
+  '/casestudy': {
+    it: {
+      title: 'Case study: CRM e automazioni per PMI | TwoBee',
+      description:
+        'I lavori di TwoBee raccontati per intero: il problema di partenza, il sistema che abbiamo costruito (CRM, automazioni, integrazioni) e i numeri dopo.',
+      locale: 'it_IT',
+    },
+    en: {
+      title: 'Case studies: CRM and automation for SMEs | TwoBee',
+      description:
+        'TwoBee’s work told in full: the starting problem, the system we built (CRM, automation, integrations) and the numbers afterwards.',
       locale: 'en_US',
     },
   },
@@ -140,6 +163,11 @@ function useSyncHead(lang, path) {
     setMeta('meta[property="og:locale"]', copy.locale)
     setMeta('meta[name="twitter:title"]', copy.title)
     setMeta('meta[name="twitter:description"]', copy.description)
+    // Il robots statico di index.html dice "index, follow": va riscritto qui,
+    // non solo omesso, perché lo stesso file è servito su ogni rotta.
+    if (NOINDEX_PATHS.includes(path)) {
+      setMeta('meta[name="robots"]', 'noindex, follow')
+    }
     if (!page) return
     setAttr('link[rel="canonical"]', 'href', SITE + localePath(path, lang))
     setMeta('meta[property="og:url"]', SITE + localePath(path, lang))
@@ -162,6 +190,8 @@ export default function App() {
     page = <Suspense fallback={null}><FlappybeePage /></Suspense>
   } else if (path === '/test-crescita') {
     page = <Suspense fallback={null}><TestCrescitaPage /></Suspense>
+  } else if (path === '/casestudy') {
+    page = <Suspense fallback={null}><CaseStudiesPage /></Suspense>
   } else if (path === '/hiddenwork') {
     page = <Suspense fallback={null}><HexFloatLab /></Suspense>
   }

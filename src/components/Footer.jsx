@@ -6,6 +6,7 @@ const COPY = {
     linkedinLabel: 'LinkedIn TwoBee',
     instagramLabel: 'Instagram TwoBee',
     careers: 'Lavora con noi',
+    cases: '🍯 Case study',
     test: '📋 Test di crescita',
     game: '🐝 Flappy Twobee',
     privacy: 'Privacy Policy',
@@ -17,6 +18,7 @@ const COPY = {
     linkedinLabel: 'LinkedIn TwoBee',
     instagramLabel: 'Instagram TwoBee',
     careers: 'Careers',
+    cases: '🍯 Case studies',
     test: '📋 Growth test',
     game: '🐝 Flappy Twobee',
     privacy: 'Privacy Policy',
@@ -90,6 +92,12 @@ export default function Footer() {
         </div>
 
         <div className="flex flex-col items-center gap-1 text-xs text-white/55 sm:items-end">
+          {/* Primo della colonna: per chi valuta se contattarci è il link che
+              conta più degli altri due. La pagina resta fuori dall'indice
+              (NOINDEX_PATHS in App.jsx) — da qui è raggiungibile, non cercabile. */}
+          <a href={localePath('/casestudy', lang)} className="hover:text-brand-yellow">
+            {t.cases}
+          </a>
           <a href={localePath('/lavora-con-noi', lang)} className="hover:text-brand-yellow">
             {t.careers}
           </a>
