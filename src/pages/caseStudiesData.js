@@ -27,6 +27,12 @@
  *   immagini NON stanno qui: sono in case-studies/_BLUEPRINT-PROMPTS.md, perché
  *   tutto ciò che sta in questo file finisce nel bundle servito ai visitatori.
  *   Finché il file manca, in sviluppo compare un segnaposto; online, niente.
+ *   `w` e `h` sono le dimensioni reali del file in pixel e NON sono opzionali:
+ *   l'immagine è lazy, e senza dimensioni dichiarate occupa zero altezza finché
+ *   non arriva. Il deep link a un'ancora più in basso (/casestudy#slug) calcola
+ *   allora una posizione che le immagini, caricandosi, spostano di centinaia di
+ *   pixel — e il link condiviso in una proposta atterra nel punto sbagliato.
+ *   Si leggono così: node -e "require('sharp')('public/case-x.webp').metadata().then(m=>console.log(m.width,m.height))"
  * - Testi bilingui: { it: '…', en: '…' }. Se l'inglese manca, mettere comunque
  *   la chiave `en` (anche uguale all'italiano) per non far crashare il render.
  * - `template: true` accende il badge "esempio": va rimosso sui progetti veri.
@@ -68,6 +74,7 @@ export const CATEGORIES = {
  *   },                                         // oppure null
  *   media: {
  *     src: '/case-nome-cliente.webp',
+ *     w: 1728, h: 558,                          // dimensioni reali del file
  *     alt: { it: 'Diagramma: …', en: 'Diagram: …' },
  *   },
  * }
@@ -118,6 +125,8 @@ export const CASES = [
     quote: null,
     media: {
       src: '/case-elettra-crm.webp',
+      w: 1728,
+      h: 558,
       alt: {
         it: 'Diagramma del ciclo di vita di una commessa in Elettra CRM: dal preventivo alla fattura, con l’avviso “da fatturare” che si accende quando arriva un ordine a fornitore.',
         en: 'Diagram of a job’s lifecycle in Elettra CRM: from quote to invoice, with the “to invoice” alert triggered by an incoming supplier order.',
@@ -164,6 +173,8 @@ export const CASES = [
     quote: null,
     media: {
       src: '/case-industrial-service-hr.webp',
+      w: 2039,
+      h: 578,
       alt: {
         it: 'Diagramma del percorso di una candidatura: dall’annuncio alle domande eliminatorie, al punteggio, fino all’avviso all’ufficio del personale.',
         en: 'Diagram of an application’s path: from the ad through knockout questions and scoring to the HR alert.',
@@ -210,9 +221,107 @@ export const CASES = [
     quote: null,
     media: {
       src: '/case-jose-prenotazioni.webp',
+      w: 1672,
+      h: 941,
       alt: {
         it: 'Diagramma delle regole di conferma di una prenotazione: dalla richiesta online o telefonica alla conferma automatica o all’approvazione del ristoratore.',
         en: 'Diagram of the booking confirmation rules: from an online or phone request to automatic confirmation or owner approval.',
+      },
+    },
+  },
+  {
+    slug: 'sofia-centralino-ai',
+    client: 'SofIA',
+    logo: null,
+    logoMono: false,
+    url: 'https://prontosofia.it',
+    year: '2026',
+    sector: { it: 'Centralino e agenda automatici', en: 'Automated phone and calendar' },
+    categories: ['ai', 'automazioni', 'web'],
+    headline: {
+      it: 'Il telefono non squilla più a vuoto: risponde, capisce cosa serve e mette l’appuntamento in agenda — anche di notte, anche mentre sei con un cliente.',
+      en: 'The phone never rings out: it answers, works out what’s needed and puts the appointment in the diary — at night too, and while you’re with a customer.',
+    },
+    challenge: {
+      it: 'Ci sono attività che vivono di telefonate: studi dentistici, centri estetici, palestre, ristoranti, concessionarie. Il telefono suona mentre sei con un cliente, nessuno risponde, e chi chiamava passa al nome successivo dell’elenco — una chiamata persa non lascia traccia da nessuna parte, non è un numero in un report, è solo un incasso che non è arrivato. Chi riesce a rispondere scrive l’appuntamento su un’agenda di carta, e a fine giornata nessuno sa quante chiamate sono arrivate né cosa chiedevano. Una persona in segreteria copre gli orari d’ufficio: non le sere, non i fine settimana, che sono le ore in cui la gente chiama.',
+      en: 'Some businesses live on the phone: dental practices, beauty salons, gyms, restaurants, car dealers. It rings while you’re with a customer, nobody picks up, and the caller moves on to the next name on their list — a missed call leaves no trace anywhere, it isn’t a figure in a report, it’s simply money that never arrived. Whoever does answer writes the appointment in a paper diary, and by the end of the day nobody knows how many calls came in or what they were about. A receptionist covers office hours: not the evenings and weekends when people actually call.',
+    },
+    build: {
+      it: [
+        'Risponde al telefono con voce naturale, a qualsiasi ora e in più lingue: chiede cosa serve, propone gli orari liberi e chiude l’appuntamento senza mettere in attesa.',
+        'Lo stesso assistente sulla chat del sito e su WhatsApp, addestrato sui dati dell’attività: chi scrive la sera trova risposta e prenota lì, senza aspettare l’apertura.',
+        'Un’agenda sola: gli appuntamenti presi al telefono, in chat e a mano finiscono nello stesso calendario, sincronizzato con Google Calendar.',
+        'I promemoria automatici su WhatsApp prima dell’appuntamento, per i posti che restano vuoti solo perché qualcuno se n’è dimenticato.',
+        'Una configurazione per settore: servizi, durate, prezzi, orari e regole cambiano da uno studio dentistico a un concessionario a un ristorante.',
+        'Un pannello che a fine giornata dice quante chiamate sono arrivate, quante sono diventate appuntamenti e cosa chiedevano — cioè quali domande tornano abbastanza spesso da meritare una risposta pronta.',
+        'Si collega a quello che l’attività già usa: Google Calendar, WhatsApp Business, la posta, il sito.',
+        'Una prova vera al telefono prima di decidere: si scelgono settore e scenario, arriva la chiamata e si sente com’è.',
+      ],
+      en: [
+        'It answers the phone in a natural voice, at any hour and in several languages: it asks what’s needed, offers the free slots and books the appointment without putting anyone on hold.',
+        'The same assistant on the website chat and on WhatsApp, trained on the business’s own data: someone writing in the evening gets an answer and books there, without waiting for opening time.',
+        'One diary only: appointments taken by phone, in chat and by hand all land in the same calendar, synced with Google Calendar.',
+        'Automatic WhatsApp reminders before the appointment, for the slots that stay empty only because somebody forgot.',
+        'A per-sector configuration: services, durations, prices, hours and rules change from a dental practice to a car dealer to a restaurant.',
+        'A panel that tells you at the end of the day how many calls came in, how many became appointments and what they were about — which questions come up often enough to deserve a ready answer.',
+        'It plugs into what the business already uses: Google Calendar, WhatsApp Business, email, the website.',
+        'A real phone trial before deciding: pick a sector and a scenario, take the call and hear it for yourself.',
+      ],
+    },
+    quote: null,
+    media: {
+      src: '/case-sofia-centralino-ai.webp',
+      alt: {
+        it: 'Diagramma del percorso di una chiamata: dallo squillo alla risposta dell’assistente, fino all’appuntamento in agenda e al promemoria su WhatsApp.',
+        en: 'Diagram of a call’s path: from the ring to the assistant’s answer, through to the appointment in the calendar and the WhatsApp reminder.',
+      },
+    },
+  },
+  {
+    slug: 'tharvel-admin-siti',
+    client: 'Tharvel',
+    logo: null,
+    logoMono: false,
+    url: null,
+    year: '2026',
+    sector: { it: 'Gestione dei siti dei clienti', en: 'Client website management' },
+    categories: ['ai', 'web', 'gestionali'],
+    headline: {
+      it: 'Il cliente cambia testi e foto del suo sito parlando in chat, vede subito il risultato e pubblica quando è convinto — senza WordPress e senza passare da noi.',
+      en: 'The client changes their site’s text and photos by chatting, sees the result at once and publishes when they’re happy — no WordPress, and without going through us.',
+    },
+    challenge: {
+      it: 'Un sito fatto a mano è veloce e non si rompe, ma il giorno in cui il cliente vuole cambiare un prezzo o sostituire una foto deve chiederlo a noi: un lavoro da due minuti diventa una mail, una coda e una fattura per nulla. La risposta abituale del mercato è costruirlo in WordPress con un page builder, così se lo gestisce da solo — e allora arrivano i plugin che litigano, gli aggiornamenti che mandano giù il sito e un sito lento da mantenere per sempre. Nel frattempo il cliente, per paura di rompere qualcosa, non lo tocca: il sito si congela e invecchia.',
+      en: 'A hand-built site is fast and doesn’t break, but the day the client wants to change a price or swap a photo they have to ask us: a two-minute job turns into an email, a queue and an invoice for nothing. The market’s usual answer is to build it in WordPress with a page builder so they can manage it themselves — and then come the plugins that clash, the updates that take the site down and a slow site to maintain forever. Meanwhile the client, afraid of breaking something, never touches it: the site freezes and ages.',
+    },
+    build: {
+      it: [
+        'Un pannello che si apre sul dominio del cliente e non richiede di ricostruire niente: funziona sul sito che c’è già, sia HTML statico sia Astro, Next o Vue.',
+        'Le modifiche si chiedono a parole, in chat: «cambia il prezzo del menù di degustazione», «metti questa foto in home».',
+        'Alt+click sull’elemento da cambiare, per quando descriverlo a parole è più lento che indicarlo.',
+        'L’anteprima dal vivo accanto alla chat: il sito modificato si vede prima che sia online.',
+        'Pubblicazione solo su comando: le modifiche restano su un ramo di lavoro e “Pubblica” è l’unico momento in cui il sito vero cambia — quindi non si rompe per sbaglio, e si torna indietro sempre.',
+        'Le immagini si caricano e vengono ridimensionate da sé; se la foto non c’è, la genera l’AI.',
+        'Un solo servizio sulla nostra VPS serve tutti i siti: nei repo dei clienti non entra una riga di Tharvel.',
+        'Un sito nuovo entra con un comando: clona, riconosce da sé il framework, builda e lo registra.',
+      ],
+      en: [
+        'A panel that opens on the client’s own domain and requires rebuilding nothing: it works on the site that already exists, whether static HTML or Astro, Next or Vue.',
+        'Changes are asked for in plain words, in a chat: “change the tasting menu price”, “put this photo on the home page”.',
+        'Alt+click on the element to change, for when pointing at it beats describing it.',
+        'A live preview next to the chat: the edited site is visible before it goes online.',
+        'Publishing only on command: changes sit on a working branch and “Publish” is the only moment the real site changes — so it can’t break by accident, and there’s always a way back.',
+        'Images are uploaded and resized on their own; when the photo doesn’t exist, AI generates it.',
+        'One service on our VPS serves every site: not a line of Tharvel enters the clients’ repositories.',
+        'A new site joins with a single command: it clones, detects the framework itself, builds and registers it.',
+      ],
+    },
+    quote: null,
+    media: {
+      src: '/case-tharvel-admin-siti.webp',
+      alt: {
+        it: 'Diagramma del flusso di una modifica: dalla richiesta in chat all’anteprima sul ramo di lavoro, fino alla pubblicazione sul sito vero.',
+        en: 'Diagram of an edit’s flow: from the chat request to the preview on the working branch, through to publishing on the live site.',
       },
     },
   },

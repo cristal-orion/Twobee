@@ -45,9 +45,24 @@ I tre nomi attesi, da rispettare alla lettera:
 
 | Caso | File |
 |---|---|
-| Elettra Group | `public/case-elettra-crm.webp` |
-| Industrial Service & Facility | `public/case-industrial-service-hr.webp` |
-| Josè Restaurant | `public/case-jose-prenotazioni.webp` |
+| Elettra Group | `public/case-elettra-crm.webp` ✅ |
+| Industrial Service & Facility | `public/case-industrial-service-hr.webp` ✅ |
+| Josè Restaurant | `public/case-jose-prenotazioni.webp` ✅ |
+| SofIA | `public/case-sofia-centralino-ai.webp` — **da fare** |
+| Tharvel | `public/case-tharvel-admin-siti.webp` — **da fare** |
+
+Le immagini generate escono con molto fondo nero vuoto (Elettra era al 52%, Industrial
+al 40%): a piena larghezza diventano fasce altissime mezze vuote. Si ritagliano così,
+dopo aver messo l'originale al sicuro altrove:
+
+```bash
+node -e "
+const sharp=require('sharp');
+sharp('ORIGINALE.webp').trim({threshold:12})
+  .extend({top:48,bottom:48,left:48,right:48,background:{r:0,g:0,b:0}})
+  .webp({quality:90}).toFile('public/case-NOME.webp');
+"
+```
 
 Appena il file esiste il segnaposto sparisce da sé: il rilevamento è sull'`onError`
 dell'`<img>`, non serve toccare il codice.
@@ -100,3 +115,38 @@ dell'`<img>`, non serve toccare il codice.
 > geometrico bold tipo League Spartan, riquadri smussati ed esagoni, frecce sottili.
 > Niente 3D, ombre, gradienti o icone di stock. Etichette in italiano, poche parole
 > per nodo.
+
+## 4 · SofIA → `public/case-sofia-centralino-ai.webp`
+
+> Diagramma di flusso orizzontale del percorso di una chiamata, da sinistra a destra.
+> A sinistra tre ingressi impilati che convergono su un unico nodo: "Telefono che
+> squilla", "Chat del sito", "WhatsApp". Il nodo centrale è un esagono giallo pieno
+> con testo nero "SofIA risponde", e sotto, in piccolo, "24 ore, più lingue". Da lì
+> il flusso continua: "Capisce cosa serve" → "Propone gli orari liberi" → riquadro
+> giallo pieno con testo nero "Appuntamento in agenda". Da quest'ultimo escono due
+> frecce sottili verso destra: una a un riquadro "Promemoria su WhatsApp" e una a un
+> riquadro "Sincronizzato con Google Calendar". In basso, staccato e collegato al
+> nodo centrale con linea tratteggiata, un riquadro largo "Pannello di fine giornata:
+> chiamate ricevute, appuntamenti presi, cosa chiedevano". Stile: diagramma di flusso
+> piatto e minimale, fondo nero #0B0B0C, accenti giallo #FFC501, testo bianco, font
+> geometrico bold tipo League Spartan, riquadri smussati ed esagoni, frecce sottili.
+> Niente 3D, ombre, gradienti o icone di stock. Etichette in italiano, poche parole
+> per nodo.
+
+## 5 · Tharvel → `public/case-tharvel-admin-siti.webp`
+
+> Diagramma di flusso orizzontale di una modifica al sito, da sinistra a destra:
+> riquadro "Il cliente scrive in chat" con sotto, più piccolo, il testo fra
+> virgolette «cambia il prezzo del menù» → esagono giallo pieno con testo nero
+> "Tharvel" → riquadro "Ramo di lavoro" con accanto, collegato da una freccia corta,
+> un riquadro "Anteprima dal vivo". Da "Anteprima dal vivo" partono due frecce: una
+> torna indietro verso la chat, curva e tratteggiata, etichettata "non va bene"; una
+> continua a destra verso un esagono giallo pieno con testo nero "PUBBLICA", che
+> porta al riquadro finale "Sito online aggiornato". Sotto il nodo "Tharvel", tre
+> riquadrini staccati collegati con linea tratteggiata: "Alt+click sull'elemento",
+> "Immagini ridimensionate da sé", "Un solo servizio per tutti i siti". Il ramo di
+> lavoro e il sito online devono leggersi come due binari distinti. Stile: diagramma
+> di flusso piatto e minimale, fondo nero #0B0B0C, accenti giallo #FFC501, testo
+> bianco, font geometrico bold tipo League Spartan, riquadri smussati ed esagoni,
+> frecce sottili. Niente 3D, ombre, gradienti o icone di stock. Etichette in
+> italiano, poche parole per nodo.
