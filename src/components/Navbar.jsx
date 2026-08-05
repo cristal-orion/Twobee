@@ -44,7 +44,16 @@ export default function Navbar({ subpage = false, landing = false }) {
   const homeHref = subpage || landing ? localePath('/', lang) : '#top'
   const ctaHref = resolve('#contatti')
 
-  const bare = subpage ? '/lavora-con-noi' : '/'
+  // Path corrente senza prefisso /en: è la destinazione dello switch di lingua,
+  // quindi va letto dall'URL e non dedotto dal tipo di pagina (con `subpage`
+  // fisso, ogni sottopagina rimandava a /lavora-con-noi cambiando lingua).
+  const bare =
+    typeof window === 'undefined'
+      ? '/'
+      : (window.location.pathname.replace(/\/+$/, '') || '/').replace(
+          /^\/en(?=\/|$)/,
+          ''
+        ) || '/'
   const hash = typeof window !== 'undefined' ? window.location.hash : ''
 
   useEffect(() => {
