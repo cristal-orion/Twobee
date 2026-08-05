@@ -21,10 +21,12 @@
  * - `logo`: file in public/. `logoMono: true` se il logo è monocromatico (i
  *   partner-*.webp sono bianchi pieni): serve a invertirlo sulle sezioni chiare,
  *   dove altrimenti sparisce. Logo a colori → `logoMono: false`.
- * - `media`: il blueprint. `src` è il file atteso in public/ (anche se non
- *   esiste ancora), `alt` il testo per l'accessibilità, `brief` la descrizione
- *   del diagramma da dare all'AI che lo genera. Finché il file manca, in pagina
- *   compare un segnaposto che mostra il `brief` — così non si perde.
+ * - `media`: il blueprint. `src` è il file atteso in public/ (anche se non esiste
+ *   ancora), `alt` il testo per l'accessibilità — che è anche la descrizione del
+ *   diagramma, quindi va scritto in italiano leggibile. I prompt per generare le
+ *   immagini NON stanno qui: sono in case-studies/_BLUEPRINT-PROMPTS.md, perché
+ *   tutto ciò che sta in questo file finisce nel bundle servito ai visitatori.
+ *   Finché il file manca, in sviluppo compare un segnaposto; online, niente.
  * - Testi bilingui: { it: '…', en: '…' }. Se l'inglese manca, mettere comunque
  *   la chiave `en` (anche uguale all'italiano) per non far crashare il render.
  * - `template: true` accende il badge "esempio": va rimosso sui progetti veri.
@@ -67,18 +69,9 @@ export const CATEGORIES = {
  *   media: {
  *     src: '/case-nome-cliente.webp',
  *     alt: { it: 'Diagramma: …', en: 'Diagram: …' },
- *     brief: { it: 'Cosa deve mostrare il diagramma.', en: '…' },
  *   },
  * }
  * -------------------------------------------------------------------------- */
-
-/* Stile comune dei blueprint, da ripetere in coda a ogni brief per l'AI:
- * fondo nero #0B0B0C, accenti giallo #FFC501, testo bianco, font geometrico
- * bold (League Spartan), riquadri con angoli smussati o esagoni, tratti sottili,
- * frecce semplici. Diagramma piatto, nessun 3D, nessuna ombra, nessuna icona
- * generica di stock. Etichette in italiano, poche parole per nodo. */
-const BLUEPRINT_STYLE =
-  'Stile: diagramma di flusso piatto e minimale, fondo nero #0B0B0C, accenti giallo #FFC501, testo bianco, font geometrico bold tipo League Spartan, riquadri smussati ed esagoni, frecce sottili. Niente 3D, ombre, gradienti o icone di stock. Etichette in italiano, poche parole per nodo.'
 
 export const CASES = [
   {
@@ -129,10 +122,6 @@ export const CASES = [
         it: 'Diagramma del ciclo di vita di una commessa in Elettra CRM: dal preventivo alla fattura, con l’avviso “da fatturare” che si accende quando arriva un ordine a fornitore.',
         en: 'Diagram of a job’s lifecycle in Elettra CRM: from quote to invoice, with the “to invoice” alert triggered by an incoming supplier order.',
       },
-      brief: {
-        it: `Diagramma di flusso orizzontale del ciclo di una commessa, cinque nodi in fila: "Preventivo" → "Offerta inviata" → "Ordine confermato" → "Cantiere" → "Fatturata". Dal basso un nodo separato "Ordine al fornitore" si innesta con una freccia sul nodo "Cantiere" e accende un badge esagonale giallo pieno con scritta nera "DA FATTURARE", collegato con linea tratteggiata al nodo "Fatturata" — il badge si spegne solo lì. A destra, staccati, due riquadri piccoli: "Una scheda per azienda: cliente e fornitore" e "Storico prezzi materiali". ${BLUEPRINT_STYLE}`,
-        en: `Horizontal flow of a job’s lifecycle, five nodes in a row: quote → sent offer → confirmed order → job site → invoiced. A separate node "supplier order" joins the job-site node and lights a solid yellow hexagonal badge reading "TO INVOICE", dashed-linked to the invoiced node where it switches off. Two small side boxes: one record per company, material price history. ${BLUEPRINT_STYLE}`,
-      },
     },
   },
   {
@@ -179,10 +168,6 @@ export const CASES = [
         it: 'Diagramma del percorso di una candidatura: dall’annuncio alle domande eliminatorie, al punteggio, fino all’avviso all’ufficio del personale.',
         en: 'Diagram of an application’s path: from the ad through knockout questions and scoring to the HR alert.',
       },
-      brief: {
-        it: `Diagramma di flusso orizzontale del percorso di una candidatura, da sinistra a destra: "Annuncio" → "Pagina candidature" → "Scelta del profilo" (tre rami paralleli ravvicinati etichettati Manutentore / Frigorista / Coordinatore, che si ricongiungono subito) → bivio esagonale "Requisiti obbligatori" → "Domande con punteggio" → bivio esagonale "Soglia di qualifica" → riquadro finale giallo pieno con testo nero "Avviso all'ufficio del personale — candidati ordinati per punteggio". I due scarti scendono verso il basso, in grigio spento e con freccia tratteggiata: dal primo bivio "Fuori, con risposta cortese", dal secondo "Archivio + risposta d'attesa". Il percorso principale resta su un'unica linea orizzontale in giallo. ${BLUEPRINT_STYLE}`,
-        en: `Left-to-right horizontal flow of an application: ad → applications page → role choice (three tight parallel branches that rejoin at once) → hexagonal fork on mandatory requirements → scored questions → hexagonal fork on the qualification threshold → final solid-yellow box with black text: HR alert, candidates sorted by score. The two rejections drop downward in grey with dashed arrows: courteous rejection from the first fork, archive plus holding reply from the second. The main path stays on a single horizontal yellow line. ${BLUEPRINT_STYLE}`,
-      },
     },
   },
   {
@@ -228,10 +213,6 @@ export const CASES = [
       alt: {
         it: 'Diagramma delle regole di conferma di una prenotazione: dalla richiesta online o telefonica alla conferma automatica o all’approvazione del ristoratore.',
         en: 'Diagram of the booking confirmation rules: from an online or phone request to automatic confirmation or owner approval.',
-      },
-      brief: {
-        it: `Diagramma di flusso con due ingressi in alto: "Prenotazione dal sito" e "Prenotazione al telefono", che convergono su un blocco esagonale centrale "Regole del ristoratore" con tre condizioni elencate dentro: "giorno libero", "coperti sotto la soglia", "tavolata oltre 10". Dal blocco escono due frecce: a destra "Confermata subito" (riquadro giallo pieno, testo nero, segno di spunta) e a sinistra "In attesa del ristoratore" (riquadro con solo bordo giallo). Entrambe finiscono in un nodo in basso "Calendario del locale", accanto al quale ci sono due riquadri piccoli: "Giorni chiusi ed eventi privati" e "Cliente riconosciuto dal telefono". Dal nodo "Confermata subito" parte anche una freccia verso un'icona busta etichettata "Email all'ospite". ${BLUEPRINT_STYLE}`,
-        en: `Flow with two entry points at the top — website booking and phone booking — converging on a central hexagonal block "owner’s rules" listing three conditions: free day, covers below threshold, party over ten. Two arrows leave it: "confirmed instantly" (solid yellow box with a check) and "waiting for the owner" (outlined box). Both end in a "venue calendar" node, beside two small boxes: closed days and private events, guest recognised by phone. An envelope labelled "email to the guest" branches off the instant-confirmation node. ${BLUEPRINT_STYLE}`,
       },
     },
   },

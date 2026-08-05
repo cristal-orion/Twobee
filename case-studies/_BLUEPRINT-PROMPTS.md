@@ -5,10 +5,16 @@ sistema a colpo d'occhio, al posto delle metriche di risultato che dai clienti n
 abbiamo. Finché il file non è in `public/`, in pagina compare un segnaposto
 tratteggiato che mostra il brief — quindi il buco si vede, ma non rompe niente.
 
-I brief **canonici** stanno in `src/pages/caseStudiesData.js`, campo `media.brief`.
-Questo file è solo la copia già assemblata (brief + stile comune) da incollare in un
-generatore di immagini. **Se cambi un prompt qui, cambialo anche là**, altrimenti il
-segnaposto in pagina descrive un diagramma diverso da quello che hai generato.
+**Questo file è l'unico posto dove stanno i prompt.** Non sono nel codice per una
+ragione precisa: tutto ciò che entra in `caseStudiesData.js` finisce nel bundle
+JavaScript servito ai visitatori, e da quando `/casestudy` è linkata nel footer ci
+arriva chiunque — un cliente non deve poter leggere le istruzioni con cui abbiamo
+generato i diagrammi. Nella data resta solo `media.src` (il file atteso) e `media.alt`
+(descrizione leggibile, usata per l'accessibilità).
+
+In sviluppo, se un file manca, in pagina compare un segnaposto tratteggiato con
+l'`alt` e il nome del file: serve a ricordare cosa resta da fare. In produzione quel
+segnaposto non c'è — online il caso si regge sul testo e il buco non si vede.
 
 ## Come devono venire
 

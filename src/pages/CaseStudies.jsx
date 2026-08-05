@@ -478,18 +478,24 @@ function CaseSection({ item, index, light }) {
 /* ------------------------------------------------------------------ */
 
 /* L'immagine è generata a parte (AI) e va messa in public/ col nome che sta in
- * `media.src`. Finché il file non c'è, al suo posto compare il segnaposto con la
- * descrizione del diagramma da produrre: la pagina resta presentabile e il brief
- * sta accanto al buco che deve riempire, invece che in un file a parte.
- * Il rilevamento è su `onError` dell'img: appena il file esiste, appare. */
+ * `media.src`. Il rilevamento è su `onError` dell'img: appena il file esiste,
+ * appare, senza toccare il codice.
+ *
+ * Finché il file manca, il segnaposto col brief compare SOLO in sviluppo. Serve a
+ * noi — ricorda quali diagrammi restano da fare e con che prompt — ma stampa i
+ * colori, il font e i "niente 3D" destinati al generatore di immagini: da quando
+ * la pagina è linkata nel footer quel testo lo leggerebbe un cliente. Online il
+ * caso si regge sul testo (problema + cosa abbiamo costruito) e il buco non si
+ * vede nemmeno. L'elenco di cosa manca sta in case-studies/_BLUEPRINT-PROMPTS.md. */
 function Blueprint({ item, light }) {
   const lang = useLang()
   const t = COPY[lang].labels
   const [missing, setMissing] = useState(false)
 
   if (!item.media) return null
+  if (missing && !import.meta.env.DEV) return null
 
-  const brief = item.media.brief?.[lang] || item.media.alt?.[lang]
+  const brief = item.media.alt?.[lang]
 
   return (
     <figure className="cs-reveal mt-14 sm:mt-16">
