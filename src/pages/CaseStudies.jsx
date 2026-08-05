@@ -139,14 +139,41 @@ export default function CaseStudiesPage() {
     // Deep link a un singolo caso (/casestudy#slug): il salto nativo del browser
     // avviene prima che ScrollSmoother esista e viene annullato dal suo init,
     // quindi ci riportiamo noi sull'ancora dopo il refresh.
-    const id = decodeURIComponent(window.location.hash.slice(1))
-    const target = id && document.getElementById(id)
-    if (target) {
-      if (smoother) smoother.scrollTo(target, false, 'top 110px')
-      else target.scrollIntoView()
+    // L'hash si rilegge a ogni chiamata e non si cattura: serve anche a
+    // hashchange, dove è cambiato proprio quello.
+    const goToAnchor = (smooth) => {
+      const id = decodeURIComponent(window.location.hash.slice(1))
+      const target = id && document.getElementById(id)
+      if (!target) return
+      if (smoother) smoother.scrollTo(target, smooth, 'top 110px')
+      else target.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto' })
+    }
+    goToAnchor(false)
+
+    // Secondo tentativo a caricamento finito. Le dimensioni dichiarate sui
+    // blueprint tengono già il posto, ma i font del display arrivano dopo e
+    // cambiano l'altezza dei titoli: su un'ancora in fondo alla pagina gli
+    // scarti si sommano. Rifare il conto una volta costa niente.
+    const onLoad = () => {
+      ScrollTrigger.refresh()
+      goToAnchor(false)
+    }
+    if (window.location.hash) {
+      window.addEventListener('load', onLoad, { once: true })
     }
 
-    return () => smoother && smoother.kill()
+    // Cambiare solo l'hash mentre la pagina è già aperta è una navigazione nello
+    // stesso documento: React non rimonta, questo effetto non rigira e il salto
+    // nativo del browser viene annullato da ScrollSmoother. Senza questo, chi è
+    // già sulla pagina e apre un link /casestudy#altro-caso non si muove.
+    const onHashChange = () => goToAnchor(true)
+    window.addEventListener('hashchange', onHashChange)
+
+    return () => {
+      window.removeEventListener('load', onLoad)
+      window.removeEventListener('hashchange', onHashChange)
+      if (smoother) smoother.kill()
+    }
   }, [])
 
   const visible =
@@ -504,6 +531,12 @@ function Blueprint({ item, light }) {
           src={item.media.src}
           alt={item.media.alt?.[lang] || item.client}
           loading="lazy"
+          // width/height dichiarati: il browser riserva l'altezza giusta prima di
+          // scaricare il file. Senza, l'immagine lazy vale zero px fino all'arrivo
+          // e il deep link a un caso più in basso atterra centinaia di pixel sopra
+          // il punto giusto.
+          width={item.media.w}
+          height={item.media.h}
           onError={() => setMissing(true)}
           className="w-full rounded-3xl border border-white/10"
         />

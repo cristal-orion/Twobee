@@ -27,6 +27,12 @@
  *   immagini NON stanno qui: sono in case-studies/_BLUEPRINT-PROMPTS.md, perché
  *   tutto ciò che sta in questo file finisce nel bundle servito ai visitatori.
  *   Finché il file manca, in sviluppo compare un segnaposto; online, niente.
+ *   `w` e `h` sono le dimensioni reali del file in pixel e NON sono opzionali:
+ *   l'immagine è lazy, e senza dimensioni dichiarate occupa zero altezza finché
+ *   non arriva. Il deep link a un'ancora più in basso (/casestudy#slug) calcola
+ *   allora una posizione che le immagini, caricandosi, spostano di centinaia di
+ *   pixel — e il link condiviso in una proposta atterra nel punto sbagliato.
+ *   Si leggono così: node -e "require('sharp')('public/case-x.webp').metadata().then(m=>console.log(m.width,m.height))"
  * - Testi bilingui: { it: '…', en: '…' }. Se l'inglese manca, mettere comunque
  *   la chiave `en` (anche uguale all'italiano) per non far crashare il render.
  * - `template: true` accende il badge "esempio": va rimosso sui progetti veri.
@@ -68,6 +74,7 @@ export const CATEGORIES = {
  *   },                                         // oppure null
  *   media: {
  *     src: '/case-nome-cliente.webp',
+ *     w: 1728, h: 558,                          // dimensioni reali del file
  *     alt: { it: 'Diagramma: …', en: 'Diagram: …' },
  *   },
  * }
@@ -118,6 +125,8 @@ export const CASES = [
     quote: null,
     media: {
       src: '/case-elettra-crm.webp',
+      w: 1728,
+      h: 558,
       alt: {
         it: 'Diagramma del ciclo di vita di una commessa in Elettra CRM: dal preventivo alla fattura, con l’avviso “da fatturare” che si accende quando arriva un ordine a fornitore.',
         en: 'Diagram of a job’s lifecycle in Elettra CRM: from quote to invoice, with the “to invoice” alert triggered by an incoming supplier order.',
@@ -164,6 +173,8 @@ export const CASES = [
     quote: null,
     media: {
       src: '/case-industrial-service-hr.webp',
+      w: 2039,
+      h: 578,
       alt: {
         it: 'Diagramma del percorso di una candidatura: dall’annuncio alle domande eliminatorie, al punteggio, fino all’avviso all’ufficio del personale.',
         en: 'Diagram of an application’s path: from the ad through knockout questions and scoring to the HR alert.',
@@ -210,6 +221,8 @@ export const CASES = [
     quote: null,
     media: {
       src: '/case-jose-prenotazioni.webp',
+      w: 1672,
+      h: 941,
       alt: {
         it: 'Diagramma delle regole di conferma di una prenotazione: dalla richiesta online o telefonica alla conferma automatica o all’approvazione del ristoratore.',
         en: 'Diagram of the booking confirmation rules: from an online or phone request to automatic confirmation or owner approval.',
