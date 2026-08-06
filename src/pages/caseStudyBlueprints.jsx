@@ -266,15 +266,37 @@ const COPY = {
       notes: ['Promemoria su WhatsApp', 'Sincronizzata con Google Calendar', 'A fine giornata: chiamate, appuntamenti, richieste'],
     },
     tharvel: {
-      ask: 'Il cliente scrive in chat',
-      askSub: '«cambia il prezzo del menù»',
-      engine: 'Tharvel',
-      branch: 'Ramo di lavoro',
-      preview: 'Anteprima dal vivo',
-      rejected: 'Non va bene: si continua a chiedere',
-      publish: 'Pubblica',
-      live: 'Sito online aggiornato',
       notes: ['Alt+click sull’elemento', 'Immagini ridimensionate da sé', 'Un solo servizio per tutti i siti'],
+      // Nomi dei siti volutamente generici: il case study non dichiara chi usa
+      // Tharvel, e l'elenco vero è la nostra lista clienti.
+      ui: {
+        live: 'Live',
+        altClick: '+ click per selezionare un elemento',
+        publish: 'Pubblica',
+        sites: 'Siti',
+        addSite: 'Aggiungi sito…',
+        siteList: [
+          { name: 'demo', kind: 'HTML' },
+          { name: 'ristorante', kind: 'Astro' },
+          { name: 'industriale', kind: 'Astro' },
+          { name: 'vending', kind: 'Astro' },
+          { name: 'studio', kind: 'Astro' },
+          { name: 'twobee', kind: 'Vite' },
+        ],
+        previewPill: 'Demo online',
+        previewTitle: 'Sito Demo',
+        previewCta: 'Pulsante di esempio',
+        chat: 'Chat',
+        connected: 'Connessa',
+        chatTitle: 'Cosa vuoi modificare?',
+        tryNow: 'Prova subito',
+        suggestions: [
+          'Cambia il testo del titolo principale',
+          'Migliora i colori del bottone CTA',
+          'Aggiungi una sezione FAQ in fondo alla pagina',
+        ],
+        inputPlaceholder: 'Modifica il sito, fai una domanda…',
+      },
     },
   },
   en: {
@@ -316,15 +338,35 @@ const COPY = {
       notes: ['WhatsApp reminder', 'Synced with Google Calendar', 'End of day: calls, bookings, requests'],
     },
     tharvel: {
-      ask: 'The client writes in a chat',
-      askSub: '“change the menu price”',
-      engine: 'Tharvel',
-      branch: 'Working branch',
-      preview: 'Live preview',
-      rejected: 'Not right: keep asking',
-      publish: 'Publish',
-      live: 'Live site updated',
       notes: ['Alt+click the element', 'Images resized on their own', 'One service for every site'],
+      ui: {
+        live: 'Live',
+        altClick: '+ click to pick an element',
+        publish: 'Publish',
+        sites: 'Sites',
+        addSite: 'Add a site…',
+        siteList: [
+          { name: 'demo', kind: 'HTML' },
+          { name: 'restaurant', kind: 'Astro' },
+          { name: 'industrial', kind: 'Astro' },
+          { name: 'vending', kind: 'Astro' },
+          { name: 'practice', kind: 'Astro' },
+          { name: 'twobee', kind: 'Vite' },
+        ],
+        previewPill: 'Live demo',
+        previewTitle: 'Demo Site',
+        previewCta: 'Example button',
+        chat: 'Chat',
+        connected: 'Connected',
+        chatTitle: 'What do you want to change?',
+        tryNow: 'Try now',
+        suggestions: [
+          'Change the main heading text',
+          'Improve the CTA button colours',
+          'Add an FAQ section at the bottom',
+        ],
+        inputPlaceholder: 'Edit the site, ask a question…',
+      },
     },
   },
 }
@@ -421,28 +463,133 @@ function SofiaBlueprint({ lang }) {
   )
 }
 
+/* Tharvel fa eccezione: al posto del diagramma di flusso c'è un facsimile del
+ * pannello vero, perché di un prodotto l'interfaccia dice più di uno schema — si
+ * vede subito che è un pannello a tre colonne, con i siti a sinistra, il sito vero
+ * al centro e la chat a destra.
+ *
+ * È l'unico blueprint con colori propri e non ereditati dal tema: rappresenta
+ * un'applicazione, che ha il suo aspetto e resta scura anche sulla sezione chiara,
+ * come una finestra appoggiata sopra. Per questo qui le utility `white/NN` non
+ * servono e i colori sono scritti a mano.
+ *
+ * I contenuti sono illustrativi di proposito: nessun nome di cliente vero
+ * nell'elenco dei siti (il case study non dichiara chi lo usa) e nessun indirizzo
+ * email, che nello screenshot originale era quello personale di Michele. */
 function TharvelBlueprint({ lang }) {
   const t = COPY[lang].tharvel
   return (
     <>
-      <Board>
-        <Flow>
-          <div className="flex flex-col items-center">
-            <Node>{t.ask}</Node>
-            <span className="mt-2 w-[13.5rem] text-center text-[10px] italic leading-snug text-white/50 xl:w-[10.5rem]">
-              {t.askSub}
-            </span>
+      <div className="overflow-hidden rounded-3xl border border-zinc-800 bg-[#0B0B0C] shadow-[0_30px_80px_-40px_rgba(0,0,0,0.8)]">
+        {/* barra superiore */}
+        <div className="flex flex-wrap items-center gap-2 border-b border-zinc-800 px-3 py-2.5 sm:gap-3 sm:px-4">
+          <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-400/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-emerald-300">
+            <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+            {t.ui.live}
+          </span>
+          <span className="text-[10px] font-semibold text-zinc-500">demo</span>
+          <span className="hidden min-w-0 flex-1 rounded-lg bg-zinc-800/70 px-3 py-1.5 text-[10px] text-zinc-500 sm:block">
+            /
+          </span>
+          <span className="hidden text-[10px] text-zinc-500 lg:inline">
+            <kbd className="rounded border border-zinc-700 px-1 py-0.5 font-sans text-[9px] text-zinc-400">
+              Alt
+            </kbd>{' '}
+            {t.ui.altClick}
+          </span>
+          <span className="ml-auto rounded-lg bg-brand-yellow px-3 py-1.5 text-[10px] font-extrabold uppercase tracking-[0.1em] text-brand-black">
+            {t.ui.publish}
+          </span>
+        </div>
+
+        <div className="flex flex-col lg:flex-row">
+          {/* colonna siti */}
+          <div className="shrink-0 border-b border-zinc-800 px-3 py-4 lg:w-44 lg:border-b-0 lg:border-r">
+            <div className="flex items-center gap-2">
+              <span className="font-display text-xs font-extrabold tracking-tight text-zinc-100">
+                Tharvel
+              </span>
+              <span className="rounded bg-brand-yellow/20 px-1.5 py-0.5 text-[9px] font-bold uppercase tracking-wider text-brand-yellow">
+                admin
+              </span>
+            </div>
+            <p className="mt-4 text-[9px] font-bold uppercase tracking-[0.18em] text-zinc-500">
+              {t.ui.sites}
+            </p>
+            <ul className="mt-2 space-y-1">
+              {t.ui.siteList.map((s, i) => (
+                <li
+                  key={s.name}
+                  className={[
+                    'flex items-center justify-between gap-2 rounded-md px-2 py-1.5 text-[10px]',
+                    i === 0 ? 'bg-zinc-800 text-zinc-100' : 'text-zinc-400',
+                  ].join(' ')}
+                >
+                  <span className="truncate">{s.name}</span>
+                  <span className="shrink-0 text-[8px] font-bold uppercase tracking-wider text-zinc-600">
+                    {s.kind}
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <p className="mt-3 px-2 text-[10px] text-zinc-500">+ {t.ui.addSite}</p>
           </div>
-          <Hex solid>{t.engine}</Hex>
-          <Node>{t.branch}</Node>
-          <div className="flex flex-col items-center">
-            <Node>{t.preview}</Node>
-            <Side>{t.rejected}</Side>
+
+          {/* anteprima del sito del cliente */}
+          <div className="min-w-0 flex-1 bg-zinc-900/50 p-4 sm:p-6">
+            <div className="rounded-xl bg-gradient-to-br from-violet-500 via-fuchsia-400 to-amber-400 p-4 sm:p-7">
+              <div className="rounded-lg bg-white p-4 text-center sm:p-6">
+                <span className="inline-block rounded-full bg-blue-100 px-2.5 py-1 text-[9px] font-bold text-blue-700">
+                  {t.ui.previewPill}
+                </span>
+                <p className="mt-3 font-display text-lg font-extrabold text-blue-600 sm:text-2xl">
+                  {t.ui.previewTitle}
+                </p>
+                <div className="mx-auto mt-3 space-y-1.5">
+                  <span className="mx-auto block h-1.5 w-4/5 rounded-full bg-slate-200" />
+                  <span className="mx-auto block h-1.5 w-3/5 rounded-full bg-slate-200" />
+                </div>
+                <div className="mt-4 h-16 rounded-md bg-slate-100 sm:h-24" />
+                <span className="mt-4 inline-block rounded-md bg-blue-600 px-4 py-2 text-[9px] font-bold text-white">
+                  {t.ui.previewCta}
+                </span>
+              </div>
+            </div>
           </div>
-          <Hex>{t.publish}</Hex>
-          <Node solid>{t.live}</Node>
-        </Flow>
-      </Board>
+
+          {/* colonna chat */}
+          <div className="shrink-0 border-t border-zinc-800 px-3 py-4 lg:w-52 lg:border-l lg:border-t-0">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold uppercase tracking-[0.14em] text-zinc-300">
+                {t.ui.chat}
+              </span>
+              <span className="inline-flex items-center gap-1 text-[9px] font-semibold text-emerald-300">
+                <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />
+                {t.ui.connected}
+              </span>
+            </div>
+            <p className="mt-4 font-display text-[11px] font-extrabold text-zinc-100">
+              {t.ui.chatTitle}
+            </p>
+            <p className="mt-3 text-[9px] font-bold uppercase tracking-[0.16em] text-zinc-500">
+              {t.ui.tryNow}
+            </p>
+            <ul className="mt-2 space-y-1.5">
+              {t.ui.suggestions.map((s) => (
+                <li
+                  key={s}
+                  className="rounded-lg border border-zinc-800 px-2.5 py-2 text-[10px] leading-snug text-zinc-400"
+                >
+                  → {s}
+                </li>
+              ))}
+            </ul>
+            <div className="mt-4 rounded-lg bg-zinc-800/70 px-2.5 py-2 text-[10px] text-zinc-500">
+              {t.ui.inputPlaceholder}
+            </div>
+          </div>
+        </div>
+      </div>
       <Notes items={t.notes} />
     </>
   )

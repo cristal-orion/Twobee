@@ -262,7 +262,11 @@ export const CASES = [
   {
     slug: 'tharvel-admin-siti',
     client: 'Tharvel',
-    logo: null,
+    logo: '/tharvel-logo.webp',
+    // Logo scuro su trasparente, non bianco come i partner-*.webp: su questa
+    // sezione chiara si legge da solo e NON va invertito. Attenzione se un
+    // giorno l'ordine dell'array sposta il caso su una sezione scura: lì
+    // sparirebbe, e `logoMono` non aiuta perché inverte, non schiarisce.
     logoMono: false,
     url: null,
     year: '2026',

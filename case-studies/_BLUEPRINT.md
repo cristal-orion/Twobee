@@ -37,3 +37,17 @@ del passo successivo, e si leggono come se il flusso passasse di lì — «scart
 prosegue», «ordine al fornitore → fatturata», cioè il contrario di quello che
 succede. Per questo esiste `<Side>`: accosta l'elemento a un lato e lascia dritta la
 linea principale.
+
+**Dove il tema NON deve entrare, le utility del tema vanno evitate.** È il rovescio
+della prima regola. Tharvel non è un diagramma ma un facsimile del pannello vero, e
+un'applicazione resta scura anche appoggiata su una sezione chiara: lì `text-white/70`
+si inverte e diventa testo scuro su fondo scuro. Dentro quel blocco si usano colori
+fissi (`zinc-*`), che nessuno ridefinisce.
+
+## Quando il diagramma non è la forma giusta
+
+Tharvel è l'eccezione: di un **prodotto** l'interfaccia dice più di uno schema — si
+vede subito che è un pannello a tre colonne, i siti a sinistra, il sito vero al centro,
+la chat a destra. I contenuti del facsimile sono illustrativi di proposito: nomi di
+siti generici (il case study non dichiara chi lo usa, e l'elenco vero è la nostra lista
+clienti) e nessun indirizzo email.
