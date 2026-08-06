@@ -310,4 +310,46 @@ export const CASES = [
       },
     },
   },
+  {
+    // Senza `blueprint` e senza voce in BLUEPRINTS: questo caso si regge sul
+    // testo, e la sezione lo gestisce da sé senza lasciare buchi.
+    slug: 'mrhatter-gestionale',
+    client: 'Mr. Hatter',
+    logo: null,
+    logoMono: false,
+    url: 'https://www.mrhatter.it/',
+    year: '2026',
+    sector: {
+      it: 'Cappelli artigianali, vendita ai negozi',
+      en: 'Handmade hats, wholesale',
+    },
+    categories: ['gestionali'],
+    headline: {
+      it: 'Un ordine di un negozio sta in un solo posto dall’inizio alla fine: cosa è stato chiesto, cosa c’è in magazzino, cosa è in lavorazione e cosa è già partito.',
+      en: 'A shop’s order lives in one place from start to finish: what was ordered, what’s in stock, what’s being made and what has already shipped.',
+    },
+    challenge: {
+      it: 'Un laboratorio che fa cappelli a mano da quattro generazioni e li vende ai negozi tiene insieme due ritmi che non vanno d’accordo: la produzione, lenta e manuale, e gli ordini, che arrivano dai rivenditori ognuno con i suoi modelli, le sue quantità e la sua data. Senza un sistema unico lo stato di un ordine vive nella testa di chi l’ha preso e su fogli sparsi: quanto materiale c’è, cosa è già in lavorazione, cosa è pronto e cosa è partito sono quattro domande con quattro risposte diverse a seconda di chi chiedi. E quando un negozio telefona per sapere quando arriva la merce, la risposta richiede che qualcuno vada a controllare a mano.',
+      en: 'A workshop making hats by hand for four generations and selling them to shops has to hold together two rhythms that don’t agree: production, slow and manual, and orders, which arrive from retailers each with its own models, quantities and date. Without a single system an order’s status lives in the head of whoever took it and on scattered sheets: how much material is left, what is already being made, what is ready and what has shipped are four questions with four different answers depending on who you ask. And when a shop calls to ask when the goods arrive, somebody has to go and check by hand.',
+    },
+    build: {
+      it: [
+        'Gli ordini dei negozi raccolti in un unico posto, ognuno con i suoi modelli e le sue quantità, e uno stato che dice sempre a che punto è.',
+        'Il magazzino collegato agli ordini: quello che c’è, quello che è impegnato per un ordine già preso e quello che manca per chiuderlo.',
+        'La produzione seguita per ordine, così si sa cosa è in lavorazione e cosa aspetta ancora di essere fatto.',
+        'L’evasione come passaggio esplicito: un ordine si prepara e si chiude, e il sistema sa distinguere ciò che è pronto da ciò che è solo finito di produrre.',
+        'Le consegne registrate sul sistema, con la data: chi ha ricevuto cosa, e quando.',
+        'Una risposta immediata alla domanda che i negozi fanno sempre — «a che punto è il mio ordine» — senza dover andare a controllare a mano.',
+      ],
+      en: [
+        'Shop orders collected in one place, each with its models and quantities, and a status that always says where it stands.',
+        'Stock tied to orders: what is there, what is committed to an order already taken, and what is missing to close it.',
+        'Production tracked per order, so it is clear what is being made and what is still waiting.',
+        'Fulfilment as an explicit step: an order is prepared and closed, and the system tells apart what is ready to go from what has merely finished production.',
+        'Deliveries recorded in the system, with the date: who received what, and when.',
+        'An immediate answer to the question shops always ask — “where is my order” — without anyone having to go and check by hand.',
+      ],
+    },
+    quote: null,
+  },
 ]
