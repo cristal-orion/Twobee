@@ -86,8 +86,6 @@ blueprint del sistema.
 - Metrica di risultato lato cliente (ore risparmiate, offerte recuperate): oggi non
   esiste da nessuna parte, va misurata dopo che il CRM è in uso reale. Quando c'è,
   è il pezzo che manca davvero a questo caso.
-- Blueprint da generare → `public/case-elettra-crm.webp`, prompt pronto in
-  `_BLUEPRINT-PROMPTS.md`.
 - Screenshot utilizzabili, se un giorno servono: con dati finti o oscurati, mai
   con quelli veri.
 - Citazione: non c'è, va chiesta a Elettra.

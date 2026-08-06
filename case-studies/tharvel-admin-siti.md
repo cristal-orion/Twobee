@@ -57,8 +57,6 @@ si toglie dall'array in un secondo.
 
 ## TODO
 
-- Blueprint da generare → `public/case-tharvel-admin-siti.webp`, prompt n. 5 in
-  `_BLUEPRINT-PROMPTS.md`.
 - Decidere se serve una demo mostrabile, o uno screenshot del pannello con un sito
   finto, prima di portare questo caso in una call commerciale.
 - Logo: ci sono `Tharvel/logo1:1.png` e `logoesteso.png`, non ancora portati in

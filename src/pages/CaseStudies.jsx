@@ -34,6 +34,7 @@ import HexBackground from '../components/HexBackground.jsx'
 import CookieBanner from '../components/CookieBanner.jsx'
 import { localePath, useLang } from '../i18n/LanguageContext.jsx'
 import { CASES, CATEGORIES } from './caseStudiesData.js'
+import { BLUEPRINTS } from './caseStudyBlueprints.jsx'
 
 gsap.registerPlugin(ScrollTrigger, ScrollSmoother, useGSAP)
 
@@ -57,8 +58,6 @@ const COPY = {
       build: 'Cosa abbiamo costruito',
       visit: 'Vedi il sito',
       template: 'Esempio — struttura da riempire',
-      blueprintPending: 'Blueprint da generare',
-      blueprintFile: 'File atteso',
     },
     empty: {
       heading: 'I primi case study stanno arrivando.',
@@ -88,8 +87,6 @@ const COPY = {
       build: 'What we built',
       visit: 'Visit the site',
       template: 'Example — layout placeholder',
-      blueprintPending: 'Blueprint to generate',
-      blueprintFile: 'Expected file',
     },
     empty: {
       heading: 'The first case studies are on their way.',
@@ -494,7 +491,7 @@ function CaseSection({ item, index, light }) {
           </div>
         </div>
 
-        <Blueprint item={item} light={light} />
+        <Blueprint item={item} />
       </div>
     </section>
   )
@@ -504,68 +501,29 @@ function CaseSection({ item, index, light }) {
 /* BLUEPRINT — il diagramma che spiega il sistema a colpo d'occhio     */
 /* ------------------------------------------------------------------ */
 
-/* L'immagine è generata a parte (AI) e va messa in public/ col nome che sta in
- * `media.src`. Il rilevamento è su `onError` dell'img: appena il file esiste,
- * appare, senza toccare il codice.
+/* Il diagramma del sistema, disegnato a codice in caseStudyBlueprints.jsx e non
+ * più un'immagine generata: essendo DOM si inverte col tema della sezione, resta
+ * nitido a ogni zoom, si legge da telefono (in colonna sotto xl) e si corregge con
+ * una Edit. Non c'è niente da caricare, quindi niente lazy loading, niente
+ * dimensioni da dichiarare e nessuno spostamento del layout che sballi il deep
+ * link a un'ancora più in basso.
  *
- * Finché il file manca, il segnaposto col brief compare SOLO in sviluppo. Serve a
- * noi — ricorda quali diagrammi restano da fare e con che prompt — ma stampa i
- * colori, il font e i "niente 3D" destinati al generatore di immagini: da quando
- * la pagina è linkata nel footer quel testo lo leggerebbe un cliente. Online il
- * caso si regge sul testo (problema + cosa abbiamo costruito) e il buco non si
- * vede nemmeno. L'elenco di cosa manca sta in case-studies/_BLUEPRINT-PROMPTS.md. */
-function Blueprint({ item, light }) {
+ * La didascalia non descrive il disegno — quello si vede — ma dice la cosa che il
+ * disegno non riesce a mostrare: la regola, la condizione, il perché. */
+function Blueprint({ item }) {
   const lang = useLang()
-  const t = COPY[lang].labels
-  const [missing, setMissing] = useState(false)
+  const Diagram = BLUEPRINTS[item.slug]
+  if (!Diagram) return null
 
-  if (!item.media) return null
-  if (missing && !import.meta.env.DEV) return null
-
-  const brief = item.media.alt?.[lang]
+  const caption = item.blueprint?.caption?.[lang]
 
   return (
     <figure className="cs-reveal mt-14 sm:mt-16">
-      {!missing && (
-        <img
-          src={item.media.src}
-          alt={item.media.alt?.[lang] || item.client}
-          loading="lazy"
-          // width/height dichiarati: il browser riserva l'altezza giusta prima di
-          // scaricare il file. Senza, l'immagine lazy vale zero px fino all'arrivo
-          // e il deep link a un caso più in basso atterra centinaia di pixel sopra
-          // il punto giusto.
-          width={item.media.w}
-          height={item.media.h}
-          onError={() => setMissing(true)}
-          className="w-full rounded-3xl border border-white/10"
-        />
-      )}
-
-      {missing && (
-        <div
-          className={[
-            'flex min-h-[240px] flex-col items-center justify-center rounded-3xl border-2 border-dashed p-8 text-center sm:min-h-[320px] sm:p-12',
-            light
-              ? 'border-brand-yellow/60 bg-brand-yellow/10'
-              : 'border-brand-yellow/40 bg-brand-yellow/[0.05]',
-          ].join(' ')}
-        >
-          <span
-            aria-hidden
-            className="h-4 w-4 bg-brand-yellow"
-            style={{ clipPath: HEX_CLIP }}
-          />
-          <span className="mt-4 text-[11px] font-bold uppercase tracking-[0.25em] text-white/60">
-            {t.blueprintPending}
-          </span>
-          <p className="mt-4 max-w-2xl text-sm leading-relaxed text-white/75 sm:text-base">
-            {brief}
-          </p>
-          <code className="mt-5 rounded-full border border-white/10 bg-white/[0.05] px-3 py-1.5 text-[11px] font-semibold text-white/60">
-            {t.blueprintFile}: public{item.media.src}
-          </code>
-        </div>
+      <Diagram lang={lang} />
+      {caption && (
+        <figcaption className="mx-auto mt-6 max-w-2xl text-center text-sm leading-relaxed text-white/60">
+          {caption}
+        </figcaption>
       )}
     </figure>
   )

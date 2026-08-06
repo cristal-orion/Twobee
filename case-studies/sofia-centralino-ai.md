@@ -60,8 +60,6 @@ pagina, quindi non serve il consenso di nessuno.
 
 ## TODO
 
-- Blueprint da generare → `public/case-sofia-centralino-ai.webp`, prompt n. 4 in
-  `_BLUEPRINT-PROMPTS.md`.
 - Logo: in pagina non c'è (`logo: null`). Il wordmark SofIA ha "Sof" in inchiostro
   scuro e "IA" in corallo: sulla sezione scura la prima metà sparirebbe. Se lo
   vogliamo, serve una variante chiara — non basta `logoMono`, che inverte tutto.

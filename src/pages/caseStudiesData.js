@@ -10,8 +10,9 @@
  * Cosa NON c'è, per scelta (2026-08-05): niente metriche e niente stack
  * tecnologico. I numeri di risultato non li abbiamo dai clienti e non si
  * inventano; lo stack non vende — al lettore interessa il problema e come
- * l'abbiamo risolto. Ogni caso porta invece un **blueprint**: un diagramma
- * generato che mostra il sistema a colpo d'occhio.
+ * l'abbiamo risolto. Ogni caso porta invece un **blueprint**: un diagramma che
+ * mostra il sistema a colpo d'occhio, disegnato a codice in
+ * ./caseStudyBlueprints.jsx e associato lì allo slug del caso.
  *
  * Regole di compilazione:
  * - `slug`: diventa l'ancora della sezione (/casestudy#slug) e finisce nei link
@@ -21,18 +22,11 @@
  * - `logo`: file in public/. `logoMono: true` se il logo è monocromatico (i
  *   partner-*.webp sono bianchi pieni): serve a invertirlo sulle sezioni chiare,
  *   dove altrimenti sparisce. Logo a colori → `logoMono: false`.
- * - `media`: il blueprint. `src` è il file atteso in public/ (anche se non esiste
- *   ancora), `alt` il testo per l'accessibilità — che è anche la descrizione del
- *   diagramma, quindi va scritto in italiano leggibile. I prompt per generare le
- *   immagini NON stanno qui: sono in case-studies/_BLUEPRINT-PROMPTS.md, perché
- *   tutto ciò che sta in questo file finisce nel bundle servito ai visitatori.
- *   Finché il file manca, in sviluppo compare un segnaposto; online, niente.
- *   `w` e `h` sono le dimensioni reali del file in pixel e NON sono opzionali:
- *   l'immagine è lazy, e senza dimensioni dichiarate occupa zero altezza finché
- *   non arriva. Il deep link a un'ancora più in basso (/casestudy#slug) calcola
- *   allora una posizione che le immagini, caricandosi, spostano di centinaia di
- *   pixel — e il link condiviso in una proposta atterra nel punto sbagliato.
- *   Si leggono così: node -e "require('sharp')('public/case-x.webp').metadata().then(m=>console.log(m.width,m.height))"
+ * - `blueprint.caption`: la riga sotto il diagramma. NON descrive il disegno —
+ *   quello si vede — ma dice la cosa che il disegno non riesce a mostrare: la
+ *   regola, la condizione, il perché. Il diagramma vero e proprio è un componente
+ *   in ./caseStudyBlueprints.jsx, associato allo slug: un caso senza voce lì non
+ *   mostra nessun blueprint e si regge sul testo, senza rompersi.
  * - Testi bilingui: { it: '…', en: '…' }. Se l'inglese manca, mettere comunque
  *   la chiave `en` (anche uguale all'italiano) per non far crashare il render.
  * - `template: true` accende il badge "esempio": va rimosso sui progetti veri.
@@ -72,11 +66,9 @@ export const CATEGORIES = {
  *     author: 'Nome Cognome',
  *     role: { it: 'Titolare', en: 'Owner' },
  *   },                                         // oppure null
- *   media: {
- *     src: '/case-nome-cliente.webp',
- *     w: 1728, h: 558,                          // dimensioni reali del file
- *     alt: { it: 'Diagramma: …', en: 'Diagram: …' },
- *   },
+ *   blueprint: {
+ *     caption: { it: 'La regola che il disegno non mostra.', en: '…' },
+ *   },                                         // + un componente in caseStudyBlueprints.jsx
  * }
  * -------------------------------------------------------------------------- */
 
@@ -123,13 +115,10 @@ export const CASES = [
       ],
     },
     quote: null,
-    media: {
-      src: '/case-elettra-crm.webp',
-      w: 1728,
-      h: 558,
-      alt: {
-        it: 'Diagramma del ciclo di vita di una commessa in Elettra CRM: dal preventivo alla fattura, con l’avviso “da fatturare” che si accende quando arriva un ordine a fornitore.',
-        en: 'Diagram of a job’s lifecycle in Elettra CRM: from quote to invoice, with the “to invoice” alert triggered by an incoming supplier order.',
+    blueprint: {
+      caption: {
+        it: 'Appena una commessa ha un ordine a fornitore collegato resta segnata «da fatturare»: l’avviso si spegne soltanto quando la fattura parte.',
+        en: 'As soon as a job has a supplier order attached it stays flagged “to invoice”: the alert switches off only when the invoice goes out.',
       },
     },
   },
@@ -171,13 +160,10 @@ export const CASES = [
       ],
     },
     quote: null,
-    media: {
-      src: '/case-industrial-service-hr.webp',
-      w: 2039,
-      h: 578,
-      alt: {
-        it: 'Diagramma del percorso di una candidatura: dall’annuncio alle domande eliminatorie, al punteggio, fino all’avviso all’ufficio del personale.',
-        en: 'Diagram of an application’s path: from the ad through knockout questions and scoring to the HR alert.',
+    blueprint: {
+      caption: {
+        it: 'Chi non ha un requisito obbligatorio esce subito, e con una risposta. In ufficio arrivano solo i profili sopra la soglia, già ordinati per punteggio.',
+        en: 'Whoever lacks a mandatory requirement is out at once, and with a reply. Only the profiles above the threshold reach the office, already sorted by score.',
       },
     },
   },
@@ -219,13 +205,10 @@ export const CASES = [
       ],
     },
     quote: null,
-    media: {
-      src: '/case-jose-prenotazioni.webp',
-      w: 1672,
-      h: 941,
-      alt: {
-        it: 'Diagramma delle regole di conferma di una prenotazione: dalla richiesta online o telefonica alla conferma automatica o all’approvazione del ristoratore.',
-        en: 'Diagram of the booking confirmation rules: from an online or phone request to automatic confirmation or owner approval.',
+    blueprint: {
+      caption: {
+        it: 'Sala libera e tavolo piccolo si confermano da soli; oltre la soglia la richiesta aspetta il ristoratore. In tutti e due i casi finisce nello stesso calendario.',
+        en: 'A free room and a small table confirm themselves; past the threshold the request waits for the owner. Either way it lands in the same calendar.',
       },
     },
   },
@@ -269,11 +252,10 @@ export const CASES = [
       ],
     },
     quote: null,
-    media: {
-      src: '/case-sofia-centralino-ai.webp',
-      alt: {
-        it: 'Diagramma del percorso di una chiamata: dallo squillo alla risposta dell’assistente, fino all’appuntamento in agenda e al promemoria su WhatsApp.',
-        en: 'Diagram of a call’s path: from the ring to the assistant’s answer, through to the appointment in the calendar and the WhatsApp reminder.',
+    blueprint: {
+      caption: {
+        it: 'Telefono, chat e WhatsApp arrivano allo stesso assistente e finiscono nella stessa agenda: chi chiama alle nove di sera trova risposta come alle nove di mattina.',
+        en: 'Phone, chat and WhatsApp reach the same assistant and end up in the same diary: whoever calls at nine in the evening is answered just as at nine in the morning.',
       },
     },
   },
@@ -317,11 +299,10 @@ export const CASES = [
       ],
     },
     quote: null,
-    media: {
-      src: '/case-tharvel-admin-siti.webp',
-      alt: {
-        it: 'Diagramma del flusso di una modifica: dalla richiesta in chat all’anteprima sul ramo di lavoro, fino alla pubblicazione sul sito vero.',
-        en: 'Diagram of an edit’s flow: from the chat request to the preview on the working branch, through to publishing on the live site.',
+    blueprint: {
+      caption: {
+        it: 'Finché il cliente non preme «Pubblica» le modifiche restano sul ramo di lavoro: il sito online non cambia, e non si può rompere per sbaglio.',
+        en: 'Until the client hits “Publish” the changes stay on the working branch: the live site does not change, and cannot break by accident.',
       },
     },
   },

@@ -45,7 +45,8 @@ metriche:    - VALORE — etichetta breve   (max 4, solo numeri confermabili)
 
 citazione:   testo + nome + ruolo, se ce n'è una vera. Altrimenti ometti.
 
-media:       percorso di screenshot/immagini utilizzabili, se ci sono
+blueprint:   la regola che il diagramma non riesce a mostrare (una riga).
+             Il diagramma si disegna a codice, vedi _BLUEPRINT.md
 
 pubblicabile: sì / no + perché
 TODO:        cosa manca e chi lo sa
