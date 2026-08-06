@@ -57,7 +57,7 @@ function Flow({ children }) {
 function FlowStep({ children, last }) {
   return (
     <>
-      <div className="flex shrink-0 flex-col items-center xl:justify-center">
+      <div className="flex shrink-0 flex-col items-center xl:min-w-0 xl:flex-1 xl:justify-center">
         {children}
       </div>
       {!last && <Arrow />}
@@ -72,7 +72,7 @@ function Arrow() {
     <svg
       aria-hidden
       viewBox="0 0 24 24"
-      className="h-5 w-5 shrink-0 rotate-90 self-center text-brand-yellow xl:mx-2 xl:mt-11 xl:h-6 xl:w-6 xl:rotate-0 xl:self-start"
+      className="h-5 w-5 shrink-0 rotate-90 self-center text-brand-yellow xl:mx-1.5 xl:mt-11 xl:h-6 xl:w-6 xl:rotate-0 xl:self-start"
       fill="none"
     >
       <path
@@ -91,7 +91,7 @@ function Node({ children, solid, className = '' }) {
   return (
     <div
       className={[
-        'flex min-h-[3.5rem] w-[13.5rem] items-center justify-center rounded-2xl px-3 py-2.5 text-center font-display text-[11px] font-extrabold uppercase leading-tight tracking-[0.08em] sm:text-xs xl:h-28 xl:w-[10.5rem]',
+        'flex min-h-[3.5rem] w-[13.5rem] items-center justify-center rounded-2xl px-3 py-2.5 text-center font-display text-[11px] font-extrabold uppercase leading-tight tracking-[0.08em] sm:text-xs xl:h-28 xl:w-full xl:px-2',
         solid
           ? 'bg-brand-yellow text-brand-black'
           : 'border border-brand-yellow/50 bg-white/[0.04] text-white/80',
@@ -110,7 +110,7 @@ function Hex({ children, solid, sub }) {
     <div className="flex flex-col items-center">
       <div
         className={[
-          'flex h-[7.5rem] w-[13.5rem] items-center justify-center px-6 text-center font-display text-[11px] font-extrabold uppercase leading-tight tracking-[0.08em] sm:text-xs xl:h-28 xl:w-[11.5rem]',
+          'flex h-[7.5rem] w-[13.5rem] items-center justify-center px-6 text-center font-display text-[11px] font-extrabold uppercase leading-tight tracking-[0.08em] sm:text-xs xl:h-28 xl:w-full xl:px-3',
           solid ? 'text-brand-black' : 'text-white/80',
         ].join(' ')}
         style={
@@ -164,10 +164,10 @@ function Side({ children, sub, tone = 'muted', align = 'end' }) {
         aria-hidden
         className="block h-px w-6 shrink-0 border-t border-dashed border-white/10 xl:h-6 xl:w-px xl:border-l xl:border-t-0"
       />
-      <div className="flex flex-col items-center xl:mt-3">
+      <div className="flex flex-col items-center xl:mt-3 xl:w-full">
         <div
           className={[
-            'w-[11rem] rounded-2xl px-3 py-2.5 text-center font-display text-[10px] font-bold uppercase leading-tight tracking-[0.08em] xl:w-[10.5rem]',
+            'w-[11rem] rounded-2xl px-3 py-2.5 text-center font-display text-[10px] font-bold uppercase leading-tight tracking-[0.08em] xl:w-full',
             box,
           ].join(' ')}
         >
@@ -187,11 +187,11 @@ function Side({ children, sub, tone = 'muted', align = 'end' }) {
  * ingressi di Josè): resta in colonna a ogni larghezza, sono voci di un elenco. */
 function Branch({ items }) {
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-2 xl:w-full">
       {items.map((label) => (
         <div
           key={label}
-          className="w-[13.5rem] rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-center font-display text-[10px] font-bold uppercase tracking-[0.08em] text-white/70 xl:w-[10.5rem]"
+          className="w-[13.5rem] rounded-xl border border-white/10 bg-white/[0.04] px-3 py-2 text-center font-display text-[10px] font-bold uppercase tracking-[0.08em] text-white/70 xl:w-full"
         >
           {label}
         </div>
