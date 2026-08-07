@@ -246,8 +246,40 @@ function MainSite() {
     window.addEventListener('resize', setupPins)
 
     ScrollTrigger.refresh()
+
+    // Deep link a una sezione della home — /#contatti da /casestudy, dalla
+    // navbar di una sottopagina, da un link in una proposta. Il salto nativo del
+    // browser avviene prima che ScrollSmoother esista e viene annullato dal suo
+    // init: senza questo si atterra in cima alla home, a undicimila pixel dal
+    // form. Il click DALLA home invece funziona da sé (l'hash cambia a smoother
+    // già avviato), quindi qui non serve un listener su hashchange.
+    //
+    // L'hash si rilegge dentro la funzione e non si cattura fuori: al secondo
+    // giro, dopo il load, potrebbe essere cambiato.
+    const goToAnchor = () => {
+      const id = decodeURIComponent(window.location.hash.slice(1))
+      const target = id && document.getElementById(id)
+      if (!target) return
+      if (smoother) smoother.scrollTo(target, false, 'top top')
+      else target.scrollIntoView()
+    }
+    goToAnchor()
+
+    // Secondo tentativo a caricamento finito: i font del display e le immagini
+    // sopra la sezione cambiano l'altezza della pagina, e su un'ancora in fondo
+    // come #contatti gli scarti si sommano. Le sezioni in pin lo rendono ancora
+    // più sensibile, quindi si rifà il conto.
+    const onLoad = () => {
+      ScrollTrigger.refresh()
+      goToAnchor()
+    }
+    if (window.location.hash) {
+      window.addEventListener('load', onLoad, { once: true })
+    }
+
     return () => {
       window.removeEventListener('resize', setupPins)
+      window.removeEventListener('load', onLoad)
       pinTriggers.forEach((t) => t.kill())
       smoother && smoother.kill()
     }
