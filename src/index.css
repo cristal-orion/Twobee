@@ -9,6 +9,12 @@
     --theme-fg: color-mix(in srgb, #FFFFFF, #0B0B0C calc(var(--theme-t) * 100%));
     --hex-accent: #FFC501;
     --hex-stroke: color-mix(in srgb, #FFC501 calc(32% + var(--theme-t) * 48%), transparent);
+    /* Giallo del marchio come COLORE DEL TESTO. Su fondo scuro è il giallo
+     * pieno; le sezioni chiare lo ridefiniscono su un oro scuro (LIGHT_VARS in
+     * CaseStudies.jsx), perché #FFC501 su bianco sta a 1,6:1 e non si legge a
+     * nessuna dimensione. Il giallo pieno come SFONDO invece resta #FFC501
+     * ovunque: con testo nero sopra funziona su entrambi i fondi. */
+    --theme-accent: #FFC501;
   }
   body {
     font-family: 'Inter', system-ui, sans-serif;
@@ -41,6 +47,10 @@
   .bg-white\/\[0\.05\] { background-color: color-mix(in srgb, var(--theme-fg) 5%, transparent); }
   .bg-white\/\[0\.06\] { background-color: color-mix(in srgb, var(--theme-fg) 6%, transparent); }
   .bg-white\/\[0\.07\] { background-color: color-mix(in srgb, var(--theme-fg) 7%, transparent); }
+
+  .text-accent { color: var(--theme-accent); }
+  .border-accent { border-color: var(--theme-accent); }
+  .bg-accent { background-color: var(--theme-accent); }
 
   .text-outlined {
     -webkit-text-stroke: 1px rgba(0, 0, 0, 0.8);

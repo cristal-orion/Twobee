@@ -76,10 +76,17 @@ pagina su `/casestudy#elettra-crm`, primo della lista. La pagina è online ma fu
 dall'indice (`noindex`, vedi `NOINDEX_PATHS` in `src/App.jsx`): si condivide via
 link, non la si trova cercando.
 
-Nota su come è finito in pagina: le **metriche non ci sono più**, per nessun caso.
-I numeri qui sotto restano validi ma sono fatti della migrazione, non risultati per
-il cliente, e da soli si leggevano come risultati. Al loro posto ogni caso porta un
-blueprint del sistema.
+Nota su come è finito in pagina (2026-08-06): la sezione è stata rifatta come scheda
+a due colonne, vedi `_STRUTTURA.md`. Il diagramma di flusso non c'è più — è diventato
+il blocco «Come funziona» a quattro tappe — e i numeri qui sotto stanno in «Risultati
+chiave», tre schede in cima alla colonna di destra: 1.044 aziende, 8,6 M€ di offerte
+(con dentro le 723 commesse e la quadratura), e la commessa da fatturare sempre
+visibile. Sotto c'è la riga che dichiara cosa sono: fatti della migrazione contati sul
+sistema, non stime di risparmio. Era l'etichetta che mancava il 2026-08-05, quando le
+metriche erano state tolte perché nude si leggevano come risultati del cliente.
+
+Manca «La prova»: serve uno screenshot della dashboard **con dati finti**, mai quelli
+veri.
 
 ## TODO
 

@@ -7,14 +7,41 @@
  * L'ORDINE DELL'ARRAY È L'ORDINE IN PAGINA. Va tenuto per forza, non per data:
  * il caso più convincente in cima, perché è l'unico che leggono tutti.
  *
- * Cosa NON c'è, per scelta (2026-08-05): niente metriche e niente stack
- * tecnologico. I numeri di risultato non li abbiamo dai clienti e non si
- * inventano; lo stack non vende — al lettore interessa il problema e come
- * l'abbiamo risolto. Ogni caso porta invece un **blueprint**: un diagramma che
- * mostra il sistema a colpo d'occhio, disegnato a codice in
- * ./caseStudyBlueprints.jsx e associato lì allo slug del caso.
+ * ── LA SCHEDA (rifatta il 2026-08-06 sul modello mandato da Marco) ───────────
+ * Ogni caso è una scheda a due colonne. A sinistra chi è il cliente e cosa gli
+ * abbiamo cambiato; a destra cinque blocchi, sempre in quest'ordine:
  *
- * Regole di compilazione:
+ *   1. RISULTATI CHIAVE   `results` — 3 schede: icona, titolo, una riga.
+ *   2. PRIMA → DOPO       `before` / `after` — 3 voci per lato, 2-4 parole.
+ *   3. COME FUNZIONA      `steps` — 4 tappe numerate con icona.
+ *   4. LA PROVA           `proof` — una schermata del sistema. Facoltativa.
+ *   5. CITAZIONE          `quote` — se ce l'abbiamo. Accanto le sta la CTA.
+ *
+ * Prima c'erano un paragrafo «Il problema» e un elenco «Cosa abbiamo costruito»:
+ * 350 parole a caso che non leggeva nessuno. Adesso quel contenuto è distribuito
+ * fra Prima→Dopo (il problema) e Come funziona (il costruito), in un decimo dello
+ * spazio. La versione lunga NON è persa: sta nei brief in case-studies/*.md, ed è
+ * da lì che si pesca per una proposta commerciale.
+ *
+ * ── LUNGHEZZA. Non è un suggerimento, è la forma del blocco ──────────────────
+ *   headline            10-14 parole. Da cosa a cosa.
+ *   results[].title     2-5 parole. results[].body una riga, max 8 parole.
+ *   before/after        2-4 parole a voce. Sono etichette, non frasi.
+ *   steps[].title       1-2 parole. steps[].body una riga, max 7 parole.
+ * Se una cosa non ci sta, non ci sta: va nel brief, non qui.
+ *
+ * ── I NUMERI ────────────────────────────────────────────────────────────────
+ * Due regole che non si toccano, ereditate dal giro precedente:
+ *   1. in `results` un numero ci va solo se è verificabile sul sistema o
+ *      confermato per iscritto dal cliente. Niente stime.
+ *   2. valori inventati → `resultsDraft: true`, che in pagina accende il badge
+ *      «numeri di esempio» e le schede tratteggiate. Il flag si toglie insieme
+ *      ai valori finti, mai da solo: la pagina gira come link nelle proposte, e
+ *      un numero inventato sotto il logo di un cliente vero si legge come vero.
+ * Una scheda `results` senza numeri va benissimo — dice cosa fa il sistema, e
+ * nessuno la scambia per una statistica.
+ *
+ * ── ALTRE REGOLE ────────────────────────────────────────────────────────────
  * - `slug`: diventa l'ancora della sezione (/casestudy#slug) e finisce nei link
  *   che mandiamo in giro → una volta pubblicato NON si cambia più.
  * - `categories`: chiavi di CATEGORIES. Guidano i filtri in cima alla pagina:
@@ -22,11 +49,10 @@
  * - `logo`: file in public/. `logoMono: true` se il logo è monocromatico (i
  *   partner-*.webp sono bianchi pieni): serve a invertirlo sulle sezioni chiare,
  *   dove altrimenti sparisce. Logo a colori → `logoMono: false`.
- * - `blueprint.caption`: la riga sotto il diagramma. NON descrive il disegno —
- *   quello si vede — ma dice la cosa che il disegno non riesce a mostrare: la
- *   regola, la condizione, il perché. Il diagramma vero e proprio è un componente
- *   in ./caseStudyBlueprints.jsx, associato allo slug: un caso senza voce lì non
- *   mostra nessun blueprint e si regge sul testo, senza rompersi.
+ * - `meta`: la riga «Settore · Durata · Sistema» del pannello di sinistra. È un
+ *   array: una voce che non sappiamo si omette, non si inventa.
+ * - `icon`: un nome da caseStudyIcons.jsx. Un nome sbagliato non disegna niente
+ *   e non rompe la pagina, ma controlla ICON_NAMES prima di inventarne uno.
  * - Testi bilingui: { it: '…', en: '…' }. Se l'inglese manca, mettere comunque
  *   la chiave `en` (anche uguale all'italiano) per non far crashare il render.
  * - `template: true` accende il badge "esempio": va rimosso sui progetti veri.
@@ -53,22 +79,44 @@ export const CATEGORIES = {
  *   logoMono: true,                            // logo monocromatico → invertibile
  *   url: 'https://sitodelcliente.it',          // oppure null
  *   year: '2026',
- *   sector: { it: 'Settore', en: 'Industry' },
  *   categories: ['crm', 'automazioni'],
- *   headline: { it: 'Una riga: cosa è cambiato.', en: 'One line: what changed.' },
- *   challenge: { it: 'Il problema di partenza.', en: 'The starting problem.' },
- *   build: {
- *     it: ['Cosa abbiamo costruito, un punto per pezzo del sistema.'],
- *     en: ['What we built, one bullet per piece of the system.'],
- *   },
+ *   kicker: { it: 'CRM / Gestionale', en: '…' },   // riga gialla in cima
+ *   headline: { it: 'Da cosa a cosa.', en: 'From what to what.' },
+ *   meta: [
+ *     { label: { it: 'Settore', en: 'Industry' }, value: { it: '…', en: '…' } },
+ *     { label: { it: 'Sistema', en: 'System' }, value: { it: '…', en: '…' } },
+ *   ],
+ *   results: [                                 // esattamente 3
+ *     {
+ *       icon: 'clock',
+ *       title: { it: 'Titolo breve', en: 'Short title' },
+ *       body: { it: 'Una riga.', en: 'One line.' },
+ *     },
+ *   ],
+ *   resultsNote: { it: 'Che numeri sono.', en: '…' },   // solo se ci sono cifre
+ *   resultsDraft: true,                        // solo se i valori sono finti
+ *   before: { it: ['Voce', 'Voce', 'Voce'], en: [...] },
+ *   after: { it: ['Voce', 'Voce', 'Voce'], en: [...] },
+ *   steps: [                                   // esattamente 4
+ *     {
+ *       icon: 'doc',
+ *       title: { it: 'Tappa', en: 'Step' },
+ *       body: { it: 'Una riga.', en: 'One line.' },
+ *     },
+ *   ],
+ *   proof: {
+ *     images: [                                // 1 sola → piena larghezza
+ *       { src: '/casestudy-nome.webp', alt: { it: '…', en: '…' },
+ *         width: 1320, height: 996 },          // 2 → affiancate da lg
+ *     ],
+ *   },                                         // oppure { component: 'tharvel' }
+ *                                              // oppure omesso: niente blocco
  *   quote: {
  *     text: { it: 'Parole del cliente.', en: 'Client’s words.' },
  *     author: 'Nome Cognome',
+ *     authorUrl: 'https://www.linkedin.com/in/…',   // facoltativo
  *     role: { it: 'Titolare', en: 'Owner' },
  *   },                                         // oppure null
- *   blueprint: {
- *     caption: { it: 'La regola che il disegno non mostra.', en: '…' },
- *   },                                         // + un componente in caseStudyBlueprints.jsx
  * }
  * -------------------------------------------------------------------------- */
 
@@ -80,47 +128,107 @@ export const CASES = [
     logoMono: true,
     url: 'https://elettragroup.it',
     year: '2026',
-    sector: { it: 'Impiantistica su commessa', en: 'Contract installations' },
     categories: ['crm', 'gestionali', 'ai'],
+    kicker: { it: 'CRM / Gestionale', en: 'CRM / Business software' },
     headline: {
-      it: 'Preventivi, ordini ai fornitori e cantieri in un unico sistema, che dice subito quali lavori sono stati comprati e mai fatturati.',
-      en: 'Quotes, supplier orders and job sites in one system that immediately shows which jobs were bought for and never invoiced.',
+      it: 'Da commesse frammentate a un unico controllo su ordini, acquisti e fatturazione',
+      en: 'From scattered jobs to one grip on orders, purchases and invoicing',
     },
-    challenge: {
-      it: 'Offerte, ordini e anagrafiche vivevano su fogli Excel separati, e la stessa azienda compariva con tre codici diversi a seconda che fosse cliente, fornitore o luogo di consegna: la stessa partita IVA arrivava a ripetersi cinque volte. Da qui nasceva il buco che pesa di più su chi lavora su commessa: materiale acquistato per un lavoro che poi nessuno fattura. Nessuno sapeva dire, in un colpo d’occhio, quali commesse avessero già generato acquisti e non fossero ancora state fatturate. E il prezzo pagato l’ultima volta per un materiale era sepolto nelle righe degli ordini, irrecuperabile prima di trattare col fornitore.',
-      en: 'Quotes, orders and contacts lived in separate Excel files, and the same company appeared under three different codes depending on whether it was a client, a supplier or a delivery site: the same VAT number could repeat five times. That created the gap that hurts contract businesses most: material bought for a job nobody ever invoices. No one could tell at a glance which jobs had already generated purchases and had not been invoiced yet. And the price last paid for a material was buried in order lines, out of reach right when it was time to negotiate.',
-    },
-    build: {
-      it: [
-        'Una sola scheda per azienda, valida sia come cliente sia come fornitore: i tre codici della stessa impresa uniti in un record, invece di tre anagrafiche da tenere allineate a mano.',
-        'Il ciclo di vita della commessa come un percorso a stati — dalla richiesta al preventivo, all’ordine, al cantiere, al consuntivo, alla fattura — con numerazione automatica.',
-        'Il presidio contro il buco: appena una commessa ha un ordine a fornitore collegato, passa a consuntivo e resta nell’elenco “da fatturare” finché non viene fatturata.',
-        'Lo storico prezzi dei materiali ricavato dagli ordini reali — minimo, medio, massimo e ultimo prezzo al netto dello sconto — così chi compra sa a quanto ha pagato prima di trattare.',
-        'Il catalogo materiali che si compila da sé: si carica la scheda tecnica in PDF, l’AI estrae marca, categoria e dati tecnici, il PDF resta allegato.',
-        'I documenti di ogni commessa in un unico archivio, con accesso e download filtrati per ruolo.',
-        'Le statistiche che servono a chi decide: quante offerte si trasformano in ordini, da quanti giorni sono in attesa quelle aperte, quanto è entrato mese per mese, e la stessa lettura per singolo cliente.',
-        'I cantieri con l’avanzamento calcolato dalle tappe completate e le squadre assegnate.',
-        'Un assistente interno che risponde sui dati del CRM rispettando i permessi di chi chiede, e compila una scheda cliente partendo dalla visura.',
-      ],
-      en: [
-        'One record per company, valid as both client and supplier: the three codes of the same business merged into one, instead of three contact cards to keep in sync by hand.',
-        'The job lifecycle as a path of states — request, quote, order, site work, final accounting, invoice — with automatic numbering.',
-        'The safeguard against the gap: as soon as a job has a linked supplier order, it moves to final accounting and stays on the “to invoice” list until it is invoiced.',
-        'Material price history derived from real orders — lowest, average, highest and latest price net of discount — so whoever buys knows what they paid before negotiating.',
-        'A material catalogue that fills itself in: upload the technical datasheet as a PDF, AI extracts brand, category and specs, the PDF stays attached.',
-        'Every job’s documents in one archive, with access and downloads filtered by role.',
-        'The figures decision-makers need: how many quotes turn into orders, how long open ones have been waiting, what came in month by month, and the same view per client.',
-        'Job sites with progress calculated from completed milestones and assigned crews.',
-        'An internal assistant that answers questions on the CRM data respecting each user’s permissions, and fills in a client record from the company registry extract.',
-      ],
-    },
-    quote: null,
-    blueprint: {
-      caption: {
-        it: 'Appena una commessa ha un ordine a fornitore collegato resta segnata «da fatturare»: l’avviso si spegne soltanto quando la fattura parte.',
-        en: 'As soon as a job has a supplier order attached it stays flagged “to invoice”: the alert switches off only when the invoice goes out.',
+    meta: [
+      {
+        label: { it: 'Settore', en: 'Industry' },
+        value: { it: 'Impiantistica su commessa', en: 'Contract installations' },
       },
+      {
+        label: { it: 'Sistema', en: 'System' },
+        value: { it: 'CRM + gestionale su misura', en: 'CRM + custom business software' },
+      },
+      // TODO durata: nel brief non c'è, e non si inventa. Michele la sa.
+    ],
+    /* Numeri della migrazione, contati sul sistema (case-studies/elettra-crm.md).
+     * Manca ancora una metrica di risultato lato cliente — ore recuperate,
+     * offerte salvate — perché nessuno l'ha misurata: si misura dopo un anno
+     * pieno di uso. Fino ad allora `resultsNote` dice che numeri sono questi. */
+    results: [
+      {
+        icon: 'merge',
+        title: { it: '1.044 aziende in una scheda sola', en: '1,044 companies on one record' },
+        body: { it: 'Erano 3.243 schede duplicate.', en: 'They were 3,243 duplicate cards.' },
+      },
+      {
+        icon: 'database',
+        title: { it: '8,6 M€ di offerte migrate', en: '€8.6M in quotes migrated' },
+        body: {
+          it: '723 commesse, quadratura al centesimo.',
+          en: '723 jobs, reconciled to the cent.',
+        },
+      },
+      {
+        icon: 'eye',
+        title: {
+          it: 'Commesse da fatturare subito visibili',
+          en: 'Jobs to invoice visible at once',
+        },
+        body: {
+          it: 'Nessun lavoro comprato e dimenticato.',
+          en: 'No job bought for and then forgotten.',
+        },
+      },
+    ],
+    resultsNote: {
+      it: 'Numeri della migrazione, contati sul sistema: fatti, non stime di risparmio.',
+      en: 'Migration figures, counted on the system: facts, not estimated savings.',
     },
+    before: {
+      it: ['Dati sparsi su più Excel', 'Acquisti scollegati dalle commesse', 'Fatturazione poco visibile'],
+      en: ['Data scattered across spreadsheets', 'Purchases detached from jobs', 'Invoicing hard to see'],
+    },
+    after: {
+      it: ['Un flusso unico', 'Controllo in tempo reale', 'Storico ordini centralizzato'],
+      en: ['One single flow', 'Real-time control', 'Order history in one place'],
+    },
+    steps: [
+      {
+        icon: 'doc',
+        title: { it: 'Richiesta', en: 'Request' },
+        body: { it: 'Esigenze e documenti iniziali.', en: 'Requirements and first documents.' },
+      },
+      {
+        icon: 'calculator',
+        title: { it: 'Preventivo', en: 'Quote' },
+        body: { it: 'Preventivazione rapida e tracciata.', en: 'Quoted fast and tracked.' },
+      },
+      {
+        icon: 'briefcase',
+        title: { it: 'Commessa', en: 'Job' },
+        body: { it: 'Diventa commessa e si pianifica.', en: 'Becomes a job and gets planned.' },
+      },
+      {
+        icon: 'cart',
+        title: { it: 'Acquisti e fattura', en: 'Purchases and invoice' },
+        body: { it: 'Acquisti controllati, fatture generate.', en: 'Purchases checked, invoices issued.' },
+      },
+    ],
+    /* Il cruscotto vero. Nomi cliente, PM e utente in sidebar erano già oscurati
+     * nell'export; «Ciao, Fabio» resta in chiaro di proposito, perché Fabio Greco
+     * firma la testimonianza qui sotto col link al suo profilo — nasconderlo lì e
+     * nominarlo qui sarebbe incoerente. */
+    proof: {
+      images: [
+        {
+          src: '/casestudy-elettra-dashboard.webp',
+          alt: {
+            it: 'Il cruscotto del CRM: 1043 clienti, 1044 fornitori, 8.623.037,50 € di valore offerto, e la pipeline delle 723 commesse divisa per stato.',
+            en: 'The CRM dashboard: 1,043 clients, 1,044 suppliers, €8,623,037.50 in quoted value, and the pipeline of 723 jobs split by state.',
+          },
+          width: 1320,
+          height: 996,
+        },
+      ],
+    },
+    // TODO testimonianza: Fabio Greco, con `authorUrl` al suo LinkedIn. Il campo
+    // è pronto — servono le sue parole e il ruolo, non li scriviamo noi.
+    quote: null,
   },
   {
     slug: 'industrial-service-hr',
@@ -129,43 +237,110 @@ export const CASES = [
     logoMono: true,
     url: 'https://www.industrialservicefacility.it/',
     year: '2026',
-    sector: { it: 'Energie rinnovabili', en: 'Renewable energy' },
     categories: ['automazioni', 'gestionali', 'web'],
+    kicker: { it: 'Automazioni / Web', en: 'Automation / Web' },
     headline: {
-      it: 'Le candidature si filtrano da sole: in ufficio arrivano solo i profili che hanno davvero i requisiti obbligatori.',
-      en: 'Applications filter themselves: only the profiles that genuinely meet the mandatory requirements reach the office.',
+      it: 'Da CV generici a candidati già filtrati sui requisiti obbligatori',
+      en: 'From generic CVs to candidates already screened on the mandatory requirements',
     },
-    challenge: {
-      it: 'Un’azienda che monta fotovoltaico, eolico e impianti elettrici assume tecnici con requisiti non negoziabili: patente B, patentino F-Gas, disponibilità ai turni di notte o alle trasferte. Le candidature però arrivavano come CV generici, tutti uguali da leggere, e il tempo dell’ufficio del personale finiva in colloqui con persone che al primo requisito erano già fuori. Nessun modo di sapere quali annunci portassero candidati veri, né di rispondere a tutti in tempi decenti.',
-      en: 'A company installing solar, wind and electrical systems hires technicians with non-negotiable requirements: driving licence, F-Gas certification, availability for night shifts or travel. Applications arrived as generic CVs, all alike to read, and HR time went into interviews with people who failed on the very first requirement. No way to tell which ads brought real candidates, or to reply to everyone in reasonable time.',
+    meta: [
+      {
+        label: { it: 'Settore', en: 'Industry' },
+        value: { it: 'Energie rinnovabili', en: 'Renewable energy' },
+      },
+      {
+        label: { it: 'Sistema', en: 'System' },
+        value: { it: 'Pagina candidature + punteggio', en: 'Applications page + scoring' },
+      },
+    ],
+    /* Numeri letti dalla barra in cima alla dashboard candidature il 2026-08-06:
+     * 118 totali, 79 pronti ora, 1 diamante grezzo. Sono conteggi che crescono,
+     * quindi `resultsNote` porta la data: senza, invecchiano in silenzio.
+     *
+     * Il «diamante grezzo» è una delle quattro fasce del punteggio (pronti ora,
+     * diamante grezzo, potenziale medio, non ora): alto potenziale ma poca
+     * esperienza di settore. È il numero più piccolo dei tre ed è il migliore
+     * da raccontare — è la persona che una lettura del CV avrebbe buttato. */
+    results: [
+      {
+        icon: 'inbox',
+        title: { it: '118 candidature valutate', en: '118 applications assessed' },
+        body: {
+          it: 'Tutte dallo stesso percorso, con lo stesso metro.',
+          en: 'All through the same path, by the same yardstick.',
+        },
+      },
+      {
+        icon: 'userCheck',
+        title: { it: '79 pronti da chiamare', en: '79 ready to call' },
+        body: {
+          it: 'Già ordinati per punteggio, senza leggere un CV.',
+          en: 'Already sorted by score, without reading a CV.',
+        },
+      },
+      {
+        icon: 'sparkle',
+        title: { it: '1 diamante grezzo trovato', en: '1 rough diamond found' },
+        body: {
+          it: 'Alto potenziale, poca esperienza: un CV lo scartava.',
+          en: 'High potential, little experience: a CV would have binned it.',
+        },
+      },
+    ],
+    resultsNote: {
+      it: 'Conteggi letti sulla dashboard del sistema il 6 agosto 2026.',
+      en: 'Counts read off the system dashboard on 6 August 2026.',
     },
-    build: {
-      it: [
-        'Una pagina dedicata alle candidature, sul dominio dell’azienda e coerente col sito, dove il candidato non compila un modulo ma risponde a una domanda per schermata.',
-        'Le domande eliminatorie prima di tutto: se manca un requisito obbligatorio il percorso si chiude subito con un messaggio cortese, senza far perdere tempo a nessuno dei due.',
-        'Un percorso diverso per ogni profilo cercato — manutentore, tecnico frigorista, coordinatore — con i requisiti che contano per quel ruolo.',
-        'Un punteggio automatico costruito sulle risposte: sopra la soglia il candidato è qualificato, sotto finisce in archivio con una risposta d’attesa invece del silenzio.',
-        'L’ufficio del personale avvisato solo sui profili qualificati, che arrivano già ordinati per punteggio e pronti da richiamare.',
-        'Una dashboard per aprire, chiudere e modificare le posizioni senza passare da noi.',
-        'Il collegamento con le campagne pubblicitarie: ogni candidatura completata è un evento tracciato, così si sa quale annuncio porta tecnici e quale solo clic.',
-      ],
-      en: [
-        'A dedicated applications page on the company’s own domain, consistent with the main site, where candidates answer one question per screen instead of filling in a form.',
-        'Knockout questions first: if a mandatory requirement is missing, the path closes right away with a courteous message, wasting neither side’s time.',
-        'A different path per role — maintenance technician, refrigeration technician, coordinator — with the requirements that matter for that job.',
-        'An automatic score built from the answers: above the threshold the candidate is qualified, below it they land in an archive with a holding reply instead of silence.',
-        'HR notified only about qualified profiles, already sorted by score and ready to call back.',
-        'A dashboard to open, close and edit positions without going through us.',
-        'A link back to the ad campaigns: every completed application is a tracked event, so it is clear which ad brings technicians and which only brings clicks.',
+    before: {
+      it: ['CV generici, tutti uguali', 'Colloqui con chi era già fuori', 'Candidati senza risposta'],
+      en: ['Generic CVs, all alike', 'Interviews with people already out', 'Candidates left unanswered'],
+    },
+    after: {
+      it: ['Requisiti verificati prima', 'Solo profili qualificati', 'Risposta a tutti'],
+      en: ['Requirements checked first', 'Qualified profiles only', 'Everyone gets a reply'],
+    },
+    steps: [
+      {
+        icon: 'megaphone',
+        title: { it: 'Annuncio', en: 'Job ad' },
+        body: { it: 'Il candidato arriva sulla pagina.', en: 'The candidate lands on the page.' },
+      },
+      {
+        icon: 'shieldCheck',
+        title: { it: 'Requisiti', en: 'Requirements' },
+        body: { it: 'Le domande eliminatorie per prime.', en: 'Knockout questions come first.' },
+      },
+      {
+        icon: 'gauge',
+        title: { it: 'Punteggio', en: 'Score' },
+        body: { it: 'Le risposte diventano un punteggio.', en: 'Answers turn into a score.' },
+      },
+      {
+        icon: 'userCheck',
+        title: { it: 'Qualificati', en: 'Qualified' },
+        body: { it: 'In ufficio solo chi supera la soglia.', en: 'Only those above the threshold.' },
+      },
+    ],
+    /* La dashboard vera. Anonimizzata prima di finire in public/: nomi ed email
+     * erano già sfocati nell'export, le iniziali degli avatar no — e iniziale +
+     * ruolo, su un bacino di 118 persone in un settore stretto, è un aggancio
+     * per risalire al candidato. Sfocate anche quelle.
+     * I tre numeri in barra sono gli stessi delle schede qui sopra: se un giorno
+     * aggiorni i conteggi, rifai anche lo screenshot o si contraddicono. */
+    proof: {
+      images: [
+        {
+          src: '/casestudy-industrial-dashboard.webp',
+          alt: {
+            it: 'La dashboard candidature: 118 totali, 79 pronti ora, 1 diamante grezzo. A sinistra la mappa fit di settore/potenziale, a destra l’elenco ordinato per punteggio.',
+            en: 'The applications dashboard: 118 total, 79 ready now, 1 rough diamond. On the left the sector-fit vs potential map, on the right the list sorted by score.',
+          },
+          width: 1320,
+          height: 996,
+        },
       ],
     },
     quote: null,
-    blueprint: {
-      caption: {
-        it: 'Chi non ha un requisito obbligatorio esce subito, e con una risposta. In ufficio arrivano solo i profili sopra la soglia, già ordinati per punteggio.',
-        en: 'Whoever lacks a mandatory requirement is out at once, and with a reply. Only the profiles above the threshold reach the office, already sorted by score.',
-      },
-    },
   },
   {
     slug: 'jose-prenotazioni',
@@ -174,43 +349,104 @@ export const CASES = [
     logoMono: false,
     url: 'https://prenota.tenutavillaguerra.it',
     year: '2026',
-    sector: { it: 'Ristorazione ed eventi', en: 'Restaurant and events' },
     categories: ['automazioni', 'gestionali', 'web'],
+    kicker: { it: 'Automazioni / Gestionale', en: 'Automation / Business software' },
     headline: {
-      it: 'Le prenotazioni facili si confermano da sole, quelle che vanno pensate restano in mano al ristoratore.',
-      en: 'The easy bookings confirm themselves; the ones that need thinking about stay in the owner’s hands.',
+      it: 'Dalle prenotazioni sull’agenda di carta a un calendario che si conferma da solo',
+      en: 'From bookings in a paper diary to a calendar that confirms itself',
     },
-    challenge: {
-      it: 'Le prenotazioni arrivavano al telefono e finivano su un’agenda di carta. Chi prenotava dal sito riceveva un “vi ricontattiamo”, e nel frattempo lo stesso tavolo poteva essere promesso due volte. Una tavolata da quindici persone e una coppia venivano trattate allo stesso modo, anche se la prima va valutata e la seconda no. I giorni di chiusura e gli eventi privati vivevano a voce, e il cliente che prenotava per la decima volta era un nome nuovo ogni volta, perché al telefono l’email non la lascia nessuno.',
-      en: 'Bookings came in by phone and ended up in a paper diary. Whoever booked from the website got a “we’ll get back to you”, and meanwhile the same table could be promised twice. A party of fifteen and a couple were handled the same way, even though the first needs judgement and the second doesn’t. Closing days and private events lived by word of mouth, and the customer booking for the tenth time was a new name every time, because nobody leaves an email over the phone.',
+    meta: [
+      {
+        label: { it: 'Settore', en: 'Industry' },
+        value: { it: 'Ristorazione ed eventi', en: 'Restaurant and events' },
+      },
+      {
+        label: { it: 'Sistema', en: 'System' },
+        value: { it: 'Prenotazioni white-label', en: 'White-label bookings' },
+      },
+    ],
+    /* Nessuna cifra: da Josè non abbiamo ancora una misura, e queste tre schede
+     * dicono cosa fa il sistema. Nessuno le scambia per statistiche, quindi non
+     * serve `resultsNote`. */
+    results: [
+      {
+        icon: 'calendarCheck',
+        title: { it: 'Un calendario solo', en: 'One calendar only' },
+        body: { it: 'Online, telefono e chiusure insieme.', en: 'Online, phone and closures together.' },
+      },
+      {
+        icon: 'bolt',
+        title: { it: 'Conferma immediata sotto soglia', en: 'Instant confirmation below threshold' },
+        body: { it: 'Il tavolo piccolo non aspetta.', en: 'A small table waits for nobody.' },
+      },
+      {
+        icon: 'userCheck',
+        title: { it: 'Cliente riconosciuto dal telefono', en: 'Guest recognised by phone' },
+        body: { it: 'Chi torna è già in anagrafica.', en: 'Returning guests are already on file.' },
+      },
+    ],
+    before: {
+      it: ['Agenda di carta', 'Stesso tavolo promesso due volte', '«Vi ricontattiamo»'],
+      en: ['A paper diary', 'The same table promised twice', '“We’ll get back to you”'],
     },
-    build: {
-      it: [
-        'Una pagina di prenotazione col marchio del ristorante, dove l’ospite scelga data, orario e numero di persone e sappia subito com’è andata.',
-        'Le regole di conferma decise dal ristoratore: sala vuota si conferma da sé, oltre un certo numero di coperti la richiesta resta da approvare, e le tavolate grandi passano sempre da lui.',
-        'Un calendario del gestore con i giorni di chiusura e gli eventi privati in evidenza e il riposo settimanale sempre visibile: chi prenota online quei giorni non li vede nemmeno.',
-        'Le prenotazioni prese al telefono inserite nello stesso calendario, così il quadro della serata è uno solo.',
-        'Il cliente riconosciuto dal numero di telefono, non dall’email: chi torna è già in anagrafica, con le sue prenotazioni passate.',
-        'L’email di conferma all’ospite in automatico, dal dominio del ristorante.',
-        'Un motore white-label: il marchio, gli orari e le regole stanno in un file di configurazione, quindi lo stesso sistema si accende per un altro locale in poche ore.',
-      ],
-      en: [
-        'A booking page in the restaurant’s own brand, where guests pick date, time and party size and immediately know where they stand.',
-        'Confirmation rules set by the owner: an empty room confirms itself, past a certain number of covers the request waits for approval, and large parties always go through them.',
-        'A manager’s calendar with closing days and private events highlighted and the weekly day off always visible: online guests never even see those dates.',
-        'Phone bookings entered into the same calendar, so the evening has a single source of truth.',
-        'Guests recognised by phone number rather than email: returning customers are already on file, with their past bookings.',
-        'Automatic confirmation emails to the guest, sent from the restaurant’s domain.',
-        'A white-label engine: brand, opening hours and rules live in a configuration file, so the same system can be switched on for another venue in hours.',
+    after: {
+      it: ['Un calendario solo', 'Esito subito', 'Regole decise dal ristoratore'],
+      en: ['One calendar only', 'An answer straight away', 'Rules set by the owner'],
+    },
+    steps: [
+      {
+        icon: 'calendar',
+        title: { it: 'Richiesta', en: 'Request' },
+        body: { it: 'Data, orario e coperti dal sito.', en: 'Date, time and covers from the site.' },
+      },
+      {
+        icon: 'filter',
+        title: { it: 'Regole', en: 'Rules' },
+        body: { it: 'Giorno, coperti e tavolata a confronto.', en: 'Day, covers and party size checked.' },
+      },
+      {
+        icon: 'checkCircle',
+        title: { it: 'Esito', en: 'Outcome' },
+        body: { it: 'Conferma automatica o attesa.', en: 'Auto-confirmed, or held for the owner.' },
+      },
+      {
+        icon: 'calendarCheck',
+        title: { it: 'Calendario', en: 'Calendar' },
+        body: { it: 'Online e telefono nello stesso posto.', en: 'Online and phone in one place.' },
+      },
+    ],
+    /* Il pannello del gestore. Nomi, telefono ed email degli ospiti erano già
+     * oscurati nell'export; le note («allergia ai crostacei», «due bambini
+     * piccoli») restano in chiaro perché senza il nome non sono attribuibili a
+     * nessuno — e sono la ragione visibile per cui certe richieste devono
+     * passare dal ristoratore invece di confermarsi da sole.
+     *
+     * È la schermata che regge il caso meglio del testo: si vedono insieme le
+     * nove richieste in attesa e il calendario coi giorni chiusi, l'evento
+     * privato e il riposo settimanale. */
+    proof: {
+      images: [
+        {
+          src: '/casestudy-jose-richieste.webp',
+          alt: {
+            it: 'Le nove richieste da confermare, ognuna con data, orario, coperti e la nota dell’ospite, e i pulsanti conferma o rifiuta.',
+            en: 'The nine requests awaiting confirmation, each with date, time, covers and the guest’s note, and the confirm or decline buttons.',
+          },
+          width: 889,
+          height: 600,
+        },
+        {
+          src: '/casestudy-jose-calendario.webp',
+          alt: {
+            it: 'Il calendario del mese: coperti per giorno, riposo settimanale, chiusure ed eventi privati, e sotto il dettaglio del giorno scelto col limite di coperti.',
+            en: 'The month calendar: covers per day, the weekly day off, closures and private events, and below the detail of the selected day with its cover limit.',
+          },
+          width: 889,
+          height: 600,
+        },
       ],
     },
     quote: null,
-    blueprint: {
-      caption: {
-        it: 'Sala libera e tavolo piccolo si confermano da soli; oltre la soglia la richiesta aspetta il ristoratore. In tutti e due i casi finisce nello stesso calendario.',
-        en: 'A free room and a small table confirm themselves; past the threshold the request waits for the owner. Either way it lands in the same calendar.',
-      },
-    },
   },
   {
     slug: 'sofia-centralino-ai',
@@ -219,137 +455,234 @@ export const CASES = [
     logoMono: false,
     url: 'https://prontosofia.it',
     year: '2026',
-    sector: { it: 'Centralino e agenda automatici', en: 'Automated phone and calendar' },
     categories: ['ai', 'automazioni', 'web'],
+    kicker: { it: 'AI / Automazioni', en: 'AI / Automation' },
     headline: {
-      it: 'Il telefono non squilla più a vuoto: risponde, capisce cosa serve e mette l’appuntamento in agenda — anche di notte, anche mentre sei con un cliente.',
-      en: 'The phone never rings out: it answers, works out what’s needed and puts the appointment in the diary — at night too, and while you’re with a customer.',
+      it: 'Dal telefono che squilla a vuoto all’appuntamento già in agenda',
+      en: 'From a phone ringing out to the appointment already in the diary',
     },
-    challenge: {
-      it: 'Ci sono attività che vivono di telefonate: studi dentistici, centri estetici, palestre, ristoranti, concessionarie. Il telefono suona mentre sei con un cliente, nessuno risponde, e chi chiamava passa al nome successivo dell’elenco — una chiamata persa non lascia traccia da nessuna parte, non è un numero in un report, è solo un incasso che non è arrivato. Chi riesce a rispondere scrive l’appuntamento su un’agenda di carta, e a fine giornata nessuno sa quante chiamate sono arrivate né cosa chiedevano. Una persona in segreteria copre gli orari d’ufficio: non le sere, non i fine settimana, che sono le ore in cui la gente chiama.',
-      en: 'Some businesses live on the phone: dental practices, beauty salons, gyms, restaurants, car dealers. It rings while you’re with a customer, nobody picks up, and the caller moves on to the next name on their list — a missed call leaves no trace anywhere, it isn’t a figure in a report, it’s simply money that never arrived. Whoever does answer writes the appointment in a paper diary, and by the end of the day nobody knows how many calls came in or what they were about. A receptionist covers office hours: not the evenings and weekends when people actually call.',
-    },
-    build: {
-      it: [
-        'Risponde al telefono con voce naturale, a qualsiasi ora e in più lingue: chiede cosa serve, propone gli orari liberi e chiude l’appuntamento senza mettere in attesa.',
-        'Lo stesso assistente sulla chat del sito e su WhatsApp, addestrato sui dati dell’attività: chi scrive la sera trova risposta e prenota lì, senza aspettare l’apertura.',
-        'Un’agenda sola: gli appuntamenti presi al telefono, in chat e a mano finiscono nello stesso calendario, sincronizzato con Google Calendar.',
-        'I promemoria automatici su WhatsApp prima dell’appuntamento, per i posti che restano vuoti solo perché qualcuno se n’è dimenticato.',
-        'Una configurazione per settore: servizi, durate, prezzi, orari e regole cambiano da uno studio dentistico a un concessionario a un ristorante.',
-        'Un pannello che a fine giornata dice quante chiamate sono arrivate, quante sono diventate appuntamenti e cosa chiedevano — cioè quali domande tornano abbastanza spesso da meritare una risposta pronta.',
-        'Si collega a quello che l’attività già usa: Google Calendar, WhatsApp Business, la posta, il sito.',
-        'Una prova vera al telefono prima di decidere: si scelgono settore e scenario, arriva la chiamata e si sente com’è.',
-      ],
-      en: [
-        'It answers the phone in a natural voice, at any hour and in several languages: it asks what’s needed, offers the free slots and books the appointment without putting anyone on hold.',
-        'The same assistant on the website chat and on WhatsApp, trained on the business’s own data: someone writing in the evening gets an answer and books there, without waiting for opening time.',
-        'One diary only: appointments taken by phone, in chat and by hand all land in the same calendar, synced with Google Calendar.',
-        'Automatic WhatsApp reminders before the appointment, for the slots that stay empty only because somebody forgot.',
-        'A per-sector configuration: services, durations, prices, hours and rules change from a dental practice to a car dealer to a restaurant.',
-        'A panel that tells you at the end of the day how many calls came in, how many became appointments and what they were about — which questions come up often enough to deserve a ready answer.',
-        'It plugs into what the business already uses: Google Calendar, WhatsApp Business, email, the website.',
-        'A real phone trial before deciding: pick a sector and a scenario, take the call and hear it for yourself.',
-      ],
-    },
-    quote: null,
-    blueprint: {
-      caption: {
-        it: 'Telefono, chat e WhatsApp arrivano allo stesso assistente e finiscono nella stessa agenda: chi chiama alle nove di sera trova risposta come alle nove di mattina.',
-        en: 'Phone, chat and WhatsApp reach the same assistant and end up in the same diary: whoever calls at nine in the evening is answered just as at nine in the morning.',
+    meta: [
+      {
+        label: { it: 'Settore', en: 'Industry' },
+        value: { it: 'Centralino e agenda automatici', en: 'Automated phone and calendar' },
       },
+      {
+        label: { it: 'Sistema', en: 'System' },
+        value: { it: 'Voce AI + chat + WhatsApp', en: 'AI voice + chat + WhatsApp' },
+      },
+    ],
+    results: [
+      {
+        icon: 'phone',
+        title: { it: 'Risponde 24 ore su 24', en: 'It answers around the clock' },
+        body: { it: 'Anche di sera e nei fine settimana.', en: 'Evenings and weekends included.' },
+      },
+      {
+        icon: 'calendarCheck',
+        title: { it: 'Appuntamento chiuso in chiamata', en: 'Appointment closed during the call' },
+        body: { it: 'Senza mettere nessuno in attesa.', en: 'Without putting anyone on hold.' },
+      },
+      {
+        icon: 'chart',
+        title: { it: 'A fine giornata sai cosa chiedevano', en: 'By evening you know what they asked' },
+        body: { it: 'Chiamate, appuntamenti, domande ricorrenti.', en: 'Calls, bookings, recurring questions.' },
+      },
+    ],
+    before: {
+      it: ['Telefono che squilla a vuoto', 'Appuntamenti su carta', 'Di sera non risponde nessuno'],
+      en: ['A phone that rings out', 'Appointments on paper', 'Nobody answers in the evening'],
     },
+    after: {
+      it: ['Risposta a ogni chiamata', 'Agenda sincronizzata', 'Aperto 24 ore'],
+      en: ['Every call answered', 'A synced diary', 'Open around the clock'],
+    },
+    steps: [
+      {
+        icon: 'phone',
+        title: { it: 'Chiamata', en: 'Call' },
+        body: { it: 'Telefono, chat del sito o WhatsApp.', en: 'Phone, site chat or WhatsApp.' },
+      },
+      {
+        icon: 'sparkle',
+        title: { it: 'Ascolto', en: 'Listening' },
+        body: { it: 'Capisce cosa serve e a chi.', en: 'It works out what’s needed, and for whom.' },
+      },
+      {
+        icon: 'clock',
+        title: { it: 'Orari', en: 'Slots' },
+        body: { it: 'Propone gli spazi liberi.', en: 'It offers the free slots.' },
+      },
+      {
+        icon: 'calendarCheck',
+        title: { it: 'Agenda', en: 'Diary' },
+        body: { it: 'Appuntamento in Google Calendar.', en: 'Appointment in Google Calendar.' },
+      },
+    ],
+    /* Facsimile a codice e non uno screenshot: il pannello di un cliente vero
+     * conterrebbe le chiamate dei suoi pazienti. Disegnato coi token di SofIA
+     * (Sofia/tokens.css). I dati sono di esempio e in pagina non si dichiara:
+     * SofIA è un nostro prodotto, non il sistema di un cliente, quindi nessun
+     * numero è attribuito a un terzo. Un mockup di prodotto con dati d'esempio è
+     * quello che fa qualunque pagina SaaS, e la postilla suonava come una scusa.
+     * La regola resta valida dove i numeri parlano di un cliente vero. */
+    proof: { component: 'sofia' },
+    quote: null,
   },
   {
     slug: 'tharvel-admin-siti',
     client: 'Tharvel',
     logo: '/tharvel-logo.webp',
-    // Logo scuro su trasparente, non bianco come i partner-*.webp: su questa
+    // Logo scuro su trasparente, non bianco come i partner-*.webp: su una
     // sezione chiara si legge da solo e NON va invertito. Attenzione se un
-    // giorno l'ordine dell'array sposta il caso su una sezione scura: lì
-    // sparirebbe, e `logoMono` non aiuta perché inverte, non schiarisce.
+    // giorno l'ordine dell'array lo sposta su una sezione scura: lì sparirebbe,
+    // e `logoMono` non aiuta perché inverte, non schiarisce.
     logoMono: false,
     url: null,
     year: '2026',
-    sector: { it: 'Gestione dei siti dei clienti', en: 'Client website management' },
     categories: ['ai', 'web', 'gestionali'],
+    kicker: { it: 'AI / Web', en: 'AI / Web' },
     headline: {
-      it: 'Il cliente cambia testi e foto del suo sito parlando in chat, vede subito il risultato e pubblica quando è convinto — senza WordPress e senza passare da noi.',
-      en: 'The client changes their site’s text and photos by chatting, sees the result at once and publishes when they’re happy — no WordPress, and without going through us.',
+      it: 'Dal sito che solo noi possiamo toccare al cliente che lo modifica parlando in chat',
+      en: 'From a site only we can touch to a client who edits it by chatting',
     },
-    challenge: {
-      it: 'Un sito fatto a mano è veloce e non si rompe, ma il giorno in cui il cliente vuole cambiare un prezzo o sostituire una foto deve chiederlo a noi: un lavoro da due minuti diventa una mail, una coda e una fattura per nulla. La risposta abituale del mercato è costruirlo in WordPress con un page builder, così se lo gestisce da solo — e allora arrivano i plugin che litigano, gli aggiornamenti che mandano giù il sito e un sito lento da mantenere per sempre. Nel frattempo il cliente, per paura di rompere qualcosa, non lo tocca: il sito si congela e invecchia.',
-      en: 'A hand-built site is fast and doesn’t break, but the day the client wants to change a price or swap a photo they have to ask us: a two-minute job turns into an email, a queue and an invoice for nothing. The market’s usual answer is to build it in WordPress with a page builder so they can manage it themselves — and then come the plugins that clash, the updates that take the site down and a slow site to maintain forever. Meanwhile the client, afraid of breaking something, never touches it: the site freezes and ages.',
-    },
-    build: {
-      it: [
-        'Un pannello che si apre sul dominio del cliente e non richiede di ricostruire niente: funziona sul sito che c’è già, sia HTML statico sia Astro, Next o Vue.',
-        'Le modifiche si chiedono a parole, in chat: «cambia il prezzo del menù di degustazione», «metti questa foto in home».',
-        'Alt+click sull’elemento da cambiare, per quando descriverlo a parole è più lento che indicarlo.',
-        'L’anteprima dal vivo accanto alla chat: il sito modificato si vede prima che sia online.',
-        'Pubblicazione solo su comando: le modifiche restano su un ramo di lavoro e “Pubblica” è l’unico momento in cui il sito vero cambia — quindi non si rompe per sbaglio, e si torna indietro sempre.',
-        'Le immagini si caricano e vengono ridimensionate da sé; se la foto non c’è, la genera l’AI.',
-        'Un solo servizio sulla nostra VPS serve tutti i siti: nei repo dei clienti non entra una riga di Tharvel.',
-        'Un sito nuovo entra con un comando: clona, riconosce da sé il framework, builda e lo registra.',
-      ],
-      en: [
-        'A panel that opens on the client’s own domain and requires rebuilding nothing: it works on the site that already exists, whether static HTML or Astro, Next or Vue.',
-        'Changes are asked for in plain words, in a chat: “change the tasting menu price”, “put this photo on the home page”.',
-        'Alt+click on the element to change, for when pointing at it beats describing it.',
-        'A live preview next to the chat: the edited site is visible before it goes online.',
-        'Publishing only on command: changes sit on a working branch and “Publish” is the only moment the real site changes — so it can’t break by accident, and there’s always a way back.',
-        'Images are uploaded and resized on their own; when the photo doesn’t exist, AI generates it.',
-        'One service on our VPS serves every site: not a line of Tharvel enters the clients’ repositories.',
-        'A new site joins with a single command: it clones, detects the framework itself, builds and registers it.',
-      ],
-    },
-    quote: null,
-    blueprint: {
-      caption: {
-        it: 'Finché il cliente non preme «Pubblica» le modifiche restano sul ramo di lavoro: il sito online non cambia, e non si può rompere per sbaglio.',
-        en: 'Until the client hits “Publish” the changes stay on the working branch: the live site does not change, and cannot break by accident.',
+    meta: [
+      {
+        label: { it: 'Settore', en: 'Industry' },
+        value: { it: 'Gestione dei siti dei clienti', en: 'Client website management' },
       },
+      {
+        label: { it: 'Sistema', en: 'System' },
+        value: { it: 'Pannello AI multi-sito', en: 'Multi-site AI panel' },
+      },
+    ],
+    results: [
+      {
+        icon: 'chat',
+        title: { it: 'Modifiche a parole', en: 'Changes in plain words' },
+        body: { it: 'Niente WordPress, niente page builder.', en: 'No WordPress, no page builder.' },
+      },
+      {
+        icon: 'eye',
+        title: { it: 'Anteprima prima di pubblicare', en: 'Preview before publishing' },
+        body: { it: 'Il sito online non cambia finché non lo dici.', en: 'The live site holds until you say so.' },
+      },
+      {
+        icon: 'layers',
+        title: { it: 'Un servizio per tutti i siti', en: 'One service for every site' },
+        body: { it: 'Nei repo dei clienti non entra una riga.', en: 'Not a line enters client repos.' },
+      },
+    ],
+    before: {
+      it: ['Ogni modifica passa da noi', 'Due minuti diventano una coda', 'Il sito si congela'],
+      en: ['Every change goes through us', 'Two minutes become a queue', 'The site freezes'],
     },
+    after: {
+      it: ['Il cliente si gestisce da solo', 'Pubblica quando è convinto', 'Si torna indietro sempre'],
+      en: ['The client manages it alone', 'They publish when happy', 'There is always a way back'],
+    },
+    steps: [
+      {
+        icon: 'chat',
+        title: { it: 'Chiedi', en: 'Ask' },
+        body: { it: 'A parole in chat, o Alt+click.', en: 'In plain words, or Alt+click.' },
+      },
+      {
+        icon: 'eye',
+        title: { it: 'Anteprima', en: 'Preview' },
+        body: { it: 'Il sito modificato accanto alla chat.', en: 'The edited site next to the chat.' },
+      },
+      {
+        icon: 'upload',
+        title: { it: 'Pubblica', en: 'Publish' },
+        body: { it: 'L’unico momento in cui il sito cambia.', en: 'The only moment the site changes.' },
+      },
+      {
+        icon: 'undo',
+        title: { it: 'Torna indietro', en: 'Roll back' },
+        body: { it: 'Ogni versione resta recuperabile.', en: 'Every version stays recoverable.' },
+      },
+    ],
+    // L'unico caso con la prova già pronta: l'interfaccia È il prodotto, quindi
+    // un facsimile a codice dice più di uno screenshot (caseStudyProofs.jsx).
+    proof: { component: 'tharvel' },
+    quote: null,
   },
   {
-    // Senza `blueprint` e senza voce in BLUEPRINTS: questo caso si regge sul
-    // testo, e la sezione lo gestisce da sé senza lasciare buchi.
     slug: 'mrhatter-gestionale',
     client: 'Mr. Hatter',
     logo: null,
     logoMono: false,
     url: 'https://www.mrhatter.it/',
     year: '2026',
-    sector: {
-      it: 'Cappelli artigianali, vendita ai negozi',
-      en: 'Handmade hats, wholesale',
-    },
     categories: ['gestionali'],
+    kicker: { it: 'Gestionale', en: 'Business software' },
     headline: {
-      it: 'Un ordine di un negozio sta in un solo posto dall’inizio alla fine: cosa è stato chiesto, cosa c’è in magazzino, cosa è in lavorazione e cosa è già partito.',
-      en: 'A shop’s order lives in one place from start to finish: what was ordered, what’s in stock, what’s being made and what has already shipped.',
+      it: 'Da quattro risposte diverse a un ordine che sta in un posto solo, fino alla consegna',
+      en: 'From four different answers to an order that lives in one place, all the way to delivery',
     },
-    challenge: {
-      it: 'Un laboratorio che fa cappelli a mano da quattro generazioni e li vende ai negozi tiene insieme due ritmi che non vanno d’accordo: la produzione, lenta e manuale, e gli ordini, che arrivano dai rivenditori ognuno con i suoi modelli, le sue quantità e la sua data. Senza un sistema unico lo stato di un ordine vive nella testa di chi l’ha preso e su fogli sparsi: quanto materiale c’è, cosa è già in lavorazione, cosa è pronto e cosa è partito sono quattro domande con quattro risposte diverse a seconda di chi chiedi. E quando un negozio telefona per sapere quando arriva la merce, la risposta richiede che qualcuno vada a controllare a mano.',
-      en: 'A workshop making hats by hand for four generations and selling them to shops has to hold together two rhythms that don’t agree: production, slow and manual, and orders, which arrive from retailers each with its own models, quantities and date. Without a single system an order’s status lives in the head of whoever took it and on scattered sheets: how much material is left, what is already being made, what is ready and what has shipped are four questions with four different answers depending on who you ask. And when a shop calls to ask when the goods arrive, somebody has to go and check by hand.',
+    meta: [
+      {
+        label: { it: 'Settore', en: 'Industry' },
+        value: { it: 'Cappelli artigianali, vendita ai negozi', en: 'Handmade hats, wholesale' },
+      },
+      {
+        label: { it: 'Sistema', en: 'System' },
+        value: { it: 'Gestionale ordini e produzione', en: 'Orders and production software' },
+      },
+    ],
+    results: [
+      {
+        icon: 'box',
+        title: { it: 'Ordini e magazzino collegati', en: 'Orders and stock connected' },
+        body: { it: 'Cosa c’è, cosa è impegnato, cosa manca.', en: 'What’s there, committed, missing.' },
+      },
+      {
+        icon: 'gauge',
+        title: { it: 'Stato dell’ordine sempre aggiornato', en: 'Order status always current' },
+        body: { it: 'Senza andare a controllare a mano.', en: 'Without checking by hand.' },
+      },
+      {
+        icon: 'truck',
+        title: { it: 'Consegne registrate con la data', en: 'Deliveries logged with the date' },
+        body: { it: 'Chi ha ricevuto cosa, e quando.', en: 'Who received what, and when.' },
+      },
+    ],
+    before: {
+      it: ['Fogli sparsi', 'Lo stato in testa a chi l’ha preso', 'Controlli a mano'],
+      en: ['Scattered sheets', 'Status in the head of whoever took it', 'Checks by hand'],
     },
-    build: {
-      it: [
-        'Gli ordini dei negozi raccolti in un unico posto, ognuno con i suoi modelli e le sue quantità, e uno stato che dice sempre a che punto è.',
-        'Il magazzino collegato agli ordini: quello che c’è, quello che è impegnato per un ordine già preso e quello che manca per chiuderlo.',
-        'La produzione seguita per ordine, così si sa cosa è in lavorazione e cosa aspetta ancora di essere fatto.',
-        'L’evasione come passaggio esplicito: un ordine si prepara e si chiude, e il sistema sa distinguere ciò che è pronto da ciò che è solo finito di produrre.',
-        'Le consegne registrate sul sistema, con la data: chi ha ricevuto cosa, e quando.',
-        'Una risposta immediata alla domanda che i negozi fanno sempre — «a che punto è il mio ordine» — senza dover andare a controllare a mano.',
-      ],
-      en: [
-        'Shop orders collected in one place, each with its models and quantities, and a status that always says where it stands.',
-        'Stock tied to orders: what is there, what is committed to an order already taken, and what is missing to close it.',
-        'Production tracked per order, so it is clear what is being made and what is still waiting.',
-        'Fulfilment as an explicit step: an order is prepared and closed, and the system tells apart what is ready to go from what has merely finished production.',
-        'Deliveries recorded in the system, with the date: who received what, and when.',
-        'An immediate answer to the question shops always ask — “where is my order” — without anyone having to go and check by hand.',
-      ],
+    after: {
+      it: ['Un sistema solo', 'Stato sempre leggibile', 'Risposta immediata al negozio'],
+      en: ['One single system', 'Status always readable', 'An instant answer for the shop'],
     },
+    steps: [
+      {
+        icon: 'doc',
+        title: { it: 'Ordine', en: 'Order' },
+        body: { it: 'Modelli e quantità dal negozio.', en: 'Models and quantities from the shop.' },
+      },
+      {
+        icon: 'box',
+        title: { it: 'Magazzino', en: 'Stock' },
+        body: { it: 'Cosa c’è e cosa manca.', en: 'What is there and what is missing.' },
+      },
+      {
+        icon: 'cog',
+        title: { it: 'Produzione', en: 'Production' },
+        body: { it: 'Seguita ordine per ordine.', en: 'Tracked order by order.' },
+      },
+      {
+        icon: 'truck',
+        title: { it: 'Consegna', en: 'Delivery' },
+        body: { it: 'Evasione e data registrate.', en: 'Fulfilment and date recorded.' },
+      },
+    ],
+    /* ⚠️ Facsimile disegnato senza aver visto il pannello vero: il progetto non
+     * è su questa macchina (vedi case-studies/mrhatter-gestionale.md). La
+     * struttura sta sui cinque ambiti che il gestionale gestisce davvero —
+     * ordini, merce, produzione, evasione, consegne — l'aspetto è una nostra
+     * scelta. Appena arriva uno screenshot si riallinea o si sostituisce. */
+    proof: { component: 'mrhatter' },
     quote: null,
   },
 ]

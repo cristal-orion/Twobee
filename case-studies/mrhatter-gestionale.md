@@ -53,8 +53,22 @@ Da confermare con Michele: il caso è in pagina, ma il testo del problema è una
 ricostruzione da rileggere, e il consenso del cliente a essere nominato non risulta
 chiesto.
 
+## La prova in pagina
+
+Dal 2026-08-07 il caso mostra un **facsimile del gestionale disegnato a codice**
+(`HatterPanel` in `src/pages/caseStudyProofs.jsx`), perché non abbiamo screenshot.
+La struttura sta sui cinque ambiti che Michele ha raccontato — ordini, magazzino,
+produzione, evasione, consegne — ma **colori, carattere e disposizione sono una
+nostra invenzione**: nessuno di noi ha visto il pannello vero. Anche i dati sono
+di esempio (i negozi sono città, non nomi di rivenditori).
+
+Basta uno screenshot per riallinearlo o sostituirlo. Finché non arriva, è la parte
+più fragile del caso: se il cliente lo vedesse, non riconoscerebbe il suo software.
+
 ## TODO
 
+- Uno screenshot del gestionale vero, o due righe su com'è fatto, per correggere il
+  facsimile.
 - Rileggere `challenge` e correggerlo con quello che è successo davvero.
 - Riempire i punti dell'elenco qui sopra, poi riscrivere `build` con i dettagli veri.
 - Consenso di Mr. Hatter a comparire come cliente.

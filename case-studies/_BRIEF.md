@@ -5,6 +5,11 @@ nella cartella di quel progetto. Una scheda = un file `.md` in questa cartella,
 nome = slug del progetto (es. `elettra-crm.md`). Le schede approvate le converto
 io in `src/pages/caseStudiesData.js`.
 
+**Scrivi lungo, qui.** Il brief è la versione completa: in pagina ci va un decimo
+di questo testo, ma la sintesi si fa da un testo ricco, non da un testo già corto.
+Le lunghezze che valgono in pagina — e la struttura in cui il brief viene spremuto
+(risultati chiave, prima→dopo, come funziona, la prova) — stanno in `_STRUTTURA.md`.
+
 ## Regole non negoziabili
 
 1. **Nessun numero inventato.** Solo cifre che il cliente confermerebbe se
@@ -45,8 +50,8 @@ metriche:    - VALORE — etichetta breve   (max 4, solo numeri confermabili)
 
 citazione:   testo + nome + ruolo, se ce n'è una vera. Altrimenti ometti.
 
-blueprint:   la regola che il diagramma non riesce a mostrare (una riga).
-             Il diagramma si disegna a codice, vedi _BLUEPRINT.md
+prova:       cosa si può mostrare — screenshot, demo pubblica, niente.
+             Mai dati veri di un cliente: finti o oscurati.
 
 pubblicabile: sì / no + perché
 TODO:        cosa manca e chi lo sa
