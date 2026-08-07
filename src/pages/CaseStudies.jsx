@@ -82,6 +82,7 @@ const COPY = {
     },
     labels: {
       caseLabel: 'Case cliente',
+      problem: 'Il problema',
       results: 'Risultati chiave',
       draft: 'Numeri di esempio',
       before: 'Prima',
@@ -89,7 +90,10 @@ const COPY = {
       how: 'Come funziona',
       proof: 'La prova',
       diagnose: 'Richiedi una diagnosi',
-      live: 'Guarda il progetto live',
+      // Non «guarda il progetto live»: quasi tutti questi sistemi stanno dietro
+      // un login e non si possono far vedere. Il link porta al sito pubblico del
+      // cliente, che serve a dire chi è — non a mostrare il lavoro.
+      live: 'Sito cliente',
       similar: 'Hai un processo simile?',
       talk: 'Parliamone',
       template: 'Esempio — struttura da riempire',
@@ -119,6 +123,7 @@ const COPY = {
     },
     labels: {
       caseLabel: 'Client case',
+      problem: 'The problem',
       results: 'Key results',
       draft: 'Placeholder figures',
       before: 'Before',
@@ -126,7 +131,7 @@ const COPY = {
       how: 'How it works',
       proof: 'The proof',
       diagnose: 'Ask for a diagnosis',
-      live: 'See the project live',
+      live: 'Client site',
       similar: 'Got a similar process?',
       talk: 'Let’s talk',
       template: 'Example — layout placeholder',
@@ -385,6 +390,7 @@ function CaseSection({ item, index, light }) {
           </div>
 
           <div className="space-y-4 lg:col-span-8 lg:space-y-5">
+            <Diagnosis item={item} />
             <Results item={item} />
             <BeforeAfter item={item} />
             <HowItWorks item={item} />
@@ -447,7 +453,15 @@ function Identity({ item, index, light }) {
               // marquee su fondo nero della home): su una sezione chiara
               // sparirebbero. `logoMono` dichiara che il logo è monocromatico e
               // quindi invertibile senza falsare i colori del marchio.
-              style={light && item.logoMono ? { filter: 'invert(1)' } : undefined}
+              // `logoDark` è il caso opposto — inchiostro scuro su trasparente,
+              // che sparisce sulle sezioni nere. Serve perché l'ordine dell'array
+              // decide il fondo: basta aggiungere un caso in cima e ogni logo
+              // cambia lato.
+              style={
+                (light && item.logoMono) || (!light && item.logoDark)
+                  ? { filter: 'invert(1)' }
+                  : undefined
+              }
               className="mt-6 h-12 w-auto max-w-[200px] object-contain object-left sm:h-14"
             />
           </>
@@ -462,6 +476,13 @@ function Identity({ item, index, light }) {
         <p className="mt-6 font-display text-2xl font-extrabold leading-[1.1] tracking-tight text-white sm:text-3xl">
           {item.headline[lang]}
         </p>
+
+        {/* Chi è il cliente, in due righe. La riga `meta` più sotto dice
+            «Settore: impiantistica su commessa», che a noi basta e a chi non
+            conosce l'azienda non dice niente. */}
+        {item.about?.[lang] && (
+          <p className="mt-5 text-sm leading-relaxed text-white/70">{item.about[lang]}</p>
+        )}
       </div>
 
       {/* mt-auto: su desktop il pannello è alto quanto la colonna di destra, e
@@ -497,7 +518,9 @@ function Identity({ item, index, light }) {
             rel="noopener noreferrer"
             className="mt-4 inline-flex items-center gap-2 border-b border-white/10 pb-1 text-sm font-semibold text-white/70 transition hover:text-white"
           >
-            {t.live}
+            {/* «Sito cliente» è il caso normale. I due prodotti nostri hanno
+                qualcosa da far provare davvero, e lì l'etichetta lo dice. */}
+            {item.urlLabel?.[lang] || t.live}
             <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none">
               <path
                 d="M7 17 17 7M9 7h8v8"
@@ -510,6 +533,38 @@ function Identity({ item, index, light }) {
           </a>
         )}
       </div>
+    </div>
+  )
+}
+
+/* ------------------------------------------------------------------ */
+/* 0. IL PROBLEMA                                                      */
+/* ------------------------------------------------------------------ */
+
+/* Aggiunto il 2026-08-07 dopo il commento di una collega di Michele: «vedo la
+ * soluzione a un processo che non ho capito quale sia». Aveva ragione — la
+ * pagina apriva sui risultati, e chi non conosce il cliente non sa di che
+ * risultati stiamo parlando. Prima→Dopo arriva troppo tardi ed è fatto di
+ * etichette da tre parole: riassume, non spiega.
+ *
+ * Quindi qui, prima di ogni numero, il problema raccontato per esteso — e nel
+ * pannello di sinistra `about`, due righe su cosa fa l'azienda, perché «settore:
+ * impiantistica» a noi basta e a un estraneo no.
+ *
+ * È testo semplice e non una scheda, di proposito: è l'unico blocco narrativo
+ * della colonna, e messo in un riquadro come gli altri si leggerebbe come un
+ * altro widget da saltare. */
+function Diagnosis({ item }) {
+  const lang = useLang()
+  const t = COPY[lang].labels
+  if (!item.diagnosis?.[lang]) return null
+
+  return (
+    <div className="cs-reveal">
+      <BlockHead title={t.problem} />
+      <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-white/75 sm:text-base">
+        {item.diagnosis[lang]}
+      </p>
     </div>
   )
 }
