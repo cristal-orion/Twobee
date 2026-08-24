@@ -25,7 +25,6 @@ Su [twobee.it/casestudy](https://twobee.it/casestudy) ci sono i lavori raccontat
 - **Industrial Service & Facility** (`#industrial-service-hr`) — manutenzione di impianti fotovoltaici ed eolici. Da CV generici a candidati già filtrati sui requisiti obbligatori.
 - **Josè Restaurant** (`#jose-prenotazioni`) — ristorante con coperti serali, banchetti ed eventi privati. Dalle prenotazioni sull'agenda di carta a un calendario che si conferma da solo.
 - **Tharvel** (`#tharvel-admin-siti`) — prodotto TwoBee. Dal sito che solo noi possiamo toccare al cliente che lo modifica parlando in chat.
-- **Mr. Hatter** (`#mrhatter-gestionale`) — laboratorio napoletano di cappelli fatti a mano, vendita ai negozi. Da quattro risposte diverse a un ordine che sta in un posto solo, fino alla consegna.
 
 ## Strumenti gratuiti
 
