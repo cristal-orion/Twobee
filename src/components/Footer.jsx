@@ -93,8 +93,8 @@ export default function Footer() {
 
         <div className="flex flex-col items-center gap-1 text-xs text-white/55 sm:items-end">
           {/* Primo della colonna: per chi valuta se contattarci è il link che
-              conta più degli altri due. La pagina resta fuori dall'indice
-              (NOINDEX_PATHS in App.jsx) — da qui è raggiungibile, non cercabile. */}
+              conta più degli altri due. La pagina non è più riservata alle
+              proposte commerciali: sta anche nel menu in alto ed è indicizzata. */}
           <a href={localePath('/casestudy', lang)} className="hover:text-brand-yellow">
             {t.cases}
           </a>

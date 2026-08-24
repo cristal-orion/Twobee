@@ -78,8 +78,10 @@ const SITE = 'https://twobee.it'
 // comunque da lì, e serve il noindex esplicito. Al momento non ce n'è nessuna:
 // /casestudy stava qui finché era riservata alle proposte commerciali, ora è
 // nel menu principale e indicizzabile (sitemap.xml, llms.txt e il <noscript>
-// di index.html la elencano). Per escludere una rotta: aggiungila qui e
-// toglila da quei tre file.
+// di index.html la elencano). Per escludere una rotta non basta aggiungerla
+// qui: questo riscrive il meta robots via JavaScript, e un crawler che non
+// esegue JS legge il "index, follow" statico di index.html. Serve anche un
+// blocco X-Robots-Tag in nginx.conf, oltre a toglierla da quei tre file.
 const NOINDEX_PATHS = []
 
 // Lo stesso index.html è servito su ogni rotta, quindi title/description/canonical
