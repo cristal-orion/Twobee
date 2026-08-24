@@ -74,12 +74,13 @@ const HEAD_COPY = {
 const SITE = 'https://twobee.it'
 
 // Rotte online ma fuori dall'indice. Non basta ometterle da sitemap.xml e dai
-// link: /casestudy gira nelle proposte commerciali (mail, WhatsApp, PDF) e da
-// quei link i crawler la raggiungono comunque. Serve il noindex esplicito.
-// Title e description restano: servono alla scheda di anteprima quando il link
-// viene condiviso. Per farla indicizzare basta togliere la rotta da qui e
-// aggiungerla a sitemap.xml, llms.txt e al <noscript> di index.html.
-const NOINDEX_PATHS = ['/casestudy']
+// link: se una rotta gira in mail, WhatsApp o PDF i crawler la raggiungono
+// comunque da lì, e serve il noindex esplicito. Al momento non ce n'è nessuna:
+// /casestudy stava qui finché era riservata alle proposte commerciali, ora è
+// nel menu principale e indicizzabile (sitemap.xml, llms.txt e il <noscript>
+// di index.html la elencano). Per escludere una rotta: aggiungila qui e
+// toglila da quei tre file.
+const NOINDEX_PATHS = []
 
 // Lo stesso index.html è servito su ogni rotta, quindi title/description/canonical
 // statici descrivono la home: senza questi override una sottopagina si presenta a

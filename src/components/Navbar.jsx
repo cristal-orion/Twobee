@@ -8,6 +8,7 @@ const COPY = {
       { label: 'Sistema', href: '#sistema' },
       { label: 'Piani', href: '#piani' },
       { label: 'Team', href: '#team' },
+      { label: 'Case study', href: '/casestudy', pill: true },
       { label: 'Lavora con noi', href: '/lavora-con-noi' },
     ],
     cta: 'Prenota un audit gratuito',
@@ -20,6 +21,7 @@ const COPY = {
       { label: 'System', href: '#sistema' },
       { label: 'Plans', href: '#piani' },
       { label: 'Team', href: '#team' },
+      { label: 'Case studies', href: '/casestudy', pill: true },
       { label: 'Careers', href: '/lavora-con-noi' },
     ],
     cta: 'Book a free audit',
@@ -144,12 +146,16 @@ export default function Navbar({ subpage = false, landing = false }) {
             draggable={false}
           />
         </a>
-        <nav className="pointer-events-none absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-10 lg:flex">
+        <nav className="pointer-events-none absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-6 lg:flex xl:gap-10">
           {t.nav.map((n) => (
             <a
               key={n.href}
               href={resolve(n.href)}
-              className="pointer-events-auto text-sm font-medium text-white/60 transition-colors hover:text-white"
+              className={
+                n.pill
+                  ? 'pointer-events-auto whitespace-nowrap rounded-full border border-white/30 px-4 py-1.5 text-sm font-medium text-white/85 transition-colors hover:border-white/70 hover:text-white'
+                  : 'pointer-events-auto text-sm font-medium text-white/60 transition-colors hover:text-white'
+              }
             >
               {n.label}
             </a>
@@ -223,7 +229,11 @@ export default function Navbar({ subpage = false, landing = false }) {
                 key={n.href}
                 href={resolve(n.href)}
                 onClick={() => setOpen(false)}
-                className="rounded-lg px-3 py-3 text-sm font-medium text-white/80 hover:bg-white/5"
+                className={
+                  n.pill
+                    ? 'my-1 ml-3 self-start rounded-full border border-white/30 px-4 py-2 text-sm font-medium text-white/90'
+                    : 'rounded-lg px-3 py-3 text-sm font-medium text-white/80 hover:bg-white/5'
+                }
               >
                 {n.label}
               </a>

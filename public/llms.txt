@@ -16,6 +16,17 @@
 
 Tutti i piani includono: contratto minimo 6 mesi, report mensile entro il 5°, nessun costo nascosto, clausola di uscita a 90 giorni senza penali.
 
+## Case study
+
+Su [twobee.it/casestudy](https://twobee.it/casestudy) ci sono i lavori raccontati per intero: il problema di partenza, il sistema costruito (CRM, gestionali, automazioni, integrazioni) e la situazione dopo. Ogni caso ha un'ancora propria (`/casestudy#slug`).
+
+- **Seven** (`#seven-inviti-fatturare`) — rete di agenzie che vende energia, gas e telefonia. Da una settimana di Excel per fornitore a un invito a fatturare chiuso in pochi minuti.
+- **Elettra Group** (`#elettra-crm`) — impianti elettrici e fotovoltaici su commessa. Da commesse frammentate a un unico controllo su ordini, acquisti e fatturazione.
+- **Industrial Service & Facility** (`#industrial-service-hr`) — manutenzione di impianti fotovoltaici ed eolici. Da CV generici a candidati già filtrati sui requisiti obbligatori.
+- **Josè Restaurant** (`#jose-prenotazioni`) — ristorante con coperti serali, banchetti ed eventi privati. Dalle prenotazioni sull'agenda di carta a un calendario che si conferma da solo.
+- **Tharvel** (`#tharvel-admin-siti`) — prodotto TwoBee. Dal sito che solo noi possiamo toccare al cliente che lo modifica parlando in chat.
+- **Mr. Hatter** (`#mrhatter-gestionale`) — laboratorio napoletano di cappelli fatti a mano, vendita ai negozi. Da quattro risposte diverse a un ordine che sta in un posto solo, fino alla consegna.
+
 ## Strumenti gratuiti
 
 - [Test di crescita](https://twobee.it/test-crescita) — scorecard di autovalutazione in 8 domande (si risponde sì / in parte / no, nessun dato aziendale richiesto). Restituisce un punteggio 0-100 sulla prevedibilità della crescita, le falle principali e le tre mosse prioritarie. È un'autovalutazione, non una stima di fatturato.
