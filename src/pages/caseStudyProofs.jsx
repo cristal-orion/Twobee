@@ -20,36 +20,6 @@
  * nessun indirizzo email vero (vedi il brief di Elettra in case-studies/).
  */
 
-/* Token di SofIA, copiati da /home/michele/Desktop/Progetti/Sofia/tokens.css
- * (design.md, "Vivid Narrative"). Stanno qui e non in tailwind.config perché
- * servono a UN blocco: sono i colori di un altro prodotto, non del nostro sito,
- * e finirebbero per essere usati per sbaglio altrove.
- *
- * Il carattere no: SofIA usa Syne e Plus Jakarta Sans, e caricarli su ogni
- * pagina del nostro sito per un facsimile largo mezzo schermo non vale il peso.
- * Sono dichiarati per primi nello stack, così se uno li ha installati li vede,
- * altrimenti scende a system-ui — che è geometrico abbastanza da non stonare. */
-const SOFIA = {
-  coral: '#ff5f49',
-  coralInk: '#cf3a25',
-  coralTint: '#ffe4dc',
-  green: '#4a5d50',
-  greenInk: '#3a4a40',
-  greenDeep: '#28332c',
-  greenTint: '#dde6df',
-  cream: '#f9f5e3',
-  surface: '#fffefa',
-  ink: '#241f1d',
-  inkSoft: '#4c4441',
-  muted: '#88726f',
-  taupeTint: '#ece3e1',
-  taupeInk: '#6b5754',
-  line: 'rgba(36, 31, 29, 0.10)',
-  waGreen: '#1faa59',
-  head: '"Syne", "Plus Jakarta Sans", system-ui, sans-serif',
-  body: '"Plus Jakarta Sans", system-ui, sans-serif',
-}
-
 /* Mr. Hatter non ha token da nessuna parte: il progetto non è su questa macchina
  * e il loro sito non espone un design system (vedi case-studies/mrhatter-gestionale.md).
  * ⚠️ QUESTA PALETTE È INVENTATA — carta calda, inchiostro caldo, cognac da feltro,
@@ -127,34 +97,6 @@ const COPY = {
       'Aggiungi una sezione FAQ in fondo alla pagina',
     ],
     inputPlaceholder: 'Modifica il sito, fai una domanda…',
-
-    sofia: {
-      nav: ['Panoramica', 'Chiamate', 'Agenda', 'Numeri', 'Impostazioni'],
-      sector: 'Studio dentistico',
-      range: 'Oggi',
-      kpi: [
-        { value: '47', label: 'Chiamate ricevute' },
-        { value: '31', label: 'Appuntamenti fissati', good: true },
-        { value: '6', label: 'Da richiamare', warn: true },
-        { value: '18', label: 'Fuori orario' },
-      ],
-      recentTitle: 'Chiamate recenti',
-      cols: ['Ora', 'Canale', 'Richiesta', 'Esito'],
-      rows: [
-        { time: '21:40', ch: 'Telefono', ask: 'Prenotare un’igiene', out: 'Appuntamento', tone: 'ok' },
-        { time: '20:12', ch: 'WhatsApp', ask: 'Orari di sabato', out: 'Risposta', tone: 'flat' },
-        { time: '19:55', ch: 'Telefono', ask: 'Spostare l’appuntamento', out: 'Appuntamento', tone: 'ok' },
-        { time: '19:31', ch: 'Chat', ask: 'Costo di uno sbiancamento', out: 'Risposta', tone: 'flat' },
-        { time: '18:47', ch: 'Telefono', ask: 'Urgenza, dente scheggiato', out: 'Da richiamare', tone: 'warn' },
-      ],
-      askedTitle: 'Più chieste oggi',
-      asked: [
-        { q: 'Orari e giorni di apertura', n: 12 },
-        { q: 'Prezzi e preventivi', n: 9 },
-        { q: 'Spostare un appuntamento', n: 7 },
-      ],
-      footer: 'Sincronizzata con Google Calendar',
-    },
 
     hatter: {
       nav: ['Ordini', 'Magazzino', 'Produzione', 'Evasione', 'Consegne', 'Negozi'],
@@ -247,34 +189,6 @@ const COPY = {
       'Add an FAQ section at the bottom',
     ],
     inputPlaceholder: 'Edit the site, ask a question…',
-
-    sofia: {
-      nav: ['Overview', 'Calls', 'Diary', 'Numbers', 'Settings'],
-      sector: 'Dental practice',
-      range: 'Today',
-      kpi: [
-        { value: '47', label: 'Calls answered' },
-        { value: '31', label: 'Appointments booked', good: true },
-        { value: '6', label: 'To call back', warn: true },
-        { value: '18', label: 'Outside hours' },
-      ],
-      recentTitle: 'Recent calls',
-      cols: ['Time', 'Channel', 'Request', 'Outcome'],
-      rows: [
-        { time: '21:40', ch: 'Phone', ask: 'Book a hygiene session', out: 'Booked', tone: 'ok' },
-        { time: '20:12', ch: 'WhatsApp', ask: 'Saturday opening hours', out: 'Answered', tone: 'flat' },
-        { time: '19:55', ch: 'Phone', ask: 'Move an appointment', out: 'Booked', tone: 'ok' },
-        { time: '19:31', ch: 'Chat', ask: 'Cost of a whitening', out: 'Answered', tone: 'flat' },
-        { time: '18:47', ch: 'Phone', ask: 'Urgent, chipped tooth', out: 'To call back', tone: 'warn' },
-      ],
-      askedTitle: 'Most asked today',
-      asked: [
-        { q: 'Opening days and hours', n: 12 },
-        { q: 'Prices and quotes', n: 9 },
-        { q: 'Moving an appointment', n: 7 },
-      ],
-      footer: 'Synced with Google Calendar',
-    },
 
     hatter: {
       nav: ['Orders', 'Stock', 'Production', 'Fulfilment', 'Deliveries', 'Shops'],
@@ -460,223 +374,7 @@ function TharvelPanel({ lang }) {
   )
 }
 
-/* Il pannello di SofIA. Come Tharvel è un facsimile a codice e non uno
- * screenshot, per un motivo diverso: SofIA è un nostro prodotto e il pannello di
- * un cliente vero conterrebbe le chiamate dei suoi pazienti. Qui i dati sono
- * inventati — `proof.caption` in caseStudiesData.js lo dichiara in pagina.
- *
- * Cosa devono dimostrare i numeri scelti, uno per uno:
- *   47 chiamate / 18 fuori orario  → «risponde 24 ore su 24»
- *   31 appuntamenti fissati        → «appuntamento chiuso in chiamata»
- *   «Più chieste oggi»             → «a fine giornata sai cosa chiedevano»
- * Sono le tre schede dei risultati di quel caso. Se cambiano quelle, cambia
- * anche questo, altrimenti la prova non prova più niente.
- *
- * Gli orari delle chiamate sono di sera di proposito: 21:40 e 19:31 dicono da
- * soli la cosa che una riga di testo deve spiegare. */
-function SofiaPanel({ lang }) {
-  const t = COPY[lang].sofia
-
-  const chip = {
-    ok: { background: SOFIA.greenTint, color: SOFIA.greenInk },
-    warn: { background: SOFIA.coralTint, color: SOFIA.coralInk },
-    flat: { background: SOFIA.taupeTint, color: SOFIA.taupeInk },
-  }
-  const dot = { Telefono: SOFIA.coral, Phone: SOFIA.coral, WhatsApp: SOFIA.waGreen, Chat: SOFIA.green }
-
-  return (
-    <div
-      className="overflow-hidden rounded-3xl shadow-[0_30px_80px_-40px_rgba(36,31,29,0.5)]"
-      style={{ background: SOFIA.cream, border: `1px solid ${SOFIA.line}`, fontFamily: SOFIA.body }}
-    >
-      {/* barra superiore */}
-      <div
-        className="flex flex-wrap items-center gap-2 px-3 py-2.5 sm:gap-3 sm:px-4"
-        style={{ background: SOFIA.surface, borderBottom: `1px solid ${SOFIA.line}` }}
-      >
-        {/* marchio: tessera coral con il punto bianco, «Sof» inchiostro + «IA» coral */}
-        <span
-          aria-hidden
-          className="flex h-6 w-6 shrink-0 items-center justify-center"
-          style={{ background: SOFIA.coral, borderRadius: 9 }}
-        >
-          <span className="block h-1.5 w-1.5 rounded-full bg-white" />
-        </span>
-        <span
-          className="text-sm font-extrabold tracking-[-0.02em]"
-          style={{ fontFamily: SOFIA.head, color: SOFIA.ink }}
-        >
-          Sof<span style={{ color: SOFIA.coral }}>IA</span>
-        </span>
-        <span
-          className="hidden rounded-full px-2.5 py-1 text-[10px] font-bold sm:inline"
-          style={{ background: SOFIA.taupeTint, color: SOFIA.taupeInk }}
-        >
-          {t.sector}
-        </span>
-        <span
-          className="ml-auto rounded-full px-3 py-1.5 text-[10px] font-bold"
-          style={{ background: SOFIA.coral, color: '#fff' }}
-        >
-          {t.range}
-        </span>
-      </div>
-
-      <div className="flex flex-col lg:flex-row">
-        {/* navigazione: colonna scura da lg, striscia in alto sotto */}
-        <div
-          className="shrink-0 px-3 py-3 lg:w-40 lg:py-5"
-          style={{ background: SOFIA.greenDeep }}
-        >
-          <ul className="flex gap-1 overflow-x-auto lg:block lg:space-y-1 lg:overflow-visible">
-            {t.nav.map((n, i) => (
-              <li
-                key={n}
-                className="shrink-0 rounded-lg px-2.5 py-1.5 text-[10px] font-semibold"
-                style={
-                  i === 0
-                    ? { background: 'rgba(255,255,255,0.10)', color: '#fff' }
-                    : { color: 'rgba(255,255,255,0.55)' }
-                }
-              >
-                {n}
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div className="min-w-0 flex-1 p-3 sm:p-4">
-          {/* i quattro numeri */}
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-            {t.kpi.map((k) => (
-              <div
-                key={k.label}
-                className="rounded-xl px-3 py-2.5"
-                style={{ background: SOFIA.surface, border: `1px solid ${SOFIA.line}` }}
-              >
-                <p
-                  className="text-xl font-extrabold leading-none sm:text-2xl"
-                  style={{
-                    fontFamily: SOFIA.head,
-                    color: k.good ? SOFIA.green : k.warn ? SOFIA.coralInk : SOFIA.ink,
-                  }}
-                >
-                  {k.value}
-                </p>
-                <p className="mt-1.5 text-[10px] font-semibold leading-tight" style={{ color: SOFIA.muted }}>
-                  {k.label}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-2 grid gap-2 lg:grid-cols-5">
-            {/* chiamate recenti */}
-            <div
-              className="min-w-0 rounded-xl p-3 lg:col-span-3"
-              style={{ background: SOFIA.surface, border: `1px solid ${SOFIA.line}` }}
-            >
-              <p className="text-[11px] font-extrabold" style={{ fontFamily: SOFIA.head, color: SOFIA.ink }}>
-                {t.recentTitle}
-              </p>
-              {/* quattro colonne su uno schermo da 360px non ci stanno: scorre
-                  la tabella, non la pagina */}
-              <div className="-mx-1 mt-2.5 overflow-x-auto px-1">
-              <table className="w-full min-w-[19rem] border-collapse text-left">
-                <thead>
-                  <tr>
-                    {t.cols.map((c) => (
-                      <th
-                        key={c}
-                        className="pb-1.5 text-[8px] font-bold uppercase tracking-[0.12em]"
-                        style={{ color: SOFIA.muted, borderBottom: `1px solid ${SOFIA.line}` }}
-                      >
-                        {c}
-                      </th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {t.rows.map((r) => (
-                    <tr key={r.time}>
-                      <td
-                        className="py-2 pr-2 text-[10px] font-semibold tabular-nums"
-                        style={{ color: SOFIA.inkSoft, borderBottom: `1px solid ${SOFIA.line}` }}
-                      >
-                        {r.time}
-                      </td>
-                      <td
-                        className="py-2 pr-2 text-[10px]"
-                        style={{ color: SOFIA.inkSoft, borderBottom: `1px solid ${SOFIA.line}` }}
-                      >
-                        <span className="inline-flex items-center gap-1.5">
-                          <span
-                            aria-hidden
-                            className="h-1.5 w-1.5 shrink-0 rounded-full"
-                            style={{ background: dot[r.ch] || SOFIA.muted }}
-                          />
-                          {r.ch}
-                        </span>
-                      </td>
-                      <td
-                        className="py-2 pr-2 text-[10px]"
-                        style={{ color: SOFIA.ink, borderBottom: `1px solid ${SOFIA.line}` }}
-                      >
-                        {r.ask}
-                      </td>
-                      <td className="py-2 text-[10px]" style={{ borderBottom: `1px solid ${SOFIA.line}` }}>
-                        <span
-                          className="inline-block whitespace-nowrap rounded-full px-2 py-0.5 text-[9px] font-bold"
-                          style={chip[r.tone]}
-                        >
-                          {r.out}
-                        </span>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-              </div>
-            </div>
-
-            {/* domande ricorrenti */}
-            <div
-              className="min-w-0 rounded-xl p-3 lg:col-span-2"
-              style={{ background: SOFIA.surface, border: `1px solid ${SOFIA.line}` }}
-            >
-              <p className="text-[11px] font-extrabold" style={{ fontFamily: SOFIA.head, color: SOFIA.ink }}>
-                {t.askedTitle}
-              </p>
-              <ul className="mt-2.5 space-y-2">
-                {t.asked.map((a) => (
-                  <li key={a.q} className="flex items-center gap-2">
-                    <span className="min-w-0 flex-1 truncate text-[10px]" style={{ color: SOFIA.inkSoft }}>
-                      {a.q}
-                    </span>
-                    <span
-                      className="shrink-0 rounded-full px-2 py-0.5 text-[9px] font-bold tabular-nums"
-                      style={{ background: SOFIA.coralTint, color: SOFIA.coralInk }}
-                    >
-                      {a.n}
-                    </span>
-                  </li>
-                ))}
-              </ul>
-              <p
-                className="mt-4 border-t pt-2.5 text-[9px] font-semibold"
-                style={{ borderColor: SOFIA.line, color: SOFIA.muted }}
-              >
-                {t.footer}
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-/* Il gestionale di Mr. Hatter. A differenza di SofIA e Tharvel questo pannello
+/* Il gestionale di Mr. Hatter. A differenza di Tharvel questo pannello
  * non l'abbiamo mai visto: il progetto non è su questa macchina. La struttura
  * viene dai cinque ambiti che il gestionale gestisce davvero — ordini, merce,
  * produzione, evasione, consegne — l'aspetto è nostro (vedi HATTER più sopra).
@@ -1131,7 +829,6 @@ function SevenPanel({ lang }) {
 /* Chiave usata in `proof.component` → componente. */
 export const PROOFS = {
   tharvel: TharvelPanel,
-  sofia: SofiaPanel,
   mrhatter: HatterPanel,
   seven: SevenPanel,
 }
