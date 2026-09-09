@@ -8,7 +8,6 @@ const EYEBROW = {
 export default function Clients() {
   const lang = useLang()
   const partners = [
-    { name: 'Sartoria Condotti', logo: '/partner-sartoriacondotti.webp', url: 'https://www.sartoriacondotti.it/' },
     { name: 'iCura Impresa', logo: '/partner-icuraimpresa.webp', url: 'https://www.icuraimpresa.it/' },
     { name: 'Affinity', logo: '/partner-affinity.webp', url: 'https://www.affinitylab.it/' },
     { name: 'Elettra Group', logo: '/partner-elettragroup.webp', url: 'https://elettragroup.it/' },

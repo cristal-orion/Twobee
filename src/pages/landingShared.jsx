@@ -87,7 +87,6 @@ export function scrollToBooking() {
 /* la passa ogni pagina dal proprio hero).                               */
 /* ------------------------------------------------------------------ */
 export const PARTNER_LOGOS = [
-  '/partner-sartoriacondotti.webp',
   '/partner-icuraimpresa.webp',
   '/partner-affinity.webp',
   '/partner-elettragroup.webp',
