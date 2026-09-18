@@ -60,13 +60,13 @@ const HEAD_COPY = {
   it: {
     title: 'TwoBee | Sistemi di crescita per le PMI del Sud Italia',
     description:
-      'Trasformiamo il marketing delle PMI italiane in un sistema di acquisizione clienti misurabile, con un impatto diretto sui ricavi.',
+      'TwoBee progetta sistemi di crescita per le PMI italiane: growth performance marketing, digitalizzazione dei flussi e integrazione dell’AI nei processi.',
     locale: 'it_IT',
   },
   en: {
     title: "TwoBee | Growth Systems for Southern Italy's SMEs",
     description:
-      "We turn Italian SMEs' marketing into a measurable customer-acquisition system, with a direct impact on revenue.",
+      "TwoBee builds growth systems for Italian SMEs: growth performance marketing, workflow digitalisation and AI integration into business processes.",
     locale: 'en_US',
   },
 }
