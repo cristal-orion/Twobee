@@ -1,6 +1,6 @@
 # TwoBee
 
-> TwoBee è una società italiana di consulenza strategica Growth & AI che progetta sistemi di crescita per le PMI del Sud Italia, su tre fronti: growth performance marketing, digitalizzazione dei flussi aziendali e integrazione dell'AI nei processi. Lavora su KPI di fatturato (non vanity metrics).
+> TwoBee è una società italiana di consulenza strategica Growth & AI che progetta sistemi di crescita per le PMI italiane, su tre fronti: growth performance marketing, digitalizzazione dei flussi aziendali e integrazione dell'AI nei processi. Lavora su KPI di fatturato (non vanity metrics).
 
 ## Cosa offriamo
 

@@ -64,7 +64,7 @@ const COPY = {
       h1hl: 'schivare da solo?',
       sub: 'Fai volare l’apina ed evita i pain point che frenano ogni imprenditore. Quando ne colpisci uno… ti mostriamo come lo risolviamo.',
       trust: ['30 secondi', 'Nessun dato da inserire', 'Zero impegno'],
-      social: 'Già al fianco di PMI e brand del Sud Italia',
+      social: 'Già al fianco di PMI e brand in tutta Italia',
       cardTag: 'Flappy Twobee',
       scoreLabel: 'Schivati',
       bestLabel: 'Record',

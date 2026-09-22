@@ -106,7 +106,7 @@ const COPY = {
       h1hl: 'prevedibile la tua crescita?',
       sub: 'Otto domande, novanta secondi. Nessun numero da sapere: rispondi sì, in parte o no e ti diciamo dove perde colpi il tuo sistema di acquisizione.',
       trust: ['90 secondi', 'Nessun numero da sapere', 'Risultato immediato'],
-      social: 'Già al fianco di PMI e brand del Sud Italia',
+      social: 'Già al fianco di PMI e brand in tutta Italia',
       talkInstead: 'Preferisci saltare il test e parlarci direttamente? →',
     },
     quiz: {

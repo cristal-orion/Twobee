@@ -58,13 +58,13 @@ function getLangAndPath() {
 
 const HEAD_COPY = {
   it: {
-    title: 'TwoBee | Sistemi di crescita per le PMI del Sud Italia',
+    title: 'TwoBee | Sistemi di crescita per le PMI italiane',
     description:
       'TwoBee progetta sistemi di crescita per le PMI italiane: growth performance marketing, digitalizzazione dei flussi e integrazione dell’AI nei processi.',
     locale: 'it_IT',
   },
   en: {
-    title: "TwoBee | Growth Systems for Southern Italy's SMEs",
+    title: 'TwoBee | Growth Systems for Italian SMEs',
     description:
       "TwoBee builds growth systems for Italian SMEs: growth performance marketing, workflow digitalisation and AI integration into business processes.",
     locale: 'en_US',
@@ -83,6 +83,12 @@ const SITE = 'https://twobee.it'
 // esegue JS legge il "index, follow" statico di index.html. Serve anche un
 // blocco X-Robots-Tag in nginx.conf, oltre a toglierla da quei tre file.
 const NOINDEX_PATHS = []
+
+// La pagina candidature resta disponibile anche in inglese, ma non è una
+// pagina editoriale autonoma: in SERP generava un doppione del sitelink
+// italiano ("Lavora con noi" / "Careers"). Manteniamo quindi un solo
+// risultato indicizzabile, quello italiano.
+const NOINDEX_LOCALE_PATHS = new Set(['en:/lavora-con-noi'])
 
 // Lo stesso index.html è servito su ogni rotta, quindi title/description/canonical
 // statici descrivono la home: senza questi override una sottopagina si presenta a
@@ -153,6 +159,9 @@ function useSyncHead(lang, path) {
   useEffect(() => {
     const page = PAGE_HEAD[path]
     const copy = (page && page[lang]) || HEAD_COPY[lang]
+    const isNoindex =
+      NOINDEX_PATHS.includes(path) ||
+      NOINDEX_LOCALE_PATHS.has(`${lang}:${path}`)
     document.documentElement.lang = lang
     document.title = copy.title
     const setAttr = (selector, attr, value) => {
@@ -168,15 +177,32 @@ function useSyncHead(lang, path) {
     setMeta('meta[name="twitter:description"]', copy.description)
     // Il robots statico di index.html dice "index, follow": va riscritto qui,
     // non solo omesso, perché lo stesso file è servito su ogni rotta.
-    if (NOINDEX_PATHS.includes(path)) {
+    if (isNoindex) {
       setMeta('meta[name="robots"]', 'noindex, follow')
     }
     if (!page) return
     setAttr('link[rel="canonical"]', 'href', SITE + localePath(path, lang))
     setMeta('meta[property="og:url"]', SITE + localePath(path, lang))
-    setAttr('link[rel="alternate"][hreflang="it"]', 'href', SITE + localePath(path, 'it'))
-    setAttr('link[rel="alternate"][hreflang="en"]', 'href', SITE + localePath(path, 'en'))
-    setAttr('link[rel="alternate"][hreflang="x-default"]', 'href', SITE + localePath(path, 'it'))
+    const setAlternate = (langCode, href) => {
+      const el = document.querySelector(
+        `link[rel="alternate"][hreflang="${langCode}"]`
+      )
+      if (!el) return
+      if (href) el.setAttribute('href', href)
+      else el.remove()
+    }
+    // La pagina inglese Careers è noindex, quindi non può far parte di una
+    // coppia hreflang. Sulla pagina italiana resta solo il riferimento a sé.
+    const isCareersPath = path === '/lavora-con-noi'
+    setAlternate('it', isNoindex ? null : SITE + localePath(path, 'it'))
+    setAlternate(
+      'en',
+      !isNoindex && !isCareersPath ? SITE + localePath(path, 'en') : null
+    )
+    setAlternate(
+      'x-default',
+      isNoindex ? null : SITE + localePath(path, 'it')
+    )
   }, [lang, path])
 }
 
