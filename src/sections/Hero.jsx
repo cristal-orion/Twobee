@@ -7,12 +7,12 @@ gsap.registerPlugin(useGSAP)
 
 const COPY = {
   it: {
-    line1: 'Gli altri ti vendono',
-    line2: 'follower.',
-    line3a: 'Noi guidiamo la tua ',
-    line3b: 'crescita.',
-    body: 'Società di consulenza strategica, in ambito Growth & AI per PMI italiane. Un sistema di acquisizione clienti misurabile, con impatto diretto sui ricavi.',
-    cta: 'Prenota un audit gratuito',
+    line1: 'Il tuo marketing',
+    line2: 'genera solo like,',
+    line3a: 'il nostro ',
+    line3b: 'sistemi e fatturato!',
+    body: 'Siamo una società di consulenza strategica specializzata in Growth Marketing (marketing orientato alla crescita) e Intelligenza Artificiale. Aiutiamo le PMI italiane ad acquisire clienti, ottimizzare i processi e trasformare gli investimenti in risultati concreti e misurabili, senza perdere di vista ricavi, costi e marginalità.',
+    cta: 'Parliamo insieme del tuo business, è gratuito!',
   },
   en: {
     line1: 'Others sell you',

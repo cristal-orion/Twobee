@@ -5,19 +5,19 @@ const COPY = {
   it: {
     eyebrow: 'Diagnosi',
     headingPre: 'Hai già investito in marketing,',
-    headingHighlight: 'ma non vedi risultati?',
+    headingHighlight: 'ma non vedi risultati.',
     items: [
       {
-        title: 'Budget bruciato senza KPI',
-        text: 'Spendi senza nessun impatto sulle tue vendite.',
+        title: 'Hai bruciato budget!',
+        text: 'Hai speso soldi senza nessun impatto sulle tue vendite.',
       },
       {
         title: 'Solo vanity metrics',
-        text: 'Like e follower non pagano i tuoi dipendenti.',
+        text: 'Con like e follower non ci paghi di certo i tuoi dipendenti.',
       },
       {
         title: 'Senza ads crolla tutto',
-        text: 'Stacchi il budget e i tuoi clienti non arrivano più.',
+        text: 'Stacchi le inserzioni e i clienti non arrivano più.',
       },
     ],
     closingPre: 'Per questo abbiamo costruito',
