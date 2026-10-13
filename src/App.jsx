@@ -34,6 +34,7 @@ const CareersPage = lazy(() => import('./pages/Careers.jsx'))
 const FlappybeePage = lazy(() => import('./pages/Flappybee.jsx'))
 const TestCrescitaPage = lazy(() => import('./pages/TestCrescita.jsx'))
 const CaseStudiesPage = lazy(() => import('./pages/CaseStudies.jsx'))
+const MerchPage = lazy(() => import('./pages/Merch.jsx'))
 
 gsap.registerPlugin(ScrollTrigger, ScrollSmoother, useGSAP)
 
@@ -94,6 +95,18 @@ const NOINDEX_LOCALE_PATHS = new Set(['en:/lavora-con-noi'])
 // Google come duplicato della home (canonical → "/") e non viene indicizzata.
 // Le rotte NON elencate qui (i lab) restano volutamente così.
 const PAGE_HEAD = {
+  '/merch': {
+    it: {
+      title: 'Merch TwoBee | Brief off. Merch on.',
+      description: 'Il lato poco corporate di TwoBee: magliette, cappellini e accessori ironici per marketer e creativi. Il primo drop è in preparazione.',
+      locale: 'it_IT',
+    },
+    en: {
+      title: 'TwoBee Merch | Brief off. Merch on.',
+      description: 'The not-so-corporate side of TwoBee: playful tees, caps and accessories for marketers and creatives. The first drop is in the works.',
+      locale: 'en_US',
+    },
+  },
   '/test-crescita': {
     it: {
       title: 'Test: quanto è prevedibile la crescita della tua azienda? | TwoBee',
@@ -220,6 +233,8 @@ export default function App() {
     page = <Suspense fallback={null}><TestCrescitaPage /></Suspense>
   } else if (path === '/casestudy') {
     page = <Suspense fallback={null}><CaseStudiesPage /></Suspense>
+  } else if (path === '/merch') {
+    page = <Suspense fallback={null}><MerchPage /></Suspense>
   } else if (path === '/hiddenwork') {
     page = <Suspense fallback={null}><HexFloatLab /></Suspense>
   }

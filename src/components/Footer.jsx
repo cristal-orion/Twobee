@@ -9,6 +9,7 @@ const COPY = {
     cases: '🍯 Case study',
     test: '📋 Test di crescita',
     game: '🐝 Flappy Twobee',
+    merch: 'Merch',
     privacy: 'Privacy Policy',
     cookie: 'Cookie Policy',
     manageCookies: 'Gestisci cookie',
@@ -21,6 +22,7 @@ const COPY = {
     cases: '🍯 Case studies',
     test: '📋 Growth test',
     game: '🐝 Flappy Twobee',
+    merch: 'Merch',
     privacy: 'Privacy Policy',
     cookie: 'Cookie Policy',
     manageCookies: 'Manage cookies',
@@ -106,6 +108,9 @@ export default function Footer() {
           </a>
           <a href={localePath('/flappybee', lang)} className="hover:text-brand-yellow">
             {t.game}
+          </a>
+          <a href={localePath('/merch', lang)} className="hover:text-brand-yellow">
+            {t.merch}
           </a>
           <a href="/privacy-policy.html" className="hover:text-brand-yellow">
             {t.privacy}

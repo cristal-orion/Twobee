@@ -1,0 +1,22 @@
+[
+  {
+    "date": "2026-10-13",
+    "macrostructure": "Manifesto",
+    "theme": "Existing TwoBee brand",
+    "genre": "playful-bold",
+    "nav": "Shared Navbar with solid N7 slab treatment on Merch only",
+    "footer": "Ft5 statement with shared Footer",
+    "enrichment": "Tier A hangtag + original Tier B SVG category and bee art",
+    "brief": "Merch launch scaffold for marketers and creatives; no invented products",
+    "motion": ["entrance", "four-second ribbon intro", "press feedback"],
+    "verifiedWidths": [320, 375, 414, 768, 1024, 1440, 1920],
+    "locales": ["it", "en"],
+    "intentionalExceptions": [
+      "Brand yellow is the main poster surface, as requested for a BOLD hero",
+      "Existing shared navigation and footer ownership is preserved",
+      "Existing near-black and off-white brand values are preserved exactly",
+      "Hero display is oversized for the short, explicitly bold statement",
+      "Top padding includes clearance for the existing fixed navigation"
+    ]
+  }
+]

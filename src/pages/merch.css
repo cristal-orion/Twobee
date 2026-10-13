@@ -1,0 +1,183 @@
+/* Hallmark · macrostructure: Manifesto · theme: TwoBee brand preserved
+ * N7 treatment is scoped to Merch; shared navigation ownership is unchanged.
+ * Yellow as a poster surface and oversized display are intentional: the owner requested BOLD.
+ * pre-emit critique: P4 H5 E4 S5 R4 V5
+ */
+.merch-page {
+  --merch-yellow: oklch(from #FFC501 l c h);
+  --merch-ink: oklch(from #0B0B0C l c h);
+  --merch-paper: oklch(from #FBFAF9 l c h);
+  --merch-accent-ink: var(--merch-ink);
+  --merch-muted: oklch(43% 0.012 80);
+  --merch-rule: oklch(82% 0.013 80);
+  --merch-deep-yellow: oklch(58% 0.125 83);
+  --merch-font-display: 'League Spartan', 'Inter', system-ui, sans-serif;
+  --merch-font-body: 'Inter', system-ui, sans-serif;
+  --merch-space-xs: .5rem;
+  --merch-space-sm: .75rem;
+  --merch-space-md: 1rem;
+  --merch-space-lg: 1.5rem;
+  --merch-space-xl: 2.5rem;
+  --merch-space-2xl: 4rem;
+  --merch-space-3xl: 6rem;
+  --merch-ease-out: cubic-bezier(.16, 1, .3, 1);
+  --merch-ease-in: cubic-bezier(.7, 0, .84, 0);
+  --merch-ease-in-out: cubic-bezier(.65, 0, .35, 1);
+  --theme-t: 0;
+  --theme-bg: var(--merch-ink);
+  --theme-fg: var(--merch-paper);
+  --theme-accent: var(--merch-yellow);
+  background: var(--merch-ink);
+  color: var(--merch-paper);
+  font-family: var(--merch-font-body);
+  overflow-x: clip;
+}
+html:has(.merch-page), body:has(.merch-page) { overflow-x: clip; }
+.merch-page h1, .merch-page h2, .merch-page h3 { font-family: var(--merch-font-display); min-width: 0; overflow-wrap: anywhere; }
+.merch-page a, .merch-page button { -webkit-tap-highlight-color: transparent; }
+.merch-page a:focus-visible, .merch-page button:focus-visible { outline: 3px solid currentColor; outline-offset: 5px; }
+.merch-page button:disabled { opacity: .5; cursor: not-allowed; }
+.merch-page > header { background: var(--merch-ink) !important; color: var(--merch-paper); backdrop-filter: none; border-bottom: 2px solid var(--merch-yellow); }
+.merch-page > header nav a[aria-current="page"] { color: var(--merch-yellow); text-decoration: underline; text-underline-offset: 5px; }
+.merch-shell { width: 100%; max-width: 1400px; margin-inline: auto; padding-inline: clamp(1.25rem, 4vw, 3rem); }
+.merch-skip { position: fixed; inset: var(--merch-space-sm) auto auto var(--merch-space-sm); z-index: 100; padding: var(--merch-space-md); color: var(--merch-ink); background: var(--merch-paper); transform: translateY(-160%); }
+.merch-skip:focus { transform: none; }
+.merch-hero { padding-block: 7.5rem var(--merch-space-xl); background: var(--merch-yellow); color: var(--merch-accent-ink); }
+.merch-hero-intro { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--merch-space-md); }
+.merch-wordmark { display: flex; align-items: center; gap: var(--merch-space-sm); font-family: var(--merch-font-display); font-weight: 800; font-size: 1.5rem; letter-spacing: -.04em; }
+.merch-wordmark-star { font-size: 1.75rem; }
+.merch-hero-stage { position: relative; margin-block: var(--merch-space-xl) var(--merch-space-md); }
+.merch-title { position: relative; z-index: 1; font-size: clamp(2.85rem, 14.2vw, 7.25rem); font-weight: 900; letter-spacing: -.065em; line-height: 1.02; }
+.merch-title-line { display: block; overflow: clip; padding-block: .025em; }
+.merch-title-line > span { display: block; }
+.merch-title-line--outline { color: var(--merch-yellow); -webkit-text-stroke: 1.5px var(--merch-ink); paint-order: stroke fill; }
+.merch-artwork { width: min(100%, 360px); height: 340px; position: relative; margin: -.25rem auto var(--merch-space-lg); color: var(--merch-ink); }
+.merch-art-orbit { position: absolute; width: 94%; height: 80%; top: 14%; left: 4%; border: 1px solid var(--merch-deep-yellow); border-radius: 50%; transform: rotate(-28deg); }
+.merch-art-piece { position: absolute; }
+.merch-tag-wrap { width: 49%; top: 15%; left: 28%; transform: rotate(11deg); z-index: 3; }
+.merch-tag-string { position: absolute; height: 75px; width: 48px; top: -57px; left: 41%; border: 2px solid var(--merch-ink); border-radius: 50%; transform: rotate(-15deg); }
+.merch-tag { position: relative; padding: 32px 16px 14px; background: var(--merch-ink); color: var(--merch-paper); clip-path: polygon(20% 0, 80% 0, 100% 12%, 100% 100%, 0 100%, 0 12%); }
+.merch-tag::before { content: ''; position: absolute; width: 9px; height: 9px; border-radius: 50%; left: calc(50% - 4.5px); top: 12px; background: var(--merch-yellow); }
+.merch-tag-logo { display: flex; align-items: baseline; font-family: var(--merch-font-display); font-size: 1.1rem; font-weight: 700; letter-spacing: -.06em; }
+.merch-tag-logo > span:first-child { color: var(--merch-yellow); }
+.merch-bee-face { width: 100%; margin-block: 1px; stroke: var(--merch-ink); stroke-width: 5; stroke-linecap: round; stroke-linejoin: round; }
+.merch-art-paper { fill: var(--merch-paper); }
+.merch-art-yellow { fill: var(--merch-yellow); }
+.merch-art-ink { fill: var(--merch-ink); }
+.merch-glasses-shine { stroke: var(--merch-paper); stroke-width: 3; }
+.merch-tag-headline { display: block; font-family: var(--merch-font-display); font-weight: 900; font-size: clamp(1.65rem, 7vw, 2.2rem); line-height: 1.02; letter-spacing: -.05em; }
+.merch-tag-caption { display: grid; margin-block: 12px; font-size: .55rem; line-height: 1.5; }
+.merch-barcode { display: flex; gap: 3px; height: 14px; }
+.merch-barcode i { display: block; background: var(--merch-paper); width: 3px; }
+.merch-barcode i:nth-child(3n) { width: 6px; }
+.merch-barcode i:nth-child(4n) { width: 1px; }
+.merch-art-tee { width: 50%; left: 0; top: 16%; transform: rotate(-18deg); z-index: 2; }
+.merch-art-cap { width: 43%; right: -1%; bottom: -3%; transform: rotate(-12deg); z-index: 4; }
+.merch-category-art { width: 100%; stroke: var(--merch-ink); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
+.merch-sticker { top: 1%; right: 1%; display: grid; place-content: center; width: 96px; height: 96px; border-radius: 50%; background: var(--merch-paper); color: var(--merch-ink); transform: rotate(12deg); z-index: 4; font-family: var(--merch-font-display); font-weight: 800; font-size: 1rem; line-height: 1.02; text-align: center; }
+.merch-art-scribble { width: 105px; position: absolute; left: 3%; bottom: 8%; transform: rotate(-16deg); }
+.merch-hero-bottom { display: grid; gap: var(--merch-space-xl); }
+.merch-hero-copy { display: grid; justify-items: start; gap: var(--merch-space-lg); }
+.merch-hero-copy p { max-width: 37ch; font-size: 1rem; line-height: 1.6; }
+.merch-primary { display: inline-flex; align-items: center; justify-content: space-between; gap: var(--merch-space-xl); min-height: 52px; padding: 15px 22px; background: var(--merch-ink); color: var(--merch-paper); font-size: .9rem; font-weight: 600; white-space: nowrap; transition: transform 150ms var(--merch-ease-out); }
+.merch-arrow { flex-shrink: 0; width: 23px; height: 23px; }
+.merch-arrow--down { transform: rotate(90deg); }
+.merch-primary:active { transform: translateY(2px); }
+.merch-primary:focus-visible { outline-color: var(--merch-ink) !important; }
+.merch-ribbon { position: relative; background: var(--merch-ink); color: var(--merch-yellow); padding-block: var(--merch-space-md); }
+.merch-ribbon-window { overflow: clip; }
+/* A finite intro keeps the original scroll speed without needing a pause button. */
+.merch-ribbon-track { display: flex; width: max-content; animation: merch-ribbon 4s linear forwards; }
+.merch-ribbon-track.is-paused { animation-play-state: paused; }
+.merch-ribbon-group { display: flex; flex-shrink: 0; }
+.merch-ribbon-group > span { display: flex; align-items: center; gap: var(--merch-space-xl); padding-inline: var(--merch-space-lg); font-family: var(--merch-font-display); font-size: clamp(1.25rem, 2.5vw, 2rem); font-weight: 700; letter-spacing: -.02em; white-space: nowrap; }
+.merch-ribbon-star { font-size: 1.2em; }
+@keyframes merch-ribbon { to { transform: translateX(-6.6667%); } }
+.merch-catalog { padding-block: clamp(3.5rem, 7vw, 6rem) clamp(4rem, 8vw, 7rem); background: var(--merch-paper); color: var(--merch-ink); scroll-margin-top: 96px; }
+.merch-catalog:focus { outline: none; }
+.merch-catalog-heading { display: grid; gap: var(--merch-space-lg); max-width: 800px; }
+.merch-catalog-heading h2 { font-size: clamp(2.1rem, 4.6vw, 4rem); letter-spacing: -.045em; line-height: 1.03; }
+.merch-catalog-heading h2 > span, .merch-empty-copy h3 > span, .merch-closing-title > span { display: block; }
+.merch-catalog-heading p { font-size: 1rem; line-height: 1.7; color: var(--merch-muted); max-width: 58ch; }
+.merch-filters { display: flex; flex-wrap: wrap; gap: var(--merch-space-xs); margin-block: var(--merch-space-xl) var(--merch-space-lg); }
+.merch-filter { display: inline-flex; align-items: center; justify-content: center; gap: var(--merch-space-xs); min-height: 44px; padding: 10px 18px; border: 1px solid var(--merch-rule); border-radius: 100px; background: transparent; color: var(--merch-ink); font-size: .8rem; font-weight: 500; white-space: nowrap; transition: background-color 120ms var(--merch-ease-out), transform 120ms var(--merch-ease-out); }
+.merch-filter.is-selected { background: var(--merch-ink); color: var(--merch-paper); border-color: var(--merch-ink); }
+.merch-filter:active { transform: translateY(1px); }
+.merch-filter:focus-visible { outline-color: var(--merch-ink) !important; }
+.merch-product-list { display: grid; gap: var(--merch-space-2xl); }
+.merch-product { display: grid; gap: var(--merch-space-xl); padding-block-start: var(--merch-space-lg); }
+.merch-product-photo { min-width: 0; background: var(--merch-paper); }
+.merch-product-photo img { display: block; width: 100%; height: auto; aspect-ratio: 1; object-fit: contain; }
+.merch-product-copy { display: grid; align-content: center; justify-items: start; gap: var(--merch-space-lg); }
+.merch-product-category { font-size: .8rem; color: var(--merch-muted); }
+.merch-product-copy h3 { font-size: clamp(2.5rem, 5vw, 4.5rem); line-height: 1.05; letter-spacing: -.045em; }
+.merch-product-copy > p { max-width: 38ch; font-size: 1rem; line-height: 1.7; color: var(--merch-muted); }
+.merch-product-copy > .merch-product-aside { max-width: 27ch; font-family: var(--merch-font-display); font-size: clamp(1.4rem, 2.4vw, 2rem); font-weight: 700; line-height: 1.2; color: var(--merch-ink); }
+.merch-product-availability { display: flex; flex-wrap: wrap; align-items: center; gap: var(--merch-space-sm); margin-block-start: var(--merch-space-md); font-size: .75rem; color: var(--merch-muted); }
+.merch-product-preview { padding: var(--merch-space-xs) var(--merch-space-sm); background: var(--merch-yellow); color: var(--merch-ink); font-weight: 600; }
+.merch-empty { display: grid; gap: var(--merch-space-xl); border-block-start: 1px solid var(--merch-rule); padding-block-start: var(--merch-space-xl); }
+.merch-empty-art { position: relative; min-width: 0; min-height: 240px; display: grid; place-items: center; overflow: clip; }
+.merch-empty-ghost { position: absolute; top: 33%; left: 50%; transform: translate(-50%, -50%); font-family: var(--merch-font-display); font-size: clamp(5.5rem, 17vw, 11rem); font-weight: 900; letter-spacing: -.06em; color: var(--merch-paper); -webkit-text-stroke: 1px var(--merch-rule); white-space: nowrap; }
+.merch-empty-art .merch-category-art { position: relative; width: 200px; transform: rotate(-12deg); }
+.merch-empty-label { position: absolute; bottom: 5%; left: 50%; transform: translateX(-50%) rotate(-5deg); padding: 8px 12px; background: var(--merch-yellow); color: var(--merch-accent-ink); font-size: .65rem; font-weight: 700; letter-spacing: .06em; white-space: nowrap; }
+.merch-empty-copy { display: grid; align-content: center; justify-items: start; gap: var(--merch-space-lg); }
+.merch-status { display: inline-flex; gap: var(--merch-space-xs); align-items: center; font-size: .7rem; line-height: 1.5; color: var(--merch-muted); }
+.merch-status > span { width: 7px; height: 7px; flex-shrink: 0; background: var(--merch-muted); border-radius: 50%; }
+.merch-empty-copy h3 { font-size: clamp(2rem, 3.2vw, 3rem); line-height: 1.08; letter-spacing: -.04em; }
+.merch-empty-copy > p { max-width: 45ch; min-height: 5.1em; font-size: .95rem; line-height: 1.7; color: var(--merch-muted); }
+.merch-idea { display: flex; flex-wrap: wrap; align-items: center; gap: var(--merch-space-xs) var(--merch-space-md); font-size: .8rem; }
+.merch-idea > span { color: var(--merch-muted); }
+.merch-idea a { display: inline-flex; align-items: center; gap: var(--merch-space-xs); min-height: 44px; text-decoration: underline; text-underline-offset: 5px; font-weight: 600; white-space: nowrap; }
+.merch-idea .merch-arrow { width: 17px; height: 17px; }
+.merch-closing { padding-block: clamp(3.5rem, 6vw, 6rem) var(--merch-space-xl); background: var(--merch-ink); color: var(--merch-paper); }
+.merch-closing-title { font-family: var(--merch-font-display); font-size: clamp(1.85rem, 6.5vw, 5.75rem); font-weight: 800; line-height: 1.06; letter-spacing: -.045em; }
+.merch-closing-accent { color: var(--merch-yellow); }
+.merch-closing-note { display: flex; align-items: center; justify-content: space-between; gap: var(--merch-space-lg); margin-block-start: var(--merch-space-xl); font-size: .8rem; }
+.merch-closing-note > span { font-size: 2rem; color: var(--merch-yellow); }
+@media (hover: hover) and (pointer: fine) {
+  .merch-ribbon:hover .merch-ribbon-track { animation-play-state: paused; }
+  .merch-primary:hover { transform: translateY(-2px); }
+  .merch-filter:not(.is-selected):hover { background: var(--merch-yellow); }
+  .merch-idea a:hover { text-decoration-thickness: 2px; }
+}
+@media (min-width: 40rem) {
+  .merch-product { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); align-items: center; gap: var(--merch-space-xl); }
+  .merch-hero { padding-block-start: 9rem; }
+  .merch-wordmark { font-size: 1.8rem; }
+  .merch-artwork { width: 430px; height: 400px; }
+  .merch-tag-headline { font-size: 2.6rem; }
+  .merch-tag-logo { font-size: 1.5rem; }
+  .merch-tag-caption { font-size: .65rem; }
+  .merch-sticker { width: 112px; height: 112px; font-size: 1.15rem; }
+  .merch-hero-copy { grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: var(--merch-space-xl); }
+  .merch-filter { padding-inline: 22px; font-size: .875rem; }
+  .merch-empty { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: var(--merch-space-xl); }
+  .merch-empty-art { min-height: 320px; }
+  .merch-empty-art .merch-category-art { width: 230px; }
+}
+@media (min-width: 64rem) {
+  .merch-hero { padding-block-start: 9.5rem; padding-block-end: 3.5rem; }
+  .merch-hero-stage { margin-block: var(--merch-space-2xl) var(--merch-space-xl); min-height: 410px; display: flex; align-items: center; }
+  .merch-title { font-size: clamp(5rem, 8.6vw, 8.1rem); width: 74%; }
+  .merch-artwork { position: absolute; right: -2%; top: -9%; width: 41%; height: 460px; margin: 0; }
+  .merch-tag-wrap { width: 48%; top: 13%; left: 30%; }
+  .merch-tag { padding: 40px 22px 20px; }
+  .merch-tag-headline { font-size: clamp(2.25rem, 3vw, 2.85rem); }
+  .merch-tag-caption { margin-block: 16px; }
+  .merch-sticker { right: -1%; top: 0; width: 120px; height: 120px; font-size: 1.25rem; }
+  .merch-art-tee { top: 17%; left: -6%; width: 54%; }
+  .merch-art-cap { width: 43%; right: -1%; bottom: -1%; }
+  .merch-art-scribble { left: -10%; bottom: -2%; width: 140px; }
+  .merch-hero-copy { grid-template-columns: minmax(0, 1fr); }
+  .merch-hero-copy p { max-width: 39ch; font-size: 1.1rem; }
+  .merch-catalog-heading h2 { font-size: 4.25rem; }
+  .merch-empty { grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); padding-block-start: 3.5rem; gap: var(--merch-space-2xl); }
+  .merch-empty-art { min-height: 370px; }
+  .merch-empty-art .merch-category-art { width: 290px; }
+  .merch-empty-ghost { font-size: 12rem; }
+  .merch-empty-label { bottom: 8%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .merch-page *, .merch-page *::before, .merch-page *::after { animation: none !important; transition-duration: 0ms !important; scroll-behavior: auto !important; }
+  .merch-ribbon-track { transform: none; }
+}

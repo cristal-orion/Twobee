@@ -8,6 +8,7 @@ const COPY = {
       { label: 'Piani', href: '#piani' },
       { label: 'Team', href: '#team' },
       { label: 'Case study', href: '/casestudy', pill: true },
+      { label: 'Merch', href: '/merch' },
       { label: 'Lavora con noi', href: '/lavora-con-noi' },
     ],
     cta: 'Prenota un audit gratuito',
@@ -20,6 +21,7 @@ const COPY = {
       { label: 'Plans', href: '#piani' },
       { label: 'Team', href: '#team' },
       { label: 'Case studies', href: '/casestudy', pill: true },
+      { label: 'Merch', href: '/merch' },
       { label: 'Careers', href: '/lavora-con-noi' },
     ],
     cta: 'Book a free audit',
@@ -144,15 +146,16 @@ export default function Navbar({ subpage = false, landing = false }) {
             draggable={false}
           />
         </a>
-        <nav className="pointer-events-none absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-6 lg:flex xl:gap-10">
+        <nav className="ml-auto mr-6 hidden items-center gap-5 min-[1440px]:flex" aria-label={lang === 'it' ? 'Navigazione principale' : 'Main navigation'}>
           {t.nav.map((n) => (
             <a
               key={n.href}
               href={resolve(n.href)}
+              aria-current={bare === n.href ? 'page' : undefined}
               className={
                 n.pill
                   ? 'pointer-events-auto whitespace-nowrap rounded-full border border-white/30 px-4 py-1.5 text-sm font-medium text-white/85 transition-colors hover:border-white/70 hover:text-white'
-                  : 'pointer-events-auto text-sm font-medium text-white/60 transition-colors hover:text-white'
+                  : 'pointer-events-auto whitespace-nowrap text-sm font-medium text-white/60 transition-colors hover:text-white'
               }
             >
               {n.label}
@@ -199,8 +202,10 @@ export default function Navbar({ subpage = false, landing = false }) {
           </a>
           <button
             onClick={() => setOpen((v) => !v)}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-white/10 lg:hidden"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-lg border border-white/10 min-[1440px]:hidden"
             aria-label={t.menuLabel}
+            aria-expanded={open}
+            aria-controls="site-mobile-menu"
           >
             <svg viewBox="0 0 24 24" fill="none" className="h-5 w-5">
               <path
@@ -215,7 +220,8 @@ export default function Navbar({ subpage = false, landing = false }) {
       </div>
       {open && (
         <div
-          className="border-t border-white/5 backdrop-blur lg:hidden"
+          id="site-mobile-menu"
+          className="border-t border-white/5 backdrop-blur min-[1440px]:hidden"
           style={{
             backgroundColor:
               'color-mix(in srgb, var(--theme-bg) 95%, transparent)',
@@ -226,6 +232,7 @@ export default function Navbar({ subpage = false, landing = false }) {
               <a
                 key={n.href}
                 href={resolve(n.href)}
+                aria-current={bare === n.href ? 'page' : undefined}
                 onClick={() => setOpen(false)}
                 className={
                   n.pill
