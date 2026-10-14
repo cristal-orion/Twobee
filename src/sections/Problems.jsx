@@ -3,7 +3,7 @@ import { useLang } from '../i18n/LanguageContext.jsx'
 
 const COPY = {
   it: {
-    eyebrow: 'Diagnosi',
+    eyebrow: 'SUCCEDE SPESSO',
     headingPre: 'Hai già investito in marketing,',
     headingHighlight: 'ma non vedi risultati.',
     items: [
@@ -22,7 +22,7 @@ const COPY = {
     ],
     closingPre: 'Per questo abbiamo costruito',
     closingHighlight: 'un sistema',
-    closingPost: ", non un'agenzia.",
+    closingPost: ', non una serie di servizi separati.',
   },
   en: {
     eyebrow: 'Diagnosis',
