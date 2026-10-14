@@ -4,9 +4,9 @@ import { useLang } from '../i18n/LanguageContext.jsx'
 const COPY = {
   it: {
     eyebrow: 'Con chi vogliamo lavorare',
-    headingPre: 'Lavoriamo solo con imprenditori che non hanno smesso di',
-    headingHighlight: 'sognare e credere nel loro progetto.',
-    body: 'Scegliamo con chi lavorare: realtà che hanno un prodotto, un servizio e la volontà di costruire un sistema di crescita serio.',
+    headingPre: 'La crescita comincia da',
+    headingHighlight: 'una visione condivisa.',
+    body: 'Affianchiamo solo imprenditori che credono nel proprio progetto e riconoscono il valore di un partner strategico nel percorso di crescita. Persone aperte al confronto, pronte a rivedere le proprie convinzioni e a prendere decisioni nuove per raggiungere risultati concreti.',
     audiences: [
       {
         keyword: 'Startup',

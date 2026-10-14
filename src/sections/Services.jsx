@@ -10,25 +10,30 @@ gsap.registerPlugin(ScrollTrigger, useGSAP)
 
 const COPY = {
   it: {
-    eyebrow: 'I nostri servizi',
-    headingPre: 'Mentre i creativi si concentrano sulle vanity metrics,',
-    headingHighlight: 'noi abbiamo cambiato le regole del gioco.',
+    eyebrow: 'IL NOSTRO SISTEMA',
+    headingPre: 'Da strategia a risultati:',
+    headingHighlight: 'metriche, tecnologia e contenuti che lavorano insieme.',
     cta: 'Prenota un Audit Gratuito',
     services: [
       {
         n: '01',
-        title: 'Performance Marketing',
-        body: 'Campagne paid su Meta, Google, TikTok, LinkedIn, Reddit, Pinterest, Spotify e Mediaset. Ogni euro allocato dove converte, ogni campagna ottimizzata in continuo.',
+        title: 'Growth Economics',
+        body: 'Analizziamo i numeri del tuo business per capire quanto puoi investire, dove ci sono opportunità di crescita e come migliorare i risultati senza perdere di vista i margini.',
       },
       {
         n: '02',
-        title: 'Controllo di gestione',
-        body: 'Studiamo insieme le marginalità ed i costi del tuo business per guidarti verso una crescita sostenibile.',
+        title: 'Marketing & Branding',
+        body: 'Dove necessario, curiamo il posizionamento del brand, la comunicazione e la presenza sui social quando possono fare la differenza.',
       },
       {
         n: '03',
-        title: 'Growth System',
-        body: 'Il sistema lavora anche quando sei in ferie. Lead scoring, notifiche ai commerciali, follow-up programmati.',
+        title: 'Performance Marketing',
+        body: 'Gestiamo campagne su Meta, Google, TikTok, LinkedIn, Reddit, Pinterest, Spotify e Mediaset.\nMonitoriamo i numeri, ottimizziamo gli investimenti e lavoriamo per trasformare il budget pubblicitario in clienti e vendite.',
+      },
+      {
+        n: '04',
+        title: 'Growth System & AI',
+        body: "Progettiamo sistemi di crescita integrando CRM, automazioni e intelligenza artificiale nei processi aziendali. Dalla gestione dei lead ai follow-up automatici, fino a strumenti AI personalizzati che semplificano il lavoro e migliorano l'efficienza.",
       },
     ],
   },
@@ -147,7 +152,7 @@ export default function Services() {
             {t.services.map((s, i) => {
               const onLeft = i % 2 === 0
               return (
-                <li key={s.title} className="relative">
+                <li key={s.n} className="relative">
                   <div className="absolute left-[15px] top-5 -translate-x-1/2 md:left-1/2">
                     <div className="relative h-7 w-7 rounded-full bg-brand-black ring-1 ring-brand-yellow/30">
                       <div
@@ -173,7 +178,7 @@ export default function Services() {
                     <h3 className="mt-4 font-display text-2xl font-extrabold leading-tight text-brand-black sm:text-3xl">
                       {s.title}
                     </h3>
-                    <p className="mt-4 text-base leading-relaxed text-brand-black/80 md:text-lg">
+                    <p className="mt-4 whitespace-pre-line text-base leading-relaxed text-brand-black/80 md:text-lg">
                       {s.body}
                     </p>
                   </div>

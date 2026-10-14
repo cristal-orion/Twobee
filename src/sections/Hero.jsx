@@ -7,11 +7,11 @@ gsap.registerPlugin(useGSAP)
 
 const COPY = {
   it: {
-    line1: 'Il tuo marketing',
-    line2: 'genera solo like,',
-    line3a: 'il nostro ',
+    line1: 'Il Marketing',
+    line2: 'che genera',
+    line3a: '',
     line3b: 'sistemi e fatturato!',
-    body: 'Siamo una società di consulenza strategica specializzata in Growth Marketing (marketing orientato alla crescita) e Intelligenza Artificiale. Aiutiamo le PMI italiane ad acquisire clienti, ottimizzare i processi e trasformare gli investimenti in risultati concreti e misurabili, senza perdere di vista ricavi, costi e marginalità.',
+    body: 'Siamo una società di consulenza in Growth Marketing e Intelligenza Artificiale.\nAiutiamo le PMI italiane ad acquisire clienti, ottimizzare i processi e crescere con risultati misurabili. Tenendo d’occhio ricavi, costi e margini.',
     cta: 'Parliamo insieme del tuo business, è gratuito!',
   },
   en: {
@@ -109,7 +109,7 @@ export default function Hero() {
           </span>
         </h1>
 
-        <p className="hero-fade mt-8 max-w-xl text-base text-white/70 sm:text-lg">
+        <p className="hero-fade mt-8 max-w-2xl whitespace-pre-line text-base text-white/70 sm:text-lg">
           {t.body}
         </p>
 

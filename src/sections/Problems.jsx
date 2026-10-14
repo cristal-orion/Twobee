@@ -20,7 +20,7 @@ const COPY = {
         text: 'Stacchi le inserzioni e i clienti non arrivano più.',
       },
     ],
-    closingPre: 'Per questo abbiamo costruito',
+    closingPre: 'Per questo noi ti offriamo',
     closingHighlight: 'un sistema',
     closingPost: ', non una serie di servizi separati.',
   },
