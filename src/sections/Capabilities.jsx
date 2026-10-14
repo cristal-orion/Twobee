@@ -3,7 +3,7 @@ import { useLang } from '../i18n/LanguageContext.jsx'
 
 const COPY = {
   it: {
-    eyebrow: 'Funnel, CRM e automazioni che rendono prevedibile la tua crescita, non un set di ads sparsi.',
+    eyebrow: "COS'ALTRO FACCIAMO",
     headingPre: '',
     headingHighlight: 'Siamo il tuo partner digitale!',
     body: 'Acquisizione, infrastruttura digitale e intelligenza artificiale applicata. Tre pilastri, un unico interlocutore: noi.',
