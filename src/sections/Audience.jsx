@@ -10,18 +10,18 @@ const COPY = {
     audiences: [
       {
         keyword: 'Startup',
-        headline: 'Idea validata, prima trazione.',
-        body: 'Acquisizione misurabile dal day 1, senza bruciare runway o capitale.',
+        headline: 'Dalle prime opportunità alla crescita.',
+        body: 'Ti aiutiamo a trovare nuovi clienti, validare i canali di acquisizione e investire il budget dove conta davvero.',
       },
       {
         keyword: 'PMI',
-        headline: 'Vendite consolidate, crescita instabile.',
-        body: 'Crescita prevedibile, indipendente dal passaparola e dalla rete personale.',
+        headline: 'Il tuo business ha ancora spazio per crescere.',
+        body: 'Lavoriamo su acquisizione clienti, processi e performance per rendere la crescita più misurabile e sostenibile.',
       },
       {
         keyword: 'E-commerce',
-        headline: 'Catalogo attivo, marginalità da difendere.',
-        body: 'Canali profittevoli e funnel sempre attivo per proteggere il margine.',
+        headline: 'Più vendite, senza perdere di vista i margini.',
+        body: 'Ottimizziamo campagne, conversioni e investimenti per far crescere le vendite, tenendo sotto controllo i costi di acquisizione.',
       },
     ],
   },

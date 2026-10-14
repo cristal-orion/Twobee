@@ -3,9 +3,9 @@ import { useLang } from '../i18n/LanguageContext.jsx'
 
 const COPY = {
   it: {
-    eyebrow: 'Cosa facciamo',
-    headingPre: 'Non siamo solo marketing.',
-    headingHighlight: 'Siamo il tuo partner digitale.',
+    eyebrow: 'Funnel, CRM e automazioni che rendono prevedibile la tua crescita, non un set di ads sparsi.',
+    headingPre: '',
+    headingHighlight: 'Siamo il tuo partner digitale!',
     body: 'Acquisizione, infrastruttura digitale e intelligenza artificiale applicata. Tre pilastri, un unico interlocutore: noi.',
     cta: 'Consulta i nostri servizi',
     pillars: [
@@ -130,7 +130,7 @@ export default function Capabilities() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true, margin: '-80px' }}
             transition={{ duration: 0.5, ease: 'easeOut' }}
-            className="eyebrow block"
+            className="eyebrow block text-brand-black"
           >
             {t.eyebrow}
           </motion.span>
