@@ -55,7 +55,7 @@ const COPY = {
     headingHighlight: 'trasparenti',
     headingPost: '',
     subhead:
-      'Tre livelli di intervento progettati per adattarsi alla fase attuale della tua azienda e portarla al livello successivo.',
+      'Tre modi di intervenire, progettati per adattarsi alla fase attuale della tua azienda e portarla al livello successivo.',
     planCta: 'Scopri di più',
     promiseEyebrow: 'Incluse in ogni piano',
     promisePre: 'La nostra ',

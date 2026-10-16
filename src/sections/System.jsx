@@ -12,19 +12,19 @@ const COPY = {
         n: '01',
         phase: 'Diagnosi',
         title: 'Analisi delle dispersioni',
-        body: 'Mappiamo dove perdi clienti e budget oggi. Tracciamo i colli di bottiglia del tuo ecosistema prima di toccare qualsiasi campagna.',
+        body: 'Analizziamo il tuo business, gli investimenti e le opportunità di crescita. Per capire da dove partire e dove vale davvero la pena intervenire.',
       },
       {
         n: '02',
         phase: 'Sistema',
         title: 'Architettura di vendita',
-        body: 'Funnel, CRM e automazioni che rendono prevedibile la tua crescita — non un set di ads sparsi.',
+        body: "Definiamo attività, strumenti, funnel e processi che devono lavorare insieme. Dal marketing al CRM, fino alle automazioni e all'AI.",
       },
       {
         n: '03',
         phase: 'Execution',
         title: 'Gestione operativa',
-        body: 'Gestiamo ads, email, content e tracciamenti avanzati. Tu vedi i risultati, non la macchina.',
+        body: 'Mettiamo in campo le attività, gestiamo le campagne e ottimizziamo ciò che serve. Senza perdere di vista gli obiettivi di business.',
       },
       {
         n: '04',

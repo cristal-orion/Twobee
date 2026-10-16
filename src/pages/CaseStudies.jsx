@@ -74,7 +74,7 @@ const COPY = {
     hero: {
       eyebrow: '🍯 Case study',
       headingLine1: 'CRM e automazioni',
-      headingHighlight: 'che girano davvero.',
+      headingHighlight: 'che aiutano davvero.',
       body: 'Ogni blocco qui sotto è un sistema che gira: da dove si partiva, cosa è cambiato e come funziona. Niente slide, niente mockup.',
       filtersLabel: 'Filtra',
       all: 'Tutti',

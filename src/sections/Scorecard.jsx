@@ -28,11 +28,11 @@ const RING_C = 2 * Math.PI * RING_R
 
 const COPY = {
   it: {
-    eyebrow: '📋 Test di crescita · 8 domande',
-    headingPre: 'Prima di guardare i piani: ',
-    headingHl: 'quanto è prevedibile la tua crescita?',
-    body: 'Otto domande, novanta secondi. Non chiediamo fatturato, margini né spesa pubblicitaria: rispondi sì, in parte o no e ti diciamo dove perde colpi il tuo sistema di acquisizione — con le tre mosse da fare per prime.',
-    bullets: ['90 secondi', 'Nessun numero da sapere', 'Risultato immediato'],
+    eyebrow: 'TEST DI CRESCITA AZIENDALE · 8 DOMANDE',
+    headingPre: 'Prima di investire di più, ',
+    headingHl: 'scopri se ti serve davvero!',
+    body: 'Un piccolo check-up per fare il punto sulla tua azienda, capire quanto sei consapevole del tuo business e individuare le opportunità da cogliere e capire se possiamo esserti utili.',
+    bullets: ['90 secondi', 'Risultato immediato'],
     cta: 'Fai il test',
     ctaNote: 'Alla fine ricevi la tua scorecard: punteggio, falle principali e prossime mosse.',
     ariaLabel: 'Fai il test di crescita',

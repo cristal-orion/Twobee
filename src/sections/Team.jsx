@@ -6,7 +6,7 @@ const COPY = {
   it: {
     headingPre: 'Le menti dietro il tuo ',
     headingHighlight: 'vantaggio competitivo',
-    body: "Parliamo la lingua della tua impresa, ma viviamo nel futuro. Siamo un team ossessionato dall'innovazione e dai dati: testiamo in trincea ogni nuova AI, trend di marketing e tool digitale prima ancora che diventino mainstream. Uniamo questa fame di aggiornamento al rigore strategico, per costruirti un ecosistema di crescita che asfalta la concorrenza e resta un asset inossidabile per la tua azienda.",
+    body: "Growth Marketing, dati, automazioni e AI. Competenze diverse, una cosa in comune: ci piace capire come funzionano i business e trovare il modo di farli funzionare meglio. Con metodo, curiosità e qualche sana ossessione per i risultati.",
     flipAria: (alt) => `${alt} — tocca per alternare bianco e nero e colore`,
     bwAlt: (alt) => `${alt} (bianco e nero)`,
     colorAlt: (alt) => `${alt} (a colori)`,
@@ -29,7 +29,7 @@ const BIOS = {
       "Ti convince a scalare l'Everest in infradito, e alla fine lo ringrazi pure per l'esperienza. Costruisce strategie blindate e relazioni così solide che i clienti finiscono per invitarci al pranzo della domenica. Il suo superpotere? La persuasione.",
     toto: 'Psicopatico dei dati, analizza i numeri anche quando fa la spesa. Guida il team operativo parlando un “consulentese” tutto suo: se ti guarda e ti propone un “pre-audit strategico”, tu sorridi, annuisci e preparati a fatturare.',
     sabrina:
-      "L'abbiamo strappata a Londra per riportare questo diamante in patria. Quando si infervora le parte l'accento british: in ufficio non la capisce nessuno, ma tutti annuiamo intensamente perché le sue campagne convertono da paura.",
+      "Un'esperienza in pubblicità a Londra, un'ossessione per il posizionamento con un debole per i numeri e campagne che portano risultati. Tra strategia, performance e analisi dei dati, non perde mai di vista gli obiettivi di business. L'accento british ogni tanto torna. La precisione, invece, non se n'è mai andata.",
     michele:
       'Avete mai visto un tecnico puro che sforna idee creative esplosive? Noi sì, ed è un caso clinico interessante. Metà genio, metà sregolatezza assoluta: addestra le nostre intelligenze artificiali con intuizioni folli che si trasformano sempre in oro.',
     gabriele:
@@ -91,7 +91,7 @@ const teamMembers = [
     id: 'sabrina',
     name: 'Sabrina Nastro',
     role: 'Growth Marketing Strategist',
-    tag: "L'abbiamo strappata a Londra per riportare questo diamante in patria. Quando si infervora le parte l'accento british: in ufficio non la capisce nessuno, ma tutti annuiamo intensamente perché le sue campagne convertono da paura.",
+    tag: "Un'esperienza in pubblicità a Londra, un'ossessione per il posizionamento con un debole per i numeri e campagne che portano risultati. Tra strategia, performance e analisi dei dati, non perde mai di vista gli obiettivi di business. L'accento british ogni tanto torna. La precisione, invece, non se n'è mai andata.",
     photoBw: '/team-sabrina-bw.webp',
     photoColor: '/team-sabrina-color.webp',
     initials: 'S',
