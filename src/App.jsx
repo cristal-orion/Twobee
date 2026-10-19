@@ -15,7 +15,6 @@ import Problems from './sections/Problems.jsx'
 import Services from './sections/Services.jsx'
 import Audience from './sections/Audience.jsx'
 import Capabilities from './sections/Capabilities.jsx'
-import System from './sections/System.jsx'
 import Scorecard from './sections/Scorecard.jsx'
 import Pricing from './sections/Pricing.jsx'
 import Game from './sections/Game.jsx'
@@ -344,9 +343,6 @@ function MainSite() {
               style={LIGHT_VARS}
             >
               <Capabilities />
-            </section>
-            <section id="sistema">
-              <System />
             </section>
             <Scorecard />
             <section

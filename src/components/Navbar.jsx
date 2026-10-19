@@ -5,7 +5,6 @@ const COPY = {
   it: {
     nav: [
       { label: 'Servizi', href: '#servizi' },
-      { label: 'Sistema', href: '#sistema' },
       { label: 'Piani', href: '#piani' },
       { label: 'Team', href: '#team' },
       { label: 'Case study', href: '/casestudy', pill: true },
@@ -18,7 +17,6 @@ const COPY = {
   en: {
     nav: [
       { label: 'Services', href: '#servizi' },
-      { label: 'System', href: '#sistema' },
       { label: 'Plans', href: '#piani' },
       { label: 'Team', href: '#team' },
       { label: 'Case studies', href: '/casestudy', pill: true },
