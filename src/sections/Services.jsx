@@ -18,7 +18,7 @@ const COPY = {
       {
         n: '01',
         title: 'Growth Economics',
-        body: 'Analizziamo i numeri del tuo business per capire quanto puoi investire, dove ci sono opportunità di crescita e come migliorare i risultati senza perdere di vista i margini.',
+        body: 'Analizziamo costi di acquisizione, ricavi e margini per capire dove investire e come crescere senza perdere di vista la redditività.',
       },
       {
         n: '02',
