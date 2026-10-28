@@ -15,7 +15,7 @@ const COPY = {
   en: {
     headingPre: 'The minds behind your ',
     headingHighlight: 'competitive edge',
-    body: "We speak your business's language, but we live in the future. We're a team obsessed with innovation and data: we field-test every new AI, marketing trend, and digital tool before they even go mainstream. We combine that hunger for what's next with strategic rigor, to build you a growth ecosystem that steamrolls the competition and stays a rock-solid asset for your company.",
+    body: "Growth Marketing, data, automation and AI. Different skills, one thing in common: we love understanding how businesses work and finding ways to make them work better. With method, curiosity and a healthy obsession with results.",
     flipAria: (alt) => `${alt} — tap to toggle black & white and color`,
     bwAlt: (alt) => `${alt} (black and white)`,
     colorAlt: (alt) => `${alt} (color)`,
@@ -46,7 +46,7 @@ const BIOS = {
       "He'll talk you into climbing Everest in flip-flops — and you'll thank him for the experience afterward. He builds bulletproof strategies and relationships so solid that clients end up inviting us to Sunday lunch. His superpower? Persuasion.",
     toto: 'A data psychopath who analyzes numbers even while grocery shopping. He runs the operations team speaking his own brand of consultant-ese: if he looks at you and proposes a "strategic pre-audit," just smile, nod, and get ready to invoice.',
     sabrina:
-      'We pried her away from London to bring this diamond back home. When she gets fired up, the British accent kicks in — nobody in the office understands a word, but we all nod intensely because her campaigns convert like crazy.',
+      "Advertising experience in London, an obsession with positioning, a soft spot for numbers and campaigns that deliver results. Across strategy, performance and data analysis, she never loses sight of business goals. The British accent comes back every now and then. The precision never left.",
     michele:
       "Ever seen a hardcore techie who churns out explosive creative ideas? We have, and it's a fascinating case study. Half genius, half pure chaos: he trains our AI on wild hunches that always turn into gold.",
     gabriele:

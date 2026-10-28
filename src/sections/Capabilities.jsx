@@ -45,9 +45,9 @@ const COPY = {
     ],
   },
   en: {
-    eyebrow: 'What we do',
-    headingPre: "We're not just marketing.",
-    headingHighlight: "We're your digital partner.",
+    eyebrow: 'What else we do',
+    headingPre: '',
+    headingHighlight: "We're your digital partner!",
     body: 'Acquisition, digital infrastructure, and applied artificial intelligence. Three pillars, one single point of contact: us.',
     cta: 'See our services',
     pillars: [

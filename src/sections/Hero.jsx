@@ -15,12 +15,12 @@ const COPY = {
     cta: 'Parliamo insieme del tuo business, è gratuito!',
   },
   en: {
-    line1: 'Others sell you',
-    line2: 'followers.',
-    line3a: 'We drive your ',
-    line3b: 'growth.',
-    body: 'A strategic consulting firm in Growth & AI for Italian SMEs. A measurable customer-acquisition system, with a direct impact on revenue.',
-    cta: 'Book a free audit',
+    line1: 'Marketing',
+    line2: 'that generates',
+    line3a: '',
+    line3b: 'systems and revenue!',
+    body: 'We’re a consulting firm in Growth Marketing and Artificial Intelligence.\nWe help Italian SMEs win customers, streamline processes and grow with measurable results, keeping an eye on revenue, costs and margins.',
+    cta: 'Let’s talk about your business, it’s free!',
   },
 }
 

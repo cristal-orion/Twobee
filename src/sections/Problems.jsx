@@ -25,26 +25,26 @@ const COPY = {
     closingPost: ', non una serie di servizi separati.',
   },
   en: {
-    eyebrow: 'Diagnosis',
-    headingPre: "Already invested in marketing,",
-    headingHighlight: "but not seeing results?",
+    eyebrow: 'It happens a lot',
+    headingPre: "You've already invested in marketing,",
+    headingHighlight: "but you're not seeing results.",
     items: [
       {
-        title: 'Budget burned with no KPIs',
-        text: "You're spending with zero impact on your sales.",
+        title: 'You burned through budget!',
+        text: "You spent money with no impact on your sales.",
       },
       {
         title: 'Just vanity metrics',
-        text: "Likes and followers don't pay your employees.",
+        text: "You certainly can't pay your employees with likes and followers.",
       },
       {
-        title: 'Cut the ads, everything collapses',
-        text: 'Cut the budget and your customers stop showing up.',
+        title: 'Without ads, everything collapses',
+        text: 'Switch the ads off and customers stop coming.',
       },
     ],
-    closingPre: "That's why we built",
+    closingPre: "That's why we offer you",
     closingHighlight: 'a system',
-    closingPost: ', not an agency.',
+    closingPost: ', not a set of separate services.',
   },
 }
 
