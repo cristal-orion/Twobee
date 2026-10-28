@@ -115,7 +115,7 @@ const COPY = {
     hero: {
       eyebrow: '🍯 Case studies',
       headingLine1: 'CRM and automations',
-      headingHighlight: 'that actually run.',
+      headingHighlight: 'that actually help.',
       body: 'Every block below is a system that runs: where it started, what changed and how it works. No slides, no mockups.',
       filtersLabel: 'Filter',
       all: 'All',

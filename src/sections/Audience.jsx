@@ -27,24 +27,24 @@ const COPY = {
   },
   en: {
     eyebrow: 'Who we want to work with',
-    headingPre: "We only work with founders who haven't stopped",
-    headingHighlight: 'dreaming and believing in their project.',
-    body: "We choose who we work with: businesses with a product, a service, and the will to build a serious growth system.",
+    headingPre: 'Growth starts with',
+    headingHighlight: 'a shared vision.',
+    body: 'We only work alongside entrepreneurs who believe in their project and see the value of a strategic partner on the road to growth. People open to dialogue, ready to rethink their beliefs and make new decisions to achieve concrete results.',
     audiences: [
       {
         keyword: 'Startups',
-        headline: 'Validated idea, early traction.',
-        body: 'Measurable acquisition from day 1, without burning runway or capital.',
+        headline: 'From the first opportunities to growth.',
+        body: 'We help you find new customers, validate your acquisition channels and invest your budget where it really counts.',
       },
       {
         keyword: 'SMEs',
-        headline: 'Steady sales, unstable growth.',
-        body: 'Predictable growth, independent of word-of-mouth and personal networks.',
+        headline: 'Your business still has room to grow.',
+        body: 'We work on customer acquisition, processes and performance to make growth more measurable and sustainable.',
       },
       {
         keyword: 'E-commerce',
-        headline: 'Active catalog, margins worth protecting.',
-        body: 'Profitable channels and an always-on funnel to protect your margin.',
+        headline: 'More sales, without losing sight of margins.',
+        body: 'We optimize campaigns, conversions and investments to grow sales while keeping acquisition costs under control.',
       },
     ],
   },
