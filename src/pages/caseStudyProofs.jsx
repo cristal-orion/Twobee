@@ -28,15 +28,15 @@ const ADAMO = {
   surface: '#ffffff',
   ink: '#1f2233',
   inkSoft: '#454a63',
-  muted: '#757b96',
+  muted: '#62677f',
   line: 'rgba(31, 34, 51, 0.10)',
   deep: '#2b2f45',
   indigo: '#667eea',
   indigoInk: '#4a55c7',
   indigoTint: '#e6e9fb',
-  greenInk: '#1e8f4e',
+  greenInk: '#17773f',
   greenTint: '#dcf5e6',
-  amberInk: '#b06d10',
+  amberInk: '#8f5709',
   amberTint: '#fdefd8',
 }
 
@@ -174,7 +174,7 @@ const COPY = {
 function TharvelPanel({ lang }) {
   const t = COPY[lang]
   return (
-    <div className="overflow-hidden rounded-3xl border border-zinc-800 bg-[#0B0B0C] shadow-[0_30px_80px_-40px_rgba(0,0,0,0.8)]">
+    <div data-ui className="overflow-hidden rounded-2xl border border-zinc-800 bg-[#0B0B0C]">
       {/* barra superiore */}
       <div className="flex flex-wrap items-center gap-2 border-b border-zinc-800 px-3 py-2.5 sm:gap-3 sm:px-4">
         <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-400/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.12em] text-emerald-300">
@@ -231,7 +231,9 @@ function TharvelPanel({ lang }) {
 
         {/* anteprima del sito del cliente */}
         <div className="min-w-0 flex-1 bg-zinc-900/50 p-4 sm:p-6">
-          <div className="rounded-xl bg-gradient-to-br from-violet-500 via-fuchsia-400 to-amber-400 p-4 sm:p-7">
+          {/* Il sito d'esempio ha un fondo pieno: era una sfumatura viola, che
+              sulla pagina rifatta il 2026-10-29 stonava come unico colore estraneo. */}
+          <div className="rounded-xl bg-blue-600 p-4 sm:p-7">
             <div className="rounded-lg bg-white p-4 text-center sm:p-6">
               <span className="inline-block rounded-full bg-blue-100 px-2.5 py-1 text-[9px] font-bold text-blue-700">
                 {t.previewPill}
@@ -306,7 +308,8 @@ function SevenPanel({ lang }) {
 
   return (
     <div
-      className="overflow-hidden rounded-3xl shadow-[0_30px_80px_-40px_rgba(31,34,51,0.55)]"
+      data-ui
+      className="overflow-hidden rounded-2xl"
       style={{ background: ADAMO.paper, border: `1px solid ${ADAMO.line}` }}
     >
       {/* barra superiore */}
@@ -316,10 +319,10 @@ function SevenPanel({ lang }) {
       >
         <span
           aria-hidden
-          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-[11px]"
+          className="flex h-6 w-6 shrink-0 items-center justify-center rounded-lg text-[11px] font-extrabold"
           style={{ background: ADAMO.indigo, color: '#fff' }}
         >
-          ⚡
+          A
         </span>
         <span className="text-sm font-extrabold tracking-tight" style={{ color: ADAMO.ink }}>
           Adamo
