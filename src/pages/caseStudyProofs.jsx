@@ -20,6 +20,8 @@
  * nessun indirizzo email vero (vedi il brief di Elettra in case-studies/).
  */
 
+import { ElettroPanel } from './caseStudyElettro.jsx'
+
 /* Adamo, il gestionale di Seven. I colori vengono dal prototipo vero
  * (~/Desktop/Adamo/app.py: indaco #667eea, verde #2ecc71, ambra #f39c12 su
  * fondo chiaro Streamlit), portati a tinte che reggono come testo. */
@@ -246,7 +248,7 @@ function TharvelPanel({ lang }) {
                 <span className="mx-auto block h-1.5 w-3/5 rounded-full bg-slate-200" />
               </div>
               <div className="mt-4 h-16 rounded-md bg-slate-100 sm:h-24" />
-              <span className="mt-4 inline-block rounded-md bg-blue-600 px-4 py-2 text-[9px] font-bold text-white">
+              <span className="mt-4 inline-block rounded-md bg-blue-600 px-4 py-2 text-[9px] font-bold" style={{ color: '#fff' }}>
                 {t.previewCta}
               </span>
             </div>
@@ -523,4 +525,6 @@ function SevenPanel({ lang }) {
 export const PROOFS = {
   tharvel: TharvelPanel,
   seven: SevenPanel,
+  // Elettro sta in un file suo: è il pannello più lungo, e qui ne basta il nome.
+  elettro: ElettroPanel,
 }

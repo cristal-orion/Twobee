@@ -5,7 +5,9 @@
  * di un cliente: per questo stanno solo nella testata, sono aria-hidden e i
  * numeri sono quelli d'esempio già usati nei facsimili (caseStudyProofs.jsx).
  *
- * Ognuno viene dal mondo di un caso: il registro delle automazioni (tutti),
+ * Ognuno viene dal mondo di un caso: Elettro che risponde coi cantieri
+ * (Elettra, al posto dello screenshot del cruscotto dal 2026-10-29), il
+ * registro delle automazioni (tutti),
  * l'Excel di prima con CERCA.VERT e #N/D (Seven), la riconciliazione al 97%
  * (Seven), la chat che modifica il sito (Tharvel), la prenotazione confermata
  * da sola (Josè).
@@ -47,6 +49,11 @@ const COPY = {
       publish: 'Pubblica',
       undo: 'Annulla',
     },
+    elettro: {
+      ask: 'A che punto sono i cantieri?',
+      title: 'Cantieri aperti',
+      sites: [['Fotovoltaico 60 kW', 72], ['Quadri elettrici', 45], ['Impianto civile', 92]],
+    },
     booking: {
       title: 'Prenota un tavolo',
       fields: ['Sab 14', '20:30', '2 posti'],
@@ -81,6 +88,11 @@ const COPY = {
       reply: 'Done. The preview is ready, shall I publish?',
       publish: 'Publish',
       undo: 'Undo',
+    },
+    elettro: {
+      ask: 'How are the sites doing?',
+      title: 'Open sites',
+      sites: [['Solar 60 kW', 72], ['Switchboards', 45], ['Home wiring', 92]],
     },
     booking: {
       title: 'Book a table',
@@ -238,6 +250,43 @@ export function BookingTile({ lang }) {
           </svg>
           {t.done}
         </div>
+      </div>
+    </div>
+  )
+}
+
+/* Elettra: la domanda a Elettro e la risposta disegnata come interfaccia,
+ * in piccolo. La versione intera è il facsimile in caseStudyElettro.jsx. */
+export function ElettroTile({ lang }) {
+  const t = COPY[lang].elettro
+  return (
+    <div data-ui aria-hidden className="absolute inset-0 flex items-center gap-3 overflow-hidden p-3 sm:gap-4 sm:p-5" style={{ background: YELLOW, color: INK }}>
+      <div className="hidden shrink-0 flex-col items-start gap-2 sm:flex sm:w-[38%]">
+        <span className="flex items-center gap-1.5 text-[11px] font-bold">
+          <span className="flex h-5 w-5 items-center justify-center rounded-md" style={{ background: INK }}>
+            <svg viewBox="0 0 24 24" width="11" height="11" fill="none">
+              <path d="M13 2.5 5.5 13.5H11l-1 8 7.5-11H12l1-8Z" fill={YELLOW} />
+            </svg>
+          </span>
+          Elettro
+        </span>
+        <p className="rounded-2xl rounded-bl-md px-3 py-2 text-[12px] font-semibold leading-snug" style={{ background: INK, color: PAPER }}>
+          {t.ask}
+        </p>
+      </div>
+      <div className="min-w-0 flex-1 rounded-xl bg-white p-3">
+        <p className="text-[12px] font-extrabold">{t.title}</p>
+        <ul className="mt-2 space-y-1.5">
+          {t.sites.map(([name, pct]) => (
+            <li key={name} className="grid grid-cols-[1fr_2.25rem] items-center gap-x-2 gap-y-1">
+              <span className="truncate text-[11px] font-semibold">{name}</span>
+              <span className="text-right text-[11px] font-bold tabular-nums">{pct}%</span>
+              <span className="col-span-2 block h-1.5 overflow-hidden rounded-full bg-zinc-200">
+                <span className="cs-kpi-bar block h-full origin-left rounded-full" style={{ width: `${pct}%`, background: INK }} />
+              </span>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   )

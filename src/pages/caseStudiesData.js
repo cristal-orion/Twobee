@@ -65,14 +65,18 @@
  * - `logo`: file in public/. `logoMono: true` se il logo è bianco pieno (come i
  *   partner-*.webp): viene invertito sui capitoli chiari. `logoDark: true` è il
  *   caso opposto, inchiostro scuro invertito sui capitoli scuri.
- *   ⚠️ Il fondo di un caso dipende dalla sua POSIZIONE nell'array (pari =
- *   chiaro): spostare un caso ribalta il fondo di tutti quelli sotto.
- *   Ricontrolla i loghi quando cambi l'ordine.
  * - `meta`: le righe «Settore / Sistema» sotto il logo. Una voce che non
  *   sappiamo si omette, non si inventa.
  * - Testi bilingui: { it: '…', en: '…' }. Se l'inglese manca, mettere comunque
  *   la chiave `en` (anche uguale all'italiano) per non far crashare il render.
  * - `template: true` accende la scritta "esempio": va rimosso sui progetti veri.
+ * - `card`: l'anteprima nel carosello in cima, 1000×800, una per lingua perché
+ *   i facsimili hanno testi tradotti. Si ottiene fotografando la schermata del
+ *   caso (il blocco .cs-plate-inner) in pagina a 1440px: se cambi un facsimile
+ *   o uno screenshot, rifai anche la card o il carosello mostra la versione
+ *   vecchia.
+ * - Un caso alla volta e sempre su fondo bianco (dal 2026-10-29): i loghi
+ *   bianchi vogliono `logoMono`, quelli scuri niente.
  */
 
 /* --------------------------------------------------------------------------
@@ -80,6 +84,10 @@
  *
  * {
  *   slug: 'nome-cliente',                      // ancora: /casestudy#nome-cliente
+ *   card: { it: '/casestudy-card-nome-it.webp', en: '…-en.webp' },
+ *                                              // anteprima nel carosello: si
+ *                                              // genera dalla schermata, vedi
+ *                                              // ALTRE REGOLE
  *   client: 'Nome Cliente',
  *   logo: '/partner-nomecliente.webp',         // in public/, oppure null
  *   logoMono: true,                            // logo monocromatico → invertibile
@@ -125,6 +133,7 @@
 export const CASES = [
   {
     slug: 'seven-inviti-fatturare',
+    card: { it: '/casestudy-card-seven-it.webp', en: '/casestudy-card-seven-en.webp' },
     client: 'Seven',
     logo: '/partner-seven.webp',
     logoMono: true,
@@ -216,26 +225,27 @@ export const CASES = [
   },
   {
     slug: 'elettra-crm',
+    card: { it: '/casestudy-card-elettra-it.webp', en: '/casestudy-card-elettra-en.webp' },
     client: 'Elettra Group',
     logo: '/partner-elettragroup.webp',
     logoMono: true,
     url: 'https://elettragroup.it',
     year: '2026',
     symptom: {
-      it: 'La stessa azienda salvata cinque volte',
-      en: 'The same company saved five times',
+      it: 'Commesse e cantieri sparsi fra tanti Excel',
+      en: 'Jobs and sites spread over many spreadsheets',
     },
     headline: {
-      it: 'Nessuna commessa resta senza fattura',
-      en: 'No job goes uninvoiced any more',
+      it: 'Elettro segue commesse e cantieri',
+      en: 'Elettro runs jobs and sites',
     },
     about: {
-      it: 'Elettra Group realizza impianti elettrici e fotovoltaici su commessa. Ogni lavoro ha il suo preventivo, i suoi acquisti dai fornitori e il suo cantiere.',
-      en: 'Elettra Group builds electrical and solar installations to order. Every job has its own quote, its own supplier purchases and its own site.',
+      it: 'Elettra Group realizza impianti elettrici e fotovoltaici su commessa. Nel suo CRM abbiamo messo Elettro, un agente AI che segue ogni lavoro dal primo contatto al cantiere.',
+      en: 'Elettra Group builds electrical and solar installations to order. Inside its CRM we put Elettro, an AI agent that follows every job from first contact to the building site.',
     },
     diagnosis: {
-      it: 'Offerte, ordini e anagrafiche stavano su fogli Excel separati. La stessa impresa poteva comparire cinque volte: come cliente, come fornitore e una volta per ogni indirizzo di consegna. Soprattutto, nessuno sapeva quali commesse avessero già generato acquisti senza essere mai state fatturate, cioè materiale pagato per lavori che non rientravano. Anche il prezzo pagato l’ultima volta per un materiale restava sepolto nelle righe degli ordini, proprio quando serviva per trattare col fornitore.',
-      en: 'Quotes, orders and contacts sat in separate spreadsheets. The same business could appear five times: as a client, as a supplier and once for every delivery address. Worse, nobody knew which jobs had already triggered purchases without ever being invoiced: material paid for on work that never came back. The price last paid for a material stayed buried in old order lines, out of reach when it was time to negotiate with the supplier.',
+      it: 'Offerte, ordini e anagrafiche stavano su fogli Excel separati. La stessa impresa poteva comparire cinque volte: come cliente, come fornitore e una volta per ogni indirizzo di consegna. Nessuno sapeva quali commesse avessero già generato acquisti senza essere mai state fatturate, cioè materiale pagato per lavori che non rientravano. E per sapere a che punto fosse un cantiere bisognava chiedere a chi ci lavorava. Abbiamo prima riunito tutto in un CRM, poi ci abbiamo messo dentro Elettro: gli scrivi in chat e risponde con lo stato vero di commesse, acquisti e cantieri.',
+      en: 'Quotes, orders and contacts sat in separate spreadsheets. The same business could appear five times: as a client, as a supplier and once for every delivery address. Nobody knew which jobs had already triggered purchases without ever being invoiced: material paid for on work that never came back. And to know how a site was doing you had to ask the people on it. We first brought everything into one CRM, then put Elettro inside it: you write to it in a chat and it answers with the real state of jobs, purchases and sites.',
     },
     meta: [
       {
@@ -244,7 +254,7 @@ export const CASES = [
       },
       {
         label: { it: 'Sistema', en: 'System' },
-        value: { it: 'CRM e gestionale su misura', en: 'Custom CRM and business software' },
+        value: { it: 'CRM su misura con agente AI', en: 'Custom CRM with an AI agent' },
       },
       // TODO durata: nel brief non c'è, e non si inventa. Michele la sa.
     ],
@@ -254,6 +264,10 @@ export const CASES = [
      * pieno di uso. Fino ad allora `resultsNote` dice che numeri sono questi. */
     results: [
       {
+        title: { it: 'Un agente per tutto il ciclo', en: 'One agent for the whole cycle' },
+        body: { it: 'Contatto, preventivo, commessa, cantiere, fattura.', en: 'Contact, quote, job, site, invoice.' },
+      },
+      {
         title: { it: '1.044 aziende, una scheda ciascuna', en: '1,044 companies, one record each' },
         body: { it: 'Prima erano 3.243 schede, molte doppie.', en: 'There used to be 3,243, many duplicated.' },
       },
@@ -261,60 +275,47 @@ export const CASES = [
         title: { it: '8,6 milioni di offerte migrati', en: '€8.6M of quotes migrated' },
         body: { it: '723 commesse, quadrate al centesimo.', en: '723 jobs, reconciled to the cent.' },
       },
-      {
-        title: { it: 'Cosa fatturare, in un elenco', en: 'What to invoice, in one list' },
-        body: { it: 'Nessuno deve più cercarlo negli Excel.', en: 'Nobody digs through spreadsheets for it.' },
-      },
     ],
     resultsNote: {
-      it: 'Numeri della migrazione, contati sul sistema. Non sono stime di risparmio.',
-      en: 'Migration figures, counted on the system. They are not estimated savings.',
+      it: 'Le cifre sono quelle della migrazione, contate sul sistema. Non sono stime di risparmio.',
+      en: 'The figures come from the migration, counted on the system. They are not estimated savings.',
     },
     before: {
-      it: ['Dati sparsi su più Excel', 'Acquisti scollegati dalle commesse', 'L’ultimo prezzo pagato, introvabile'],
-      en: ['Data spread over several spreadsheets', 'Purchases detached from jobs', 'The last price paid, nowhere to be found'],
+      it: ['Dati sparsi su più Excel', 'Acquisti scollegati dalle commesse', 'Lo stato dei cantieri chiesto a voce'],
+      en: ['Data spread over several spreadsheets', 'Purchases detached from jobs', 'Site progress asked for by phone'],
     },
     after: {
-      it: ['Un archivio solo', 'Ogni acquisto nella sua commessa', 'Lo storico prezzi di ogni materiale'],
-      en: ['One single archive', 'Every purchase inside its job', 'A price history for every material'],
+      it: ['Un archivio solo', 'Ogni acquisto nella sua commessa', 'Elettro risponde in chat, coi dati veri'],
+      en: ['One single archive', 'Every purchase inside its job', 'Elettro answers in chat, with real data'],
     },
     steps: [
       {
-        title: { it: 'Richiesta', en: 'Request' },
-        body: { it: 'Arrivano le esigenze e i primi documenti.', en: 'Requirements and first documents come in.' },
-      },
-      {
-        title: { it: 'Preventivo', en: 'Quote' },
-        body: { it: 'Si prepara in fretta e resta tracciato.', en: 'Drafted quickly and kept on record.' },
+        title: { it: 'Acquisizione', en: 'Lead' },
+        body: { it: 'Elettro registra il contatto e prepara il preventivo.', en: 'Elettro logs the contact and drafts the quote.' },
       },
       {
         title: { it: 'Commessa', en: 'Job' },
-        body: { it: 'Il preventivo accettato diventa commessa.', en: 'An accepted quote becomes a job.' },
+        body: { it: 'Il preventivo accettato diventa commessa, con i suoi acquisti.', en: 'An accepted quote becomes a job, with its purchases.' },
       },
       {
-        title: { it: 'Acquisti e fattura', en: 'Purchases and invoice' },
-        body: { it: 'Gli acquisti stanno lì, la fattura parte da lì.', en: 'Purchases live there, the invoice starts there.' },
+        title: { it: 'Cantiere', en: 'Site' },
+        body: { it: 'Avanzamento, squadre e materiali, chiesti in chat.', en: 'Progress, crews and materials, asked in the chat.' },
+      },
+      {
+        title: { it: 'Fattura', en: 'Invoice' },
+        body: { it: 'Elettro segnala cosa è pronto da fatturare.', en: 'Elettro flags what is ready to invoice.' },
       },
     ],
-    /* Il cruscotto vero. Nomi cliente, PM e utente in sidebar erano già oscurati
-     * nell'export; «Ciao, Fabio» resta in chiaro di proposito, perché Fabio Greco
-     * firmerà la testimonianza col link al suo profilo: nasconderlo lì e
-     * nominarlo qui sarebbe incoerente. */
+    /* Facsimile a codice di Elettro (caseStudyElettro.jsx): la chat in cui
+     * l'agente risponde con l'avanzamento dei cantieri disegnato come
+     * interfaccia. Ha preso il posto dello screenshot del cruscotto il
+     * 2026-10-29. Cantieri, luoghi e importi sono inventati: la didascalia lo
+     * dice, perché parlano di un cliente vero. */
     proof: {
-      images: [
-        {
-          src: '/casestudy-elettra-dashboard.webp',
-          alt: {
-            it: 'Il cruscotto del CRM: 1043 clienti, 1044 fornitori, 8.623.037,50 € di valore offerto, e la pipeline delle 723 commesse divisa per stato.',
-            en: 'The CRM dashboard: 1,043 clients, 1,044 suppliers, €8,623,037.50 in quoted value, and the pipeline of 723 jobs split by state.',
-          },
-          width: 1320,
-          height: 996,
-        },
-      ],
+      component: 'elettro',
       caption: {
-        it: 'Il cruscotto del CRM. I nomi dei clienti sono oscurati.',
-        en: 'The CRM dashboard. Client names are blurred.',
+        it: 'Elettro risponde in chat con l’avanzamento dei cantieri, un avviso da gestire e cosa c’è da fatturare. Cantieri e importi sono di esempio.',
+        en: 'Elettro answers in the chat with site progress, an alert to handle and what is ready to invoice. Sites and amounts are examples.',
       },
     },
     // TODO testimonianza: Fabio Greco, con `authorUrl` al suo LinkedIn. Il campo
@@ -323,6 +324,7 @@ export const CASES = [
   },
   {
     slug: 'industrial-service-hr',
+    card: { it: '/casestudy-card-industrial-it.webp', en: '/casestudy-card-industrial-en.webp' },
     client: 'Industrial Service & Facility',
     logo: '/partner-industrial-service.webp',
     logoMono: true,
@@ -333,16 +335,16 @@ export const CASES = [
       en: 'CVs read one by one, then rejected',
     },
     headline: {
-      it: 'In ufficio arriva solo chi ha i requisiti',
-      en: 'Only qualified technicians reach HR',
+      it: 'Un agente AI sceglie i candidati migliori',
+      en: 'An AI agent picks the best candidates',
     },
     about: {
       it: 'Industrial Service & Facility installa e mantiene impianti fotovoltaici, eolici ed elettrici in tutta Italia, con squadre di tecnici in trasferta e su turni.',
       en: 'Industrial Service & Facility installs and maintains solar, wind and electrical systems across Italy, with crews of technicians who travel and work shifts.',
     },
     diagnosis: {
-      it: 'Per quei cantieri servono requisiti precisi: patente, patentino F-Gas, turni di notte, trasferte. Le candidature però arrivavano come CV liberi, e per sapere se un requisito c’era bisognava leggerli tutti. L’ufficio del personale passava le giornate a richiamare persone che non avevano nemmeno il primo, mentre i tecnici adatti aspettavano una risposta che spesso non arrivava. E nessuno sapeva quale annuncio portasse candidati veri e quale solo clic.',
-      en: 'Those sites need specific requirements: a driving licence, F-Gas certification, night shifts, travel. Applications came in as free-form CVs, though, and the only way to check a requirement was to read every one. HR spent its days calling back people who failed the very first one, while suitable technicians waited for a reply that often never came. And nobody knew which ad brought real candidates and which brought only clicks.',
+      it: 'Per quei cantieri servono requisiti precisi: patente, patentino F-Gas, turni di notte, trasferte. Le candidature però arrivavano come CV liberi, e per sapere se un requisito c’era bisognava leggerli tutti. L’ufficio del personale passava le giornate a richiamare persone che non avevano nemmeno il primo, mentre i tecnici adatti aspettavano una risposta che spesso non arrivava. Adesso ogni candidatura la legge prima un agente AI: controlla i requisiti, profila il candidato e lo mette in classifica.',
+      en: 'Those sites need specific requirements: a driving licence, F-Gas certification, night shifts, travel. Applications came in as free-form CVs, though, and the only way to check a requirement was to read every one. HR spent its days calling back people who failed the very first one, while suitable technicians waited for a reply that often never came. Now an AI agent reads every application first: it checks the requirements, profiles the candidate and ranks them.',
     },
     meta: [
       {
@@ -351,7 +353,7 @@ export const CASES = [
       },
       {
         label: { it: 'Sistema', en: 'System' },
-        value: { it: 'Pagina candidature con punteggio', en: 'Applications page with scoring' },
+        value: { it: 'Agente AI di selezione', en: 'AI recruiting agent' },
       },
     ],
     /* Numeri letti dalla barra in cima alla dashboard candidature il 2026-08-06:
@@ -364,8 +366,8 @@ export const CASES = [
      * da raccontare: è la persona che una lettura del CV avrebbe buttato. */
     results: [
       {
-        title: { it: '118 candidature valutate', en: '118 applications assessed' },
-        body: { it: 'Stesse domande e stesso punteggio per tutti.', en: 'Same questions and same score for all.' },
+        title: { it: '118 candidati profilati', en: '118 candidates profiled' },
+        body: { it: 'L’agente li ha letti tutti, con lo stesso metro.', en: 'The agent read them all, by one yardstick.' },
       },
       {
         title: { it: '79 pronti da chiamare', en: '79 ready to call' },
@@ -373,7 +375,7 @@ export const CASES = [
       },
       {
         title: { it: '1 diamante grezzo', en: '1 rough diamond' },
-        body: { it: 'Tanto potenziale, poca esperienza: col CV era fuori.', en: 'Lots of potential, little experience: a CV ruled them out.' },
+        body: { it: 'Tanto potenziale, poca esperienza: l’agente l’ha visto.', en: 'Lots of potential, little experience: the agent spotted it.' },
       },
     ],
     resultsNote: {
@@ -385,8 +387,8 @@ export const CASES = [
       en: ['Free-form CVs, all different', 'Calls to people missing the requirements', 'Candidates left without a reply'],
     },
     after: {
-      it: ['Le stesse domande per tutti', 'Requisiti controllati prima della chiamata', 'Una risposta a ogni candidato'],
-      en: ['The same questions for everyone', 'Requirements checked before any call', 'A reply for every candidate'],
+      it: ['L’agente legge e profila ognuno', 'Requisiti controllati prima della chiamata', 'Una risposta a ogni candidato'],
+      en: ['The agent reads and profiles each one', 'Requirements checked before any call', 'A reply for every candidate'],
     },
     steps: [
       {
@@ -394,16 +396,16 @@ export const CASES = [
         body: { it: 'Il candidato arriva sulla pagina.', en: 'The candidate lands on the page.' },
       },
       {
-        title: { it: 'Requisiti', en: 'Requirements' },
-        body: { it: 'Per prime le domande che escludono.', en: 'Knockout questions come first.' },
+        title: { it: 'Controllo', en: 'Check' },
+        body: { it: 'L’agente verifica i requisiti obbligatori.', en: 'The agent checks the mandatory requirements.' },
       },
       {
-        title: { it: 'Punteggio', en: 'Score' },
-        body: { it: 'Le risposte diventano un punteggio.', en: 'Answers turn into a score.' },
+        title: { it: 'Profilo', en: 'Profile' },
+        body: { it: 'Assegna un punteggio e una fascia, dai pronti ai diamanti grezzi.', en: 'It scores and bands each one, from ready to rough diamonds.' },
       },
       {
-        title: { it: 'Qualificati', en: 'Qualified' },
-        body: { it: 'All’ufficio arriva chi supera la soglia.', en: 'HR sees whoever clears the threshold.' },
+        title: { it: 'Classifica', en: 'Shortlist' },
+        body: { it: 'All’ufficio arriva la lista già ordinata.', en: 'HR gets the list already ranked.' },
       },
     ],
     /* La dashboard vera. Anonimizzata prima di finire in public/: nomi ed email
@@ -425,14 +427,15 @@ export const CASES = [
         },
       ],
       caption: {
-        it: 'La dashboard delle candidature: ogni punto è una persona, i nomi sono oscurati.',
-        en: 'The applications dashboard: each dot is a person, names are blurred.',
+        it: 'La dashboard dell’agente: ogni punto è un candidato profilato, i nomi sono oscurati.',
+        en: 'The agent’s dashboard: each dot is a profiled candidate, names are blurred.',
       },
     },
     quote: null,
   },
   {
     slug: 'jose-prenotazioni',
+    card: { it: '/casestudy-card-jose-it.webp', en: '/casestudy-card-jose-en.webp' },
     client: 'Josè Restaurant',
     logo: null,
     logoMono: false,
@@ -545,6 +548,7 @@ export const CASES = [
   },
   {
     slug: 'tharvel-admin-siti',
+    card: { it: '/casestudy-card-tharvel-it.webp', en: '/casestudy-card-tharvel-en.webp' },
     client: 'Tharvel',
     logo: '/tharvel-logo.webp',
     // Inchiostro scuro su trasparente, non bianco come i partner-*.webp: sui

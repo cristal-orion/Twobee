@@ -16,10 +16,17 @@
  *   │ blocco, logo │ testo corrente partono da qui    │
  *   │ e note       │                                  │
  *
- * Il primo schermo è un mosaico senza fughe di schermate vere in bianco e nero
- * e tasselli di colore pieno, con il titolo sull'asse. Sotto, l'indice «Da dove
- * si partiva»: i casi elencati per il problema di partenza, perché chi arriva
- * riconosce il proprio caos prima del nome del cliente.
+ * Il primo schermo è un mosaico senza fughe di schermate in bicromia e
+ * frammenti di interfaccia, con il titolo sull'asse.
+ *
+ * ── UN CASO ALLA VOLTA (2026-10-29) ──────────────────────────────────────────
+ * Sotto il primo schermo c'è un carosello concavo (components/ConcaveCarousel)
+ * con l'anteprima di ogni lavoro e il nome in piccolo. Il pannello al centro è
+ * il caso aperto: il suo capitolo compare sotto, e per passare a un altro si
+ * gira il carosello. I capitoli sono tutti nel DOM (gli altri con `hidden`):
+ * così i link /casestudy#slug delle proposte trovano sempre la loro ancora e il
+ * testo resta leggibile ai motori. L'hash segue il caso aperto, quindi l'URL
+ * nella barra è sempre quello da mandare a un cliente.
  *
  * Al posto delle schede con icona ci sono testo e una tabella vera: niente
  * bordi da 1px, niente ombre, niente etichette maiuscole spaziate. Le superfici
@@ -41,7 +48,7 @@
  *    sui capitoli scuri, oro scuro su quelli chiari. Il giallo pieno come
  *    SFONDO (bg-brand-yellow + text-brand-black) invece va bene ovunque.
  */
-import { useRef } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { ScrollSmoother } from 'gsap/ScrollSmoother'
@@ -50,10 +57,11 @@ import { useGSAP } from '@gsap/react'
 import Navbar from '../components/Navbar.jsx'
 import Footer from '../components/Footer.jsx'
 import CookieBanner from '../components/CookieBanner.jsx'
+import ConcaveCarousel from '../components/ConcaveCarousel.jsx'
 import { localePath, useLang } from '../i18n/LanguageContext.jsx'
 import { CASES } from './caseStudiesData.js'
 import { PROOFS } from './caseStudyProofs.jsx'
-import { BookingTile, ChatTile, FeedTile, KpiTile, SheetTile } from './caseStudyMosaicTiles.jsx'
+import { BookingTile, ChatTile, ElettroTile, FeedTile, KpiTile, SheetTile } from './caseStudyMosaicTiles.jsx'
 
 gsap.registerPlugin(ScrollTrigger, ScrollSmoother, useGSAP)
 
@@ -88,11 +96,19 @@ const COPY = {
     hero: {
       titleLines: ['Cosa abbiamo', 'costruito'],
       standfirst:
-        'Sistemi che le aziende clienti usano ogni giorno, più uno che abbiamo fatto per noi. Per ognuno: il problema, i numeri, le schermate vere.',
-      contents: 'Da dove si partiva',
+        'Sistemi e agenti AI che le aziende clienti usano ogni giorno, più uno che abbiamo fatto per noi. Per ognuno: il problema, i numeri, come funziona.',
       mosaicLabel: (client) => `Vai al caso ${client}`,
     },
+    works: {
+      title: 'Scegli un caso',
+      open: 'Apri il caso',
+      carousel: 'Case study',
+      prev: 'Caso precedente',
+      next: 'Caso successivo',
+      preview: (client) => `Anteprima del caso ${client}`,
+    },
     labels: {
+      nextCase: 'Caso successivo',
       problem: 'Il problema',
       results: 'Cosa è cambiato',
       draft: 'Numeri di esempio, da sostituire.',
@@ -127,11 +143,19 @@ const COPY = {
     hero: {
       titleLines: ['What we’ve', 'built'],
       standfirst:
-        'Systems our clients use every day, plus one we built for ourselves. For each: the problem, the numbers, the real screens.',
-      contents: 'Where they started',
+        'Systems and AI agents our clients use every day, plus one we built for ourselves. For each: the problem, the numbers, how it works.',
       mosaicLabel: (client) => `Go to the ${client} case`,
     },
+    works: {
+      title: 'Pick a case',
+      open: 'Open the case',
+      carousel: 'Case studies',
+      prev: 'Previous case',
+      next: 'Next case',
+      preview: (client) => `Preview of the ${client} case`,
+    },
     labels: {
+      nextCase: 'Next case',
       problem: 'The problem',
       results: 'What changed',
       draft: 'Sample figures, to be replaced.',
@@ -163,6 +187,8 @@ const COPY = {
 }
 
 const CASE_BY_SLUG = Object.fromEntries(CASES.map((c) => [c.slug, c]))
+const SLUG_INDEX = Object.fromEntries(CASES.map((c, i) => [c.slug, i]))
+const hashSlug = () => decodeURIComponent(window.location.hash.slice(1))
 
 /* Salto a un'ancora senza il salto nativo: con ScrollSmoother attivo il
  * browser scorrerebbe il wrapper sbagliato. Si aggiorna l'hash e si lascia
@@ -176,15 +202,29 @@ function jumpTo(e, slug) {
 export default function CaseStudiesPage() {
   const wrapper = useRef(null)
   const content = useRef(null)
+  const smoother = useRef(null)
+  // Il caso aperto, e dove portare chi legge dopo averlo aperto: 'case' (il
+  // capitolo), 'works' (il carosello) o null (resta dov'è). `t` rende diversa
+  // ogni richiesta, anche quando si riapre lo stesso caso.
+  const [nav, setNav] = useState(() => ({ i: SLUG_INDEX[hashSlug()] ?? 0, where: null, t: 0 }))
+  const active = nav.i
+  const openCase = useCallback((i, where = null) => setNav({ i, where, t: performance.now() }), [])
+
+  const scrollToId = useCallback((id, smooth) => {
+    const target = id && document.getElementById(id)
+    if (!target) return
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    if (smoother.current) smoother.current.scrollTo(target, smooth, 'top 80px')
+    else target.scrollIntoView({ behavior: smooth && !reduce ? 'smooth' : 'auto' })
+  }, [])
 
   useGSAP(() => {
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
     // Come nelle altre pagine: smoothing solo su dispositivi a puntatore, sul
     // touch l'inerzia nativa è migliore e ScrollSmoother le va contro.
-    let smoother
     if (!reduce && ScrollTrigger.isTouch !== 1) {
-      smoother = ScrollSmoother.create({
+      smoother.current = ScrollSmoother.create({
         wrapper: wrapper.current,
         content: content.current,
         smooth: 1.1,
@@ -194,43 +234,66 @@ export default function CaseStudiesPage() {
 
     ScrollTrigger.refresh()
 
-    // Deep link a un singolo caso (/casestudy#slug): il salto nativo del browser
-    // avviene prima che ScrollSmoother esista e viene annullato dal suo init,
-    // quindi ci riportiamo noi sull'ancora dopo il refresh.
-    // L'hash si rilegge a ogni chiamata e non si cattura: serve anche a
-    // hashchange, dove è cambiato proprio quello.
+    // Deep link a un singolo caso (/casestudy#slug): il caso è già aperto dallo
+    // stato iniziale, resta da scendere fin lì. Il salto nativo del browser
+    // avviene prima che ScrollSmoother esista e viene annullato dal suo init.
     const goToAnchor = (smooth) => {
-      const id = decodeURIComponent(window.location.hash.slice(1))
-      const target = id && document.getElementById(id)
-      if (!target) return
-      if (smoother) smoother.scrollTo(target, smooth, 'top 80px')
-      else target.scrollIntoView({ behavior: smooth && !reduce ? 'smooth' : 'auto' })
+      const id = hashSlug()
+      if (!id) return
+      if (id in SLUG_INDEX) openCase(SLUG_INDEX[id], 'case')
+      else scrollToId(id, smooth)
     }
-    goToAnchor(false)
+    if (hashSlug()) scrollToId(hashSlug(), false)
 
     // Secondo tentativo a caricamento finito: i font del display arrivano dopo e
-    // cambiano l'altezza dei titoli, e su un'ancora in fondo alla pagina gli
-    // scarti si sommano. Rifare il conto una volta costa niente.
+    // cambiano l'altezza dei titoli. Rifare il conto una volta costa niente.
     const onLoad = () => {
       ScrollTrigger.refresh()
-      goToAnchor(false)
+      if (hashSlug()) scrollToId(hashSlug(), false)
     }
     if (window.location.hash) {
       window.addEventListener('load', onLoad, { once: true })
     }
 
-    // Cambiare solo l'hash mentre la pagina è già aperta è una navigazione nello
-    // stesso documento: React non rimonta e il salto nativo viene annullato da
-    // ScrollSmoother. Serve all'indice in cima e ai link /casestudy#altro-caso.
+    // Cambiare solo l'hash mentre la pagina è già aperta (mosaico, link
+    // /casestudy#altro-caso) non rimonta niente: lo gestiamo noi.
     const onHashChange = () => goToAnchor(true)
     window.addEventListener('hashchange', onHashChange)
 
     return () => {
       window.removeEventListener('load', onLoad)
       window.removeEventListener('hashchange', onHashChange)
-      if (smoother) smoother.kill()
+      smoother.current?.kill()
+      smoother.current = null
     }
   }, [])
+
+  // Cambio di caso: l'hash segue (senza scatenare hashchange), il capitolo
+  // nuovo entra a righe, e se richiesto si scende fin lì.
+  useEffect(() => {
+    const slug = CASES[nav.i]?.slug
+    if (!slug) return
+    // t = 0 è lo stato iniziale: chi arriva su /casestudy senza # non se lo
+    // ritrova scritto nella barra prima di aver toccato qualcosa.
+    if (nav.t && hashSlug() !== slug) {
+      window.history.replaceState(null, '', `#${slug}`)
+    }
+
+    const section = document.getElementById(slug)
+    if (section && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      gsap.fromTo(
+        section.querySelectorAll('.cs-reveal'),
+        { y: 24, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.6, ease: 'power3.out', stagger: 0.04, overwrite: true }
+      )
+    }
+    // L'altezza della pagina è cambiata: i trigger più in basso vanno ricalcolati.
+    requestAnimationFrame(() => {
+      ScrollTrigger.refresh()
+      if (nav.where === 'case') scrollToId(slug, true)
+      else if (nav.where === 'works') scrollToId('lavori', true)
+    })
+  }, [nav, scrollToId])
 
   return (
     <div id="top" className="bg-brand-black text-white">
@@ -242,9 +305,22 @@ export default function CaseStudiesPage() {
             {CASES.length === 0 ? (
               <EmptyState />
             ) : (
-              CASES.map((item, i) => (
-                <CaseSection key={item.slug} item={item} light={i % 2 === 0} />
-              ))
+              <>
+                <Works
+                  active={active}
+                  onChange={(i) => openCase(i)}
+                  onOpen={(i) => openCase(i, 'case')}
+                />
+                {CASES.map((item, i) => (
+                  <CaseSection
+                    key={item.slug}
+                    item={item}
+                    open={i === active}
+                    next={CASES[(i + 1) % CASES.length]}
+                    onNext={() => openCase((i + 1) % CASES.length, 'works')}
+                  />
+                ))}
+              </>
             )}
             <FinalCta />
           </main>
@@ -257,7 +333,7 @@ export default function CaseStudiesPage() {
 }
 
 /* ------------------------------------------------------------------ */
-/* PRIMO SCHERMO: mosaico, titolo sull'asse, indice                    */
+/* PRIMO SCHERMO: mosaico e titolo sull'asse                          */
 /* ------------------------------------------------------------------ */
 
 function Hero() {
@@ -284,7 +360,7 @@ function Hero() {
   )
 
   return (
-    <section ref={root} className="relative bg-brand-black pt-20 sm:pt-24">
+    <section ref={root} className="relative bg-brand-black pb-20 pt-20 sm:pb-28 sm:pt-24 lg:pb-32">
       <Mosaic label={t.mosaicLabel} />
 
       <div className="container-x">
@@ -300,21 +376,19 @@ function Hero() {
             {t.standfirst}
           </p>
         </div>
-
-        <Contents title={t.contents} />
       </div>
     </section>
   )
 }
 
-/* Il mosaico: quattro schermate vere stampate in bicromia giallo e nero (scala
+/* Il mosaico: tre schermate vere stampate in bicromia giallo e nero (scala
  * di grigi moltiplicata sul giallo, come le foto del team) e, fra una e
  * l'altra, frammenti di interfaccia disegnati a codice (caseStudyMosaicTiles.jsx),
  * accostati senza fughe. Ogni schermata porta al suo caso e al passaggio del
  * mouse torna ai suoi colori. Sul telefono restano due schermate e due
  * tasselli (registro e 97%: la chat su 130px non si legge). */
 const MOSAIC = [
-  { slug: 'elettra-crm', src: '/casestudy-elettra-dashboard.webp', pos: '8% 4%', cell: 'col-span-2 col-start-1 row-start-1' },
+  { slug: 'elettra-crm', tile: ElettroTile, cell: 'col-span-2 col-start-1 row-start-1' },
   { tile: FeedTile, cell: 'col-start-3 row-start-1 lg:row-span-2' },
   { slug: 'industrial-service-hr', src: '/casestudy-industrial-dashboard.webp', pos: '12% 62%', cell: 'hidden lg:block lg:col-start-4 lg:row-start-1' },
   { tile: SheetTile, cell: 'hidden lg:block lg:col-start-5 lg:row-start-1' },
@@ -330,7 +404,17 @@ function Mosaic({ label }) {
   return (
     <div className="grid h-[34svh] min-h-[220px] grid-cols-3 grid-rows-2 lg:h-[44svh] lg:min-h-[340px] lg:grid-cols-6">
       {MOSAIC.map((m, i) =>
-        m.tile ? (
+        m.tile && m.slug ? (
+          <a
+            key={i}
+            href={`#${m.slug}`}
+            onClick={(e) => jumpTo(e, m.slug)}
+            aria-label={label(CASE_BY_SLUG[m.slug].client)}
+            className={`cs-mosaic-tile relative overflow-hidden focus-visible:z-10 focus-visible:outline focus-visible:outline-4 focus-visible:-outline-offset-4 focus-visible:outline-brand-yellow ${m.cell}`}
+          >
+            <m.tile lang={lang} />
+          </a>
+        ) : m.tile ? (
           <div key={i} className={`cs-mosaic-tile relative overflow-hidden ${m.cell}`}>
             <m.tile lang={lang} />
           </div>
@@ -355,32 +439,52 @@ function Mosaic({ label }) {
   )
 }
 
-/* L'indice. È l'unica cosa del primo schermo che si usa: chi legge sceglie il
- * problema che riconosce e salta al caso. */
-function Contents({ title }) {
+/* I LAVORI: il carosello concavo. Ogni pannello è l'anteprima di un caso
+ * (`card` nei dati, generata dalla sua schermata) col nome in piccolo; sotto,
+ * la didascalia del pannello al centro con il problema di partenza. Finché
+ * nessuno lo tocca gira da solo e cambia solo la didascalia; girato a mano
+ * cambia il caso aperto sotto, e cliccare quello al centro ci porta. */
+function Works({ active, onChange, onOpen }) {
   const lang = useLang()
+  const t = COPY[lang].works
+  const items = CASES.map((c) => ({
+    key: c.slug,
+    src: c.card?.[lang] || c.card?.it,
+    alt: t.preview(c.client),
+    title: c.client,
+    meta: c.year,
+  }))
+
   return (
-    <div className={`${ROW} mt-16 pb-24 sm:mt-24 sm:pb-32 lg:pb-40`}>
-      <h2 className={`cs-hero-fade ${T.lead} font-display font-extrabold text-white ${SIDE}`}>
-        {title}
-      </h2>
-      <ul className={`cs-hero-fade ${MAIN} -my-3`}>
-        {CASES.map((c) => (
-          <li key={c.slug}>
-            <a
-              href={`#${c.slug}`}
-              onClick={(e) => jumpTo(e, c.slug)}
-              className="group -mx-4 flex flex-col gap-1 px-4 py-3 transition-colors hover:bg-white/[0.06] focus-visible:bg-white/[0.06] focus-visible:outline-none sm:flex-row sm:items-baseline sm:justify-between sm:gap-8"
-            >
-              <span className={`${T.lead} font-display font-extrabold text-white transition-[color,transform] duration-300 group-hover:translate-x-2 group-hover:text-accent group-focus-visible:text-accent`}>
-                {c.symptom[lang]}
-              </span>
-              <span className={`${T.small} shrink-0 text-white/70`}>{c.client}</span>
-            </a>
-          </li>
-        ))}
-      </ul>
-    </div>
+    <section id="lavori" className="scroll-mt-20 bg-brand-black pb-20 sm:pb-28">
+      <div className="container-x">
+        <h2 className={`${T.heading} text-center text-white`}>{t.title}</h2>
+      </div>
+      <div className="mt-10 sm:mt-14">
+        <ConcaveCarousel
+          items={items}
+          index={active}
+          onIndexChange={onChange}
+          onSelect={onOpen}
+          labels={{ prev: t.prev, next: t.next, carousel: t.carousel }}
+          renderCaption={(_, i) => (
+            <div className="container-x flex flex-col items-center text-center">
+              <p className={`${T.small} text-white/70`}>{CASES[i].client}</p>
+              <p className={`mt-1 ${T.lead} max-w-[32ch] font-display font-extrabold text-white [text-wrap:balance]`}>
+                {CASES[i].symptom[lang]}
+              </p>
+              <button
+                type="button"
+                onClick={() => onOpen(i)}
+                className={`mt-3 ${T.small} font-semibold text-white underline decoration-2 underline-offset-[6px] transition-colors hover:text-accent focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-brand-yellow`}
+              >
+                {t.open}
+              </button>
+            </div>
+          )}
+        />
+      </div>
+    </section>
   )
 }
 
@@ -388,53 +492,21 @@ function Contents({ title }) {
 /* UN CASE STUDY = UN CAPITOLO                                         */
 /* ------------------------------------------------------------------ */
 
-function CaseSection({ item, light }) {
+function CaseSection({ item, open, next, onNext }) {
   const lang = useLang()
   const t = COPY[lang].labels
-  const root = useRef(null)
-
-  useGSAP(
-    () => {
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-      // Una riga alla volta: prima il titolo di blocco, poi il testo. gsap.from
-      // (e non set + onEnter manuale): se la riga è già stata superata, per un
-      // deep link o un ripristino dello scroll, ScrollTrigger fa partire il
-      // tween subito invece di lasciare il contenuto a opacity 0.
-      gsap.utils.toArray('.cs-row', root.current).forEach((row) => {
-        gsap.from(row.querySelectorAll('.cs-reveal'), {
-          y: 28,
-          opacity: 0,
-          duration: 0.75,
-          ease: 'power3.out',
-          stagger: 0.08,
-          scrollTrigger: { trigger: row, start: 'top 85%', once: true },
-        })
-      })
-      // La schermata cresce un poco mentre scorre: è l'unica immagine grande
-      // del capitolo e merita di muoversi.
-      gsap.utils.toArray('.cs-plate-inner', root.current).forEach((el) => {
-        gsap.fromTo(
-          el,
-          { scale: 0.94 },
-          {
-            scale: 1,
-            ease: 'none',
-            scrollTrigger: { trigger: el, start: 'top bottom', end: 'center center', scrub: true },
-          }
-        )
-      })
-    },
-    { scope: root }
-  )
+  // Un caso alla volta, sempre su bianco: con un capitolo solo l'alternanza
+  // chiaro/scuro non ha più senso, e il bianco stacca dal carosello nero.
+  const light = true
 
   return (
     <section
       id={item.slug}
-      ref={root}
+      hidden={!open}
       // scroll-mt: con la navbar fissa un'ancora senza margine finisce sotto il logo
-      className={['relative scroll-mt-20', light ? 'bg-white' : 'bg-brand-black'].join(' ')}
-      style={light ? LIGHT_VARS : undefined}
-      {...(light ? { 'data-bg-light': true } : {})}
+      className="relative scroll-mt-20 bg-white"
+      style={LIGHT_VARS}
+      data-bg-light
     >
       <div className="container-x py-24 sm:py-28 lg:py-36">
         <div className={`cs-row ${ROW} lg:items-start`}>
@@ -469,6 +541,20 @@ function CaseSection({ item, light }) {
         <HowItWorks item={item} />
         <Quote item={item} />
         <CaseCta />
+        {next && next.slug !== item.slug && (
+          <div className={`${ROW} mt-14 sm:mt-20`}>
+            <button
+              type="button"
+              onClick={onNext}
+              className={`cs-reveal ${MAIN} group flex w-fit flex-col items-start text-left focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-brand-yellow`}
+            >
+              <span className={`${T.small} text-white/60`}>{t.nextCase}</span>
+              <span className={`${T.lead} font-display font-extrabold text-white underline decoration-2 underline-offset-[6px] transition-colors group-hover:text-accent`}>
+                {next.client}
+              </span>
+            </button>
+          </div>
+        )}
       </div>
     </section>
   )
