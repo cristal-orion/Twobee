@@ -16,8 +16,9 @@
  *   │ blocco, logo │ testo corrente partono da qui    │
  *   │ e note       │                                  │
  *
- * Il primo schermo è un mosaico senza fughe di schermate in bicromia e
- * frammenti di interfaccia, con il titolo sull'asse.
+ * Il primo schermo è una griglia di esagoni gialli che si accendono dove passa
+ * il puntatore (components/HexagonalVault), con il titolo sull'asse. Fino al
+ * 2026-10-29 sera era un mosaico di schermate: Michele l'ha sostituito.
  *
  * ── UN CASO ALLA VOLTA (2026-10-29) ──────────────────────────────────────────
  * Sotto il primo schermo c'è un carosello concavo (components/ConcaveCarousel)
@@ -58,10 +59,10 @@ import Navbar from '../components/Navbar.jsx'
 import Footer from '../components/Footer.jsx'
 import CookieBanner from '../components/CookieBanner.jsx'
 import ConcaveCarousel from '../components/ConcaveCarousel.jsx'
+import HexagonalVault from '../components/HexagonalVault.jsx'
 import { localePath, useLang } from '../i18n/LanguageContext.jsx'
 import { CASES } from './caseStudiesData.js'
 import { PROOFS } from './caseStudyProofs.jsx'
-import { BookingTile, ChatTile, ElettroTile, FeedTile, KpiTile, SheetTile } from './caseStudyMosaicTiles.jsx'
 
 gsap.registerPlugin(ScrollTrigger, ScrollSmoother, useGSAP)
 
@@ -97,7 +98,6 @@ const COPY = {
       titleLines: ['Cosa abbiamo', 'costruito'],
       standfirst:
         'Sistemi e agenti AI che le aziende clienti usano ogni giorno, più uno che abbiamo fatto per noi. Per ognuno: il problema, i numeri, come funziona.',
-      mosaicLabel: (client) => `Vai al caso ${client}`,
     },
     works: {
       title: 'Scegli un caso',
@@ -144,7 +144,6 @@ const COPY = {
       titleLines: ['What we’ve', 'built'],
       standfirst:
         'Systems and AI agents our clients use every day, plus one we built for ourselves. For each: the problem, the numbers, how it works.',
-      mosaicLabel: (client) => `Go to the ${client} case`,
     },
     works: {
       title: 'Pick a case',
@@ -186,18 +185,8 @@ const COPY = {
   },
 }
 
-const CASE_BY_SLUG = Object.fromEntries(CASES.map((c) => [c.slug, c]))
 const SLUG_INDEX = Object.fromEntries(CASES.map((c, i) => [c.slug, i]))
 const hashSlug = () => decodeURIComponent(window.location.hash.slice(1))
-
-/* Salto a un'ancora senza il salto nativo: con ScrollSmoother attivo il
- * browser scorrerebbe il wrapper sbagliato. Si aggiorna l'hash e si lascia
- * fare all'handler di hashchange, che sa già usare lo smoother. */
-function jumpTo(e, slug) {
-  e.preventDefault()
-  window.history.pushState(null, '', `#${slug}`)
-  window.dispatchEvent(new HashChangeEvent('hashchange'))
-}
 
 export default function CaseStudiesPage() {
   const wrapper = useRef(null)
@@ -333,7 +322,7 @@ export default function CaseStudiesPage() {
 }
 
 /* ------------------------------------------------------------------ */
-/* PRIMO SCHERMO: mosaico e titolo sull'asse                          */
+/* PRIMO SCHERMO: griglia di esagoni e titolo sull'asse              */
 /* ------------------------------------------------------------------ */
 
 function Hero() {
@@ -347,95 +336,34 @@ function Hero() {
       // La mossa firma della pagina: ogni riga del titolo sale da dietro la
       // propria linea di base. Il resto entra dopo, senza fare spettacolo.
       const tl = gsap.timeline({ defaults: { ease: 'power4.out' } })
-      tl.from('.cs-mosaic-img', { scale: 1.18, duration: 2.4, ease: 'power2.out', stagger: 0.08 }, 0)
-        .from('.cs-mosaic-tile', { opacity: 0, duration: 0.6, stagger: 0.05 }, 0)
-        // Il registro delle automazioni si riempie voce per voce, la barra del
-        // 97% cresce: le due cose vive del mosaico.
-        .from('.cs-feed-item', { y: 14, opacity: 0, duration: 0.5, stagger: 0.18, ease: 'power3.out' }, 0.5)
-        .from('.cs-kpi-bar', { scaleX: 0, duration: 1.4, ease: 'power3.inOut' }, 0.6)
-        .from('.cs-line', { yPercent: 110, duration: 0.9, stagger: 0.11 }, 0.25)
+      tl.from('.cs-line', { yPercent: 110, duration: 0.9, stagger: 0.11 }, 0.25)
         .from('.cs-hero-fade', { y: 24, opacity: 0, duration: 0.7, stagger: 0.07, ease: 'power3.out' }, 0.7)
     },
     { scope: root }
   )
 
   return (
-    <section ref={root} className="relative bg-brand-black pb-20 pt-20 sm:pb-28 sm:pt-24 lg:pb-32">
-      <Mosaic label={t.mosaicLabel} />
-
-      <div className="container-x">
-        <div className={`${ROW} pt-12 sm:pt-16 lg:items-end lg:pt-20`}>
-          <h1 className={`${T.display} ${MAIN} text-white lg:row-start-1`}>
-            {t.titleLines.map((line) => (
-              <span key={line} className="block overflow-hidden pb-[0.06em]">
-                <span className="cs-line block">{line}</span>
-              </span>
-            ))}
-          </h1>
-          <p className={`cs-hero-fade ${T.lead} max-w-[30ch] text-white/80 lg:col-span-4 lg:row-start-1 lg:pb-3`}>
-            {t.standfirst}
-          </p>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-/* Il mosaico: tre schermate vere stampate in bicromia giallo e nero (scala
- * di grigi moltiplicata sul giallo, come le foto del team) e, fra una e
- * l'altra, frammenti di interfaccia disegnati a codice (caseStudyMosaicTiles.jsx),
- * accostati senza fughe. Ogni schermata porta al suo caso e al passaggio del
- * mouse torna ai suoi colori. Sul telefono restano due schermate e due
- * tasselli (registro e 97%: la chat su 130px non si legge). */
-const MOSAIC = [
-  { slug: 'elettra-crm', tile: ElettroTile, cell: 'col-span-2 col-start-1 row-start-1' },
-  { tile: FeedTile, cell: 'col-start-3 row-start-1 lg:row-span-2' },
-  { slug: 'industrial-service-hr', src: '/casestudy-industrial-dashboard.webp', pos: '12% 62%', cell: 'hidden lg:block lg:col-start-4 lg:row-start-1' },
-  { tile: SheetTile, cell: 'hidden lg:block lg:col-start-5 lg:row-start-1' },
-  { tile: KpiTile, cell: 'col-start-1 row-start-2 lg:col-start-6 lg:row-start-1' },
-  { slug: 'jose-prenotazioni', src: '/casestudy-jose-richieste.webp', pos: '30% 30%', cell: 'hidden lg:block lg:col-start-1 lg:row-start-2' },
-  { tile: ChatTile, cell: 'hidden lg:block lg:col-start-2 lg:row-start-2' },
-  { slug: 'jose-prenotazioni', src: '/casestudy-jose-calendario.webp', pos: '20% 20%', cell: 'col-span-2 col-start-2 row-start-2 lg:col-start-4' },
-  { tile: BookingTile, cell: 'hidden lg:block lg:col-start-6 lg:row-start-2' },
-]
-
-function Mosaic({ label }) {
-  const lang = useLang()
-  return (
-    <div className="grid h-[34svh] min-h-[220px] grid-cols-3 grid-rows-2 lg:h-[44svh] lg:min-h-[340px] lg:grid-cols-6">
-      {MOSAIC.map((m, i) =>
-        m.tile && m.slug ? (
-          <a
-            key={i}
-            href={`#${m.slug}`}
-            onClick={(e) => jumpTo(e, m.slug)}
-            aria-label={label(CASE_BY_SLUG[m.slug].client)}
-            className={`cs-mosaic-tile relative overflow-hidden focus-visible:z-10 focus-visible:outline focus-visible:outline-4 focus-visible:-outline-offset-4 focus-visible:outline-brand-yellow ${m.cell}`}
-          >
-            <m.tile lang={lang} />
-          </a>
-        ) : m.tile ? (
-          <div key={i} className={`cs-mosaic-tile relative overflow-hidden ${m.cell}`}>
-            <m.tile lang={lang} />
+    <section ref={root} className="relative">
+      {/* Tutto il primo schermo è la griglia: il titolo ci sta sopra, in
+          basso, e la luce gli passa dietro. Il contorno scuro sulle lettere
+          (.text-outlined) è la regola di sempre per il testo sugli esagoni. */}
+      <HexagonalVault className="min-h-[88svh] lg:min-h-[100svh]">
+        <div className="container-x flex min-h-[88svh] flex-col justify-end pb-16 pt-28 sm:pb-24 lg:min-h-[100svh] lg:pb-28">
+          <div className={`${ROW} lg:items-end`}>
+            <h1 className={`text-outlined ${T.display} ${MAIN} text-white lg:row-start-1`}>
+              {t.titleLines.map((line) => (
+                <span key={line} className="block overflow-hidden pb-[0.06em]">
+                  <span className="cs-line block">{line}</span>
+                </span>
+              ))}
+            </h1>
+            <p className={`cs-hero-fade text-outlined-sm ${T.lead} max-w-[30ch] text-white/80 lg:col-span-4 lg:row-start-1 lg:pb-3`}>
+              {t.standfirst}
+            </p>
           </div>
-        ) : (
-          <a
-            key={i}
-            href={`#${m.slug}`}
-            onClick={(e) => jumpTo(e, m.slug)}
-            aria-label={label(CASE_BY_SLUG[m.slug].client)}
-            className={`group relative overflow-hidden bg-brand-yellow focus-visible:z-10 focus-visible:outline focus-visible:outline-4 focus-visible:-outline-offset-4 focus-visible:outline-brand-yellow ${m.cell}`}
-          >
-            <img
-              src={m.src}
-              alt=""
-              className="cs-mosaic-img absolute inset-0 h-full w-full object-cover mix-blend-multiply contrast-125 grayscale transition-[filter] duration-500 group-hover:mix-blend-normal group-hover:contrast-100 group-hover:grayscale-0"
-              style={{ objectPosition: m.pos }}
-            />
-          </a>
-        )
-      )}
-    </div>
+        </div>
+      </HexagonalVault>
+    </section>
   )
 }
 
@@ -456,7 +384,7 @@ function Works({ active, onChange, onOpen }) {
   }))
 
   return (
-    <section id="lavori" className="scroll-mt-20 bg-brand-black pb-20 sm:pb-28">
+    <section id="lavori" className="scroll-mt-20 bg-brand-black pb-20 pt-20 sm:pb-28 sm:pt-28">
       <div className="container-x">
         <h2 className={`${T.heading} text-center text-white`}>{t.title}</h2>
       </div>
