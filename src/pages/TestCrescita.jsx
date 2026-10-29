@@ -47,7 +47,7 @@ import HexBackground from '../components/HexBackground.jsx'
 import CookieBanner from '../components/CookieBanner.jsx'
 import { useLang } from '../i18n/LanguageContext.jsx'
 import { sendLeadEmail, pushLeadFormEvent } from '../lib/leadEmail.js'
-import { track, scrollToBooking, SocialProof, BookCall, TeamHive } from './landingShared.jsx'
+import { track, scrollToBooking, SocialProof, BookCall, TeamHive, BOOKING_URL } from './landingShared.jsx'
 
 gsap.registerPlugin(useGSAP)
 
@@ -600,7 +600,7 @@ function Experience() {
           <ScorecardCard t={t} step={step} answers={answers} onStart={onStart} onAnswer={onAnswer} onBack={onBack} />
           <p className="mt-4 text-center text-xs text-white/40">
             <a
-              href="#prenota"
+              href={BOOKING_URL}
               onClick={() => track('landing_book_cta', { variant: VARIANT, source: 'hero_skip' })}
               className="underline transition hover:text-brand-yellow"
             >

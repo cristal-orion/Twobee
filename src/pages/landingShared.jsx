@@ -34,13 +34,9 @@ export function track(event, params) {
  * `landing_book_view` è il proxy di conversione più confrontabile lato client. */
 
 /* ------------------------------------------------------------------ */
-/* Cal.eu (istanza UE, GDPR) — prenotazione call embeddata.             */
-/* CAL_LINK vuoto ('') = mostra un placeholder finché non c'è il link.   */
+/* Prenotazione call tramite Google Calendar.                           */
 /* ------------------------------------------------------------------ */
-export const CAL_LINK = 'two-bee-info-5vs3gb/30min'
-export const CAL_ORIGIN = 'https://cal.eu'
-// embed.js servito dall'app della stessa istanza (app.cal.eu → resta in UE)
-export const CAL_EMBED_JS = CAL_ORIGIN.replace('https://', 'https://app.') + '/embed/embed.js'
+export const BOOKING_URL = 'https://calendar.app.google/8ej93z6jnWS5aDx99'
 
 /* Copy delle SOLE sezioni condivise (Cal + Team): identico tra le due landing. */
 const SHARED_COPY = {
@@ -76,10 +72,9 @@ const SHARED_COPY = {
   },
 }
 
-/* helper: scrolla al calendario on-page (#prenota) */
+/* helper: apre la pagina di prenotazione Google Calendar */
 export function scrollToBooking() {
-  const el = document.getElementById('prenota')
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
+  window.location.assign(BOOKING_URL)
 }
 
 /* ------------------------------------------------------------------ */
@@ -113,77 +108,15 @@ export function SocialProof({ label, className = '' }) {
 }
 
 /* ------------------------------------------------------------------ */
-/* PRENOTA LA CALL — calendario Cal.com embeddato (tema chiaro + brand). */
+/* PRENOTA LA CALL — collegamento a Google Calendar.                    */
 /* CONDIVISA e identica tra le due landing. Emette landing_book_view     */
 /* (con variant) quando la sezione entra in viewport.                    */
 /* ------------------------------------------------------------------ */
-export function BookCall({ variant, onBookingSuccessful }) {
+export function BookCall({ variant }) {
   const lang = useLang()
   const t = SHARED_COPY[lang].book
-  const started = useRef(false)
   const seen = useRef(false)
   const sectionRef = useRef(null)
-  const onBookingRef = useRef(onBookingSuccessful)
-  onBookingRef.current = onBookingSuccessful
-
-  // loader Cal.eu (una sola volta)
-  useEffect(() => {
-    if (!CAL_LINK || started.current || typeof window === 'undefined') return
-    started.current = true
-    /* loader ufficiale Cal.com (condensato) */
-    ;(function (C, A, L) {
-      let p = function (a, ar) {
-        a.q.push(ar)
-      }
-      let d = C.document
-      C.Cal =
-        C.Cal ||
-        function () {
-          let cal = C.Cal
-          let ar = arguments
-          if (!cal.loaded) {
-            cal.ns = {}
-            cal.q = cal.q || []
-            d.head.appendChild(d.createElement('script')).src = A
-            cal.loaded = true
-          }
-          if (ar[0] === L) {
-            const api = function () {
-              p(api, arguments)
-            }
-            const namespace = ar[1]
-            api.q = api.q || []
-            if (typeof namespace === 'string') {
-              cal.ns[namespace] = cal.ns[namespace] || api
-              p(cal.ns[namespace], ar)
-              p(cal, ['initNamespace', namespace])
-            } else p(cal, ar)
-            return
-          }
-          p(cal, ar)
-        }
-    })(window, CAL_EMBED_JS, 'init')
-
-    window.Cal('init', { origin: CAL_ORIGIN })
-    window.Cal('inline', {
-      elementOrSelector: '#cal-inline',
-      calLink: CAL_LINK,
-      config: { theme: 'light', layout: 'month_view' },
-    })
-    window.Cal('ui', {
-      theme: 'light',
-      cssVarsPerTheme: { light: { 'cal-brand': '#FFC501' } },
-      hideEventTypeDetails: false,
-      layout: 'month_view',
-    })
-    // prenotazione confermata nell'iframe (evento embed Cal, cross-instance ma
-    // stesso codice OSS di cal.com → documentato anche su cal.eu): usato per
-    // sbloccare la classifica di Flappy Twobee (solo chi passa da /flappybee).
-    window.Cal('on', {
-      action: 'bookingSuccessful',
-      callback: () => onBookingRef.current?.(),
-    })
-  }, [])
 
   // conversione confrontabile: "ha raggiunto il calendario"
   useEffect(() => {
@@ -231,22 +164,14 @@ export function BookCall({ variant, onBookingSuccessful }) {
           </ul>
         </div>
 
-        <div className="mx-auto mt-10 max-w-3xl overflow-hidden rounded-3xl border border-brand-black/10 bg-white shadow-xl">
-          {CAL_LINK ? (
-            <div id="cal-inline" style={{ minHeight: 640, width: '100%' }} />
-          ) : (
-            <div className="flex min-h-[300px] flex-col items-center justify-center gap-3 p-10 text-center">
-              <span className="flex h-14 w-14 items-center justify-center rounded-2xl bg-brand-yellow text-brand-black">
-                <svg viewBox="0 0 24 24" className="h-7 w-7" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                  <rect x="3" y="4" width="18" height="17" rx="2" />
-                  <path d="M3 9h18M8 2v4M16 2v4" />
-                  <path d="M8 14h3M13 14h3" />
-                </svg>
-              </span>
-              <p className="font-display text-lg font-extrabold text-brand-black">{t.placeholder}</p>
-              <p className="text-xs uppercase tracking-widest text-brand-black/40">Cal.com · CAL_LINK</p>
-            </div>
-          )}
+        <div className="mt-10 text-center">
+          <a
+            href={BOOKING_URL}
+            onClick={() => track('landing_book_cta', { variant, source: 'booking_section' })}
+            className="btn-primary"
+          >
+            {lang === 'it' ? 'Prenota la call →' : 'Book the call →'}
+          </a>
         </div>
       </div>
     </section>

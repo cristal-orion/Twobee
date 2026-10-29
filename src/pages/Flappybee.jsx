@@ -46,7 +46,7 @@ import FlappyGame from '../components/FlappyGame.jsx'
 import { useLang } from '../i18n/LanguageContext.jsx'
 import { sendLeadEmail, pushLeadFormEvent } from '../lib/leadEmail.js'
 import { fetchLeaderboard, submitScore, isLeaderboardConfigured } from '../lib/leaderboard.js'
-import { track, scrollToBooking, SocialProof, BookCall, TeamHive } from './landingShared.jsx'
+import { track, scrollToBooking, SocialProof, BookCall, TeamHive, BOOKING_URL } from './landingShared.jsx'
 
 gsap.registerPlugin(useGSAP)
 
@@ -438,13 +438,7 @@ export default function FlappybeePage() {
           onLeaderboardJoined={refreshLeaderboard}
         />
         <LeaderboardBoard refreshKey={leaderboardVersion} />
-        <BookCall
-          variant={VARIANT}
-          onBookingSuccessful={() => {
-            setBookingUnlocked(true)
-            track('game_leaderboard_unlocked', { source: 'booking' })
-          }}
-        />
+        <BookCall variant={VARIANT} />
         <WhatYouGet />
         <TeamHive />
         <Fit />
@@ -582,7 +576,7 @@ function Experience({ onScoreConfirmed, onLeaderboardJoined }) {
           />
           <p className="mt-4 text-center text-xs text-white/40">
             <a
-              href="#prenota"
+              href={BOOKING_URL}
               onClick={() => track('landing_book_cta', { variant: VARIANT, source: 'hero_skip' })}
               className="underline transition hover:text-brand-yellow"
             >
