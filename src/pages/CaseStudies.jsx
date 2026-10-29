@@ -1,47 +1,47 @@
 /* CASE STUDY (/casestudy)
  * -----------------------
- * Vetrina dei lavori — soprattutto CRM e automazioni. Un progetto = una sezione,
+ * Vetrina dei lavori, soprattutto CRM e automazioni. Un progetto = un capitolo,
  * con ancora propria (/casestudy#slug) così un singolo caso è linkabile nelle
  * proposte commerciali senza dover creare una pagina per cliente.
  *
  * I DATI STANNO IN ./caseStudiesData.js, non qui: questa pagina è solo layout.
  * Aggiungere un progetto NON richiede di toccare questo file.
  *
- * ── LA SCHEDA (rifatta il 2026-08-06 sul modello mandato da Marco) ───────────
- * Ogni caso è una scheda a due colonne:
+ * ── L'IMPAGINATO (rifatto il 2026-10-29 con tasteskill v2) ───────────────────
+ * La pagina è impaginata come un report stampato a due colori, giallo e nero.
+ * Tutto si allinea a un asse al 42% della larghezza (colonna 6 di 12):
  *
- *   ┌───────────────┬──────────────────────────────────────────┐
- *   │ CHI È         │ 1. Risultati chiave   (3 schede, icone)  │
- *   │ headline      │ 2. Prima → Dopo       (3 voci per lato)  │
- *   │ settore/sist. │ 3. Come funziona      (4 tappe numerate) │
- *   │ CTA gialla    │ 4. La prova           (una schermata)    │
- *   │ link al sito  │ 5. Citazione + CTA    (in fondo)         │
- *   └───────────────┴──────────────────────────────────────────┘
+ *   0 ─────────── 42% ──────────────────────────── 100%
+ *   │ titoli di    │ titoli di capitolo (h1, h2) e    │
+ *   │ blocco, logo │ testo corrente partono da qui    │
+ *   │ e note       │                                  │
  *
- * Prima al posto dei blocchi 1-3 c'erano un paragrafo «Il problema» e un elenco
- * «Cosa abbiamo costruito»: 350 parole a caso, che non leggeva nessuno. Il
- * diagramma di flusso disegnato a codice è diventato il blocco «Come funziona»,
- * e «La prova» adesso è una schermata vera (caseStudyProofs.jsx) invece di uno
- * schema. La versione lunga dei testi sta nei brief in case-studies/*.md.
+ * Il primo schermo è un mosaico senza fughe di schermate vere in bianco e nero
+ * e tasselli di colore pieno, con il titolo sull'asse. Sotto, l'indice «Da dove
+ * si partiva»: i casi elencati per il problema di partenza, perché chi arriva
+ * riconosce il proprio caos prima del nome del cliente.
+ *
+ * Al posto delle schede con icona ci sono testo e una tabella vera: niente
+ * bordi da 1px, niente ombre, niente etichette maiuscole spaziate. Le superfici
+ * si separano col tono di fondo (bianco, nero, giallo).
  *
  * ── COLORI: le due regole che fanno funzionare la pagina su bianco e su nero ─
- * Le sezioni si alternano chiare e scure. Sui fondi chiari il tema si ribalta
+ * I capitoli si alternano chiari e scuri. Sui fondi chiari il tema si ribalta
  * via LIGHT_VARS:
  *
  * 1. Le utility .text-white/NN, .border-white/NN e .bg-white/[0.0N] sono
  *    ridefinite su --theme-fg in index.css, quindi si invertono da sole.
  *    ⚠️ Solo i valori presenti in index.css sono sicuri (text-white/40…80,
  *    border-white/5,10, bg-white/[0.03…0.07]): un valore fuori lista resta
- *    bianco fisso e sul bianco diventa invisibile.
+ *    bianco fisso e sul bianco diventa invisibile. E il colore ereditato non
+ *    basta: ogni elemento di testo porta la sua classe di colore.
  *
  * 2. Il giallo come COLORE DEL TESTO non si usa mai diretto: #FFC501 su bianco
- *    sta a 1,6:1 e sparisce a qualunque dimensione, numeri grandi compresi. Si
- *    usa .text-accent / .bg-accent / .border-accent, che leggono --theme-accent:
- *    giallo pieno sulle sezioni scure, oro scuro su quelle chiare. Il giallo
- *    pieno come SFONDO (bg-brand-yellow + text-brand-black) invece va bene
- *    ovunque, ed è il modo per dire «qui si clicca».
+ *    sta a 1,6:1. Si usa .text-accent, che legge --theme-accent: giallo pieno
+ *    sui capitoli scuri, oro scuro su quelli chiari. Il giallo pieno come
+ *    SFONDO (bg-brand-yellow + text-brand-black) invece va bene ovunque.
  */
-import { Fragment, useRef, useState } from 'react'
+import { useRef } from 'react'
 import { gsap } from 'gsap'
 import { ScrollTrigger } from 'gsap/ScrollTrigger'
 import { ScrollSmoother } from 'gsap/ScrollSmoother'
@@ -49,12 +49,11 @@ import { useGSAP } from '@gsap/react'
 
 import Navbar from '../components/Navbar.jsx'
 import Footer from '../components/Footer.jsx'
-import HexBackground from '../components/HexBackground.jsx'
 import CookieBanner from '../components/CookieBanner.jsx'
 import { localePath, useLang } from '../i18n/LanguageContext.jsx'
-import { CASES, CATEGORIES } from './caseStudiesData.js'
+import { CASES } from './caseStudiesData.js'
 import { PROOFS } from './caseStudyProofs.jsx'
-import { Icon } from './caseStudyIcons.jsx'
+import { BookingTile, ChatTile, FeedTile, KpiTile, SheetTile } from './caseStudyMosaicTiles.jsx'
 
 gsap.registerPlugin(ScrollTrigger, ScrollSmoother, useGSAP)
 
@@ -65,102 +64,118 @@ const LIGHT_VARS = {
   '--theme-bg': '#FFFFFF',
   '--theme-accent': '#8F6D00',
 }
-const HEX_CLIP = 'polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)'
 const EMAIL = 'info@twobee.it'
-const FG = (pct) => `color-mix(in srgb, var(--theme-fg) ${pct}%, transparent)`
+
+/* L'asse. ROW è la griglia di ogni riga della pagina; SIDE è la zona prima
+ * dell'asse, MAIN quella dopo. Un blocco che non usa questi tre si vede subito
+ * come un rientro a caso. */
+const ROW = 'grid gap-y-5 lg:grid-cols-12 lg:gap-x-8'
+const SIDE = 'lg:col-span-5'
+const MAIN = 'lg:col-span-7 lg:col-start-6'
+
+/* Le cinque misure della pagina. Non aggiungerne una sesta: un testo nuovo
+ * prende una di queste. */
+const T = {
+  display: 'font-display text-[clamp(2.75rem,7vw,7.5rem)] font-extrabold leading-[0.92] tracking-[-0.04em]',
+  heading: 'font-display text-[clamp(1.75rem,3.4vw,3.25rem)] font-extrabold leading-[1.02] tracking-[-0.03em] [text-wrap:balance]',
+  lead: 'text-[1.1875rem] leading-[1.38] sm:text-[1.375rem] sm:leading-[1.35]',
+  body: 'text-[1.0625rem] leading-[1.6] [text-wrap:pretty]',
+  small: 'text-[0.9375rem] leading-[1.5]',
+}
 
 const COPY = {
   it: {
     hero: {
-      eyebrow: '🍯 Case study',
-      headingLine1: 'CRM e automazioni',
-      headingHighlight: 'che aiutano davvero.',
-      body: 'Ogni blocco qui sotto è un sistema che gira: da dove si partiva, cosa è cambiato e come funziona. Niente slide, niente mockup.',
-      filtersLabel: 'Filtra',
-      all: 'Tutti',
-      count: (n) => `${n} ${n === 1 ? 'progetto' : 'progetti'}`,
+      titleLines: ['Cosa abbiamo', 'costruito'],
+      standfirst:
+        'Sistemi che le aziende clienti usano ogni giorno, più uno che abbiamo fatto per noi. Per ognuno: il problema, i numeri, le schermate vere.',
+      contents: 'Da dove si partiva',
+      mosaicLabel: (client) => `Vai al caso ${client}`,
     },
     labels: {
-      caseLabel: 'Case cliente',
       problem: 'Il problema',
-      results: 'Risultati chiave',
-      draft: 'Numeri di esempio',
+      results: 'Cosa è cambiato',
+      draft: 'Numeri di esempio, da sostituire.',
+      beforeAfter: 'Prima e adesso',
       before: 'Prima',
-      after: 'Dopo',
+      after: 'Adesso',
       how: 'Come funziona',
-      proof: 'La prova',
-      diagnose: 'Richiedi una diagnosi',
-      // Non «guarda il progetto live»: quasi tutti questi sistemi stanno dietro
-      // un login e non si possono far vedere. Il link porta al sito pubblico del
-      // cliente, che serve a dire chi è — non a mostrare il lavoro.
-      live: 'Sito cliente',
+      quote: 'Cosa dice il cliente',
+      year: 'Anno',
+      // Quasi tutti questi sistemi stanno dietro un login: il link porta al
+      // sito pubblico del cliente, che serve a dire chi è.
+      live: 'Sito del cliente',
+      newTab: '(si apre in una nuova scheda)',
+      zoom: 'Apri la schermata a piena risoluzione',
       similar: 'Hai un processo simile?',
-      talk: 'Parliamone',
-      template: 'Esempio — struttura da riempire',
+      template: 'Esempio: struttura da riempire.',
     },
     empty: {
-      heading: 'I primi case study stanno arrivando.',
-      body: 'Stiamo mettendo in fila i lavori con i numeri confermati dai clienti. Nel frattempo, se vuoi vedere un sistema dal vivo, chiedicelo in call.',
+      heading: 'I primi case study stanno arrivando',
+      body: 'Stiamo mettendo in fila i lavori con i numeri confermati dai clienti. Se vuoi vedere un sistema dal vivo, chiedicelo in call.',
     },
     cta: {
-      eyebrow: 'Il prossimo',
-      headingLine1: 'Il prossimo case study',
-      headingLine2: 'può essere il tuo.',
-      body: '45 minuti, gratis: guardiamo come gestisci oggi i contatti e ti diciamo cosa automatizzeremmo per primo. Senza impegno.',
+      heading: 'Portaci il tuo Excel',
+      body: 'In 30 minuti di call guardiamo come gestisci oggi contatti e pratiche, e ti diciamo cosa automatizzeremmo per primo. È gratis e non ti impegna a niente.',
       primary: 'Prenota un audit gratuito',
-      footer: 'Nessun impegno · Rispondiamo entro 24 ore',
+      mail: 'oppure scrivi a',
+      footer: 'Rispondiamo entro 24 ore.',
+      team: ['Marco Lucci', 'Toto Piacente', 'Gabriele Saraiello', 'Michele Cristallo'],
     },
   },
   en: {
     hero: {
-      eyebrow: '🍯 Case studies',
-      headingLine1: 'CRM and automations',
-      headingHighlight: 'that actually help.',
-      body: 'Every block below is a system that runs: where it started, what changed and how it works. No slides, no mockups.',
-      filtersLabel: 'Filter',
-      all: 'All',
-      count: (n) => `${n} ${n === 1 ? 'project' : 'projects'}`,
+      titleLines: ['What we’ve', 'built'],
+      standfirst:
+        'Systems our clients use every day, plus one we built for ourselves. For each: the problem, the numbers, the real screens.',
+      contents: 'Where they started',
+      mosaicLabel: (client) => `Go to the ${client} case`,
     },
     labels: {
-      caseLabel: 'Client case',
       problem: 'The problem',
-      results: 'Key results',
-      draft: 'Placeholder figures',
+      results: 'What changed',
+      draft: 'Sample figures, to be replaced.',
+      beforeAfter: 'Before and now',
       before: 'Before',
-      after: 'After',
+      after: 'Now',
       how: 'How it works',
-      proof: 'The proof',
-      diagnose: 'Ask for a diagnosis',
-      live: 'Client site',
+      quote: 'What the client says',
+      year: 'Year',
+      live: 'Client website',
+      newTab: '(opens in a new tab)',
+      zoom: 'Open the screen at full resolution',
       similar: 'Got a similar process?',
-      talk: 'Let’s talk',
-      template: 'Example — layout placeholder',
+      template: 'Example: layout to fill in.',
     },
     empty: {
-      heading: 'The first case studies are on their way.',
-      body: 'We’re lining up the projects whose numbers the clients have confirmed. In the meantime, ask us on a call and we’ll walk you through a live system.',
+      heading: 'The first case studies are on their way',
+      body: 'We’re lining up the projects whose numbers the clients have confirmed. To see a live system, ask us on a call.',
     },
     cta: {
-      eyebrow: 'Next up',
-      headingLine1: 'The next case study',
-      headingLine2: 'could be yours.',
-      body: '45 minutes, free: we look at how you handle leads today and tell you what we’d automate first. No strings attached.',
+      heading: 'Bring us your spreadsheet',
+      body: 'In a 30-minute call we look at how you handle leads and paperwork today, and tell you what we’d automate first. It’s free and commits you to nothing.',
       primary: 'Book a free audit',
-      footer: 'No commitment · We reply within 24 hours',
+      mail: 'or write to',
+      footer: 'We reply within 24 hours.',
+      team: ['Marco Lucci', 'Toto Piacente', 'Gabriele Saraiello', 'Michele Cristallo'],
     },
   },
 }
 
-/* Chip di filtro: una categoria compare solo se almeno un progetto la usa,
- * così l'elenco non mostra filtri che non filtrano niente. */
-const USED_CATEGORIES = Object.keys(CATEGORIES).filter((key) =>
-  CASES.some((c) => c.categories?.includes(key))
-)
+const CASE_BY_SLUG = Object.fromEntries(CASES.map((c) => [c.slug, c]))
+
+/* Salto a un'ancora senza il salto nativo: con ScrollSmoother attivo il
+ * browser scorrerebbe il wrapper sbagliato. Si aggiorna l'hash e si lascia
+ * fare all'handler di hashchange, che sa già usare lo smoother. */
+function jumpTo(e, slug) {
+  e.preventDefault()
+  window.history.pushState(null, '', `#${slug}`)
+  window.dispatchEvent(new HashChangeEvent('hashchange'))
+}
 
 export default function CaseStudiesPage() {
   const wrapper = useRef(null)
   const content = useRef(null)
-  const [filter, setFilter] = useState('all')
 
   useGSAP(() => {
     const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches
@@ -188,8 +203,8 @@ export default function CaseStudiesPage() {
       const id = decodeURIComponent(window.location.hash.slice(1))
       const target = id && document.getElementById(id)
       if (!target) return
-      if (smoother) smoother.scrollTo(target, smooth, 'top 110px')
-      else target.scrollIntoView({ behavior: smooth ? 'smooth' : 'auto' })
+      if (smoother) smoother.scrollTo(target, smooth, 'top 80px')
+      else target.scrollIntoView({ behavior: smooth && !reduce ? 'smooth' : 'auto' })
     }
     goToAnchor(false)
 
@@ -205,9 +220,8 @@ export default function CaseStudiesPage() {
     }
 
     // Cambiare solo l'hash mentre la pagina è già aperta è una navigazione nello
-    // stesso documento: React non rimonta, questo effetto non rigira e il salto
-    // nativo del browser viene annullato da ScrollSmoother. Senza questo, chi è
-    // già sulla pagina e apre un link /casestudy#altro-caso non si muove.
+    // stesso documento: React non rimonta e il salto nativo viene annullato da
+    // ScrollSmoother. Serve all'indice in cima e ai link /casestudy#altro-caso.
     const onHashChange = () => goToAnchor(true)
     window.addEventListener('hashchange', onHashChange)
 
@@ -218,24 +232,18 @@ export default function CaseStudiesPage() {
     }
   }, [])
 
-  const visible =
-    filter === 'all'
-      ? CASES
-      : CASES.filter((c) => c.categories?.includes(filter))
-
   return (
-    <div id="top" className="text-white">
-      <HexBackground />
+    <div id="top" className="bg-brand-black text-white">
       <Navbar subpage />
       <div id="smooth-wrapper" ref={wrapper}>
         <div id="smooth-content" ref={content}>
           <main>
-            <Hero filter={filter} onFilter={setFilter} count={visible.length} />
-            {visible.length === 0 ? (
+            <Hero />
+            {CASES.length === 0 ? (
               <EmptyState />
             ) : (
-              visible.map((item, i) => (
-                <CaseSection key={item.slug} item={item} index={i} light={i % 2 === 0} />
+              CASES.map((item, i) => (
+                <CaseSection key={item.slug} item={item} light={i % 2 === 0} />
               ))
             )}
             <FinalCta />
@@ -249,443 +257,126 @@ export default function CaseStudiesPage() {
 }
 
 /* ------------------------------------------------------------------ */
-/* HERO — unico blocco dove si vede la trama esagonale della pagina    */
+/* PRIMO SCHERMO: mosaico, titolo sull'asse, indice                    */
 /* ------------------------------------------------------------------ */
 
-function Hero({ filter, onFilter, count }) {
+function Hero() {
   const lang = useLang()
   const t = COPY[lang].hero
   const root = useRef(null)
 
   useGSAP(
     () => {
-      const fader = gsap.utils.toArray('.cs-hero-fade', root.current)
       if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-      gsap.set(fader, { y: 24, opacity: 0 })
-      gsap.to(fader, {
-        y: 0,
-        opacity: 1,
-        duration: 0.8,
-        ease: 'power3.out',
-        stagger: 0.1,
-        delay: 0.15,
-      })
+      // La mossa firma della pagina: ogni riga del titolo sale da dietro la
+      // propria linea di base. Il resto entra dopo, senza fare spettacolo.
+      const tl = gsap.timeline({ defaults: { ease: 'power4.out' } })
+      tl.from('.cs-mosaic-img', { scale: 1.18, duration: 2.4, ease: 'power2.out', stagger: 0.08 }, 0)
+        .from('.cs-mosaic-tile', { opacity: 0, duration: 0.6, stagger: 0.05 }, 0)
+        // Il registro delle automazioni si riempie voce per voce, la barra del
+        // 97% cresce: le due cose vive del mosaico.
+        .from('.cs-feed-item', { y: 14, opacity: 0, duration: 0.5, stagger: 0.18, ease: 'power3.out' }, 0.5)
+        .from('.cs-kpi-bar', { scaleX: 0, duration: 1.4, ease: 'power3.inOut' }, 0.6)
+        .from('.cs-line', { yPercent: 110, duration: 0.9, stagger: 0.11 }, 0.25)
+        .from('.cs-hero-fade', { y: 24, opacity: 0, duration: 0.7, stagger: 0.07, ease: 'power3.out' }, 0.7)
     },
     { scope: root }
   )
 
   return (
-    <section ref={root} className="relative overflow-hidden">
-      <div
-        aria-hidden
-        className="pointer-events-none absolute inset-0 bg-gradient-to-b from-black/75 via-black/45 to-transparent"
-      />
+    <section ref={root} className="relative bg-brand-black pt-20 sm:pt-24">
+      <Mosaic label={t.mosaicLabel} />
 
-      <div className="container-x relative pt-32 pb-14 sm:pt-40 sm:pb-20">
-        <span className="cs-hero-fade eyebrow text-outlined-sm">{t.eyebrow}</span>
-
-        <h1 className="cs-hero-fade text-outlined mt-5 max-w-4xl font-display text-4xl font-extrabold leading-[0.95] tracking-tight sm:text-5xl lg:text-6xl xl:text-7xl">
-          {t.headingLine1}
-          <br />
-          <span className="text-brand-yellow">{t.headingHighlight}</span>
-        </h1>
-
-        <p className="cs-hero-fade mt-7 max-w-2xl text-base text-white/75 sm:text-lg">
-          {t.body}
-        </p>
-
-        {USED_CATEGORIES.length > 0 && (
-          <div className="cs-hero-fade mt-10 flex flex-wrap items-center gap-2">
-            <span className="mr-1 text-[11px] font-bold uppercase tracking-[0.22em] text-white/50">
-              {t.filtersLabel}
-            </span>
-            <FilterChip active={filter === 'all'} onClick={() => onFilter('all')}>
-              {t.all}
-            </FilterChip>
-            {USED_CATEGORIES.map((key) => (
-              <FilterChip
-                key={key}
-                active={filter === key}
-                onClick={() => onFilter(key)}
-              >
-                {CATEGORIES[key][lang]}
-              </FilterChip>
+      <div className="container-x">
+        <div className={`${ROW} pt-12 sm:pt-16 lg:items-end lg:pt-20`}>
+          <h1 className={`${T.display} ${MAIN} text-white lg:row-start-1`}>
+            {t.titleLines.map((line) => (
+              <span key={line} className="block overflow-hidden pb-[0.06em]">
+                <span className="cs-line block">{line}</span>
+              </span>
             ))}
-            <span className="ml-1 text-[11px] font-bold uppercase tracking-[0.22em] text-white/40">
-              {t.count(count)}
-            </span>
-          </div>
-        )}
-      </div>
-    </section>
-  )
-}
-
-function FilterChip({ active, onClick, children }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-pressed={active}
-      className={
-        active
-          ? 'rounded-full bg-brand-yellow px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-brand-black'
-          : 'rounded-full border border-white/10 bg-white/[0.04] px-4 py-2 text-xs font-bold uppercase tracking-[0.14em] text-white/60 transition hover:text-white'
-      }
-    >
-      {children}
-    </button>
-  )
-}
-
-/* ------------------------------------------------------------------ */
-/* UN CASE STUDY = UNA SCHEDA A DUE COLONNE                            */
-/* ------------------------------------------------------------------ */
-
-function CaseSection({ item, index, light }) {
-  const root = useRef(null)
-
-  useGSAP(
-    () => {
-      const els = gsap.utils.toArray('.cs-reveal', root.current)
-      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
-      // gsap.from (e non set + onEnter manuale): se al momento dell'init la
-      // sezione è già stata superata — deep link a un'ancora, ripristino della
-      // posizione di scroll, salto programmatico — ScrollTrigger recupera e fa
-      // partire il tween subito, invece di lasciare il contenuto a opacity 0.
-      gsap.from(els, {
-        y: 24,
-        opacity: 0,
-        duration: 0.7,
-        ease: 'power3.out',
-        stagger: 0.07,
-        scrollTrigger: { trigger: root.current, start: 'top 80%', once: true },
-      })
-    },
-    { scope: root }
-  )
-
-  return (
-    <section
-      id={item.slug}
-      // scroll-mt: con la navbar fissa un'ancora senza margine finisce sotto il logo
-      className={[
-        'relative scroll-mt-28',
-        light
-          ? 'z-10 rounded-t-[2.5rem] bg-white shadow-[0_-30px_60px_-25px_rgba(0,0,0,0.55)] sm:rounded-t-[3rem]'
-          : 'bg-brand-black',
-      ].join(' ')}
-      style={light ? LIGHT_VARS : undefined}
-      {...(light ? { 'data-bg-light': true } : {})}
-      ref={root}
-    >
-      <div className="container-x py-16 sm:py-20 lg:py-24">
-        <div className="grid gap-4 lg:grid-cols-12 lg:gap-5">
-          {/* lg:self-start e non la stiratura di default: la colonna di destra è
-              sempre più alta, e un pannello tirato a forza si riempie di vuoto
-              fra la headline e la CTA. Così il vuoto sta fuori dalla scheda,
-              dove non si vede. */}
-          <div className="cs-reveal lg:col-span-4 lg:self-start">
-            <Identity item={item} index={index} light={light} />
-          </div>
-
-          <div className="space-y-4 lg:col-span-8 lg:space-y-5">
-            <Diagnosis item={item} />
-            <Results item={item} />
-            <BeforeAfter item={item} />
-            <HowItWorks item={item} />
-            <Proof item={item} />
-            <QuoteAndCta item={item} />
-          </div>
-        </div>
-      </div>
-    </section>
-  )
-}
-
-/* ------------------------------------------------------------------ */
-/* COLONNA SINISTRA — chi è il cliente e cosa gli è cambiato           */
-/* ------------------------------------------------------------------ */
-
-function Identity({ item, index, light }) {
-  const lang = useLang()
-  const t = COPY[lang].labels
-  const contactHref = `${localePath('/', lang)}#contatti`
-
-  return (
-    <div className="relative flex h-full flex-col overflow-hidden rounded-3xl border border-white/10 bg-white/[0.04] p-6 sm:p-8">
-      <HexDeco id={item.slug} />
-
-      <div className="relative">
-        <div className="flex items-start justify-between gap-4">
-          <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-accent">
-            {t.caseLabel}
-            {item.kicker && <> · {item.kicker[lang]}</>}
-            {item.year && <> · {item.year}</>}
+          </h1>
+          <p className={`cs-hero-fade ${T.lead} max-w-[30ch] text-white/80 lg:col-span-4 lg:row-start-1 lg:pb-3`}>
+            {t.standfirst}
           </p>
-          <span
-            aria-hidden
-            className="font-display text-xs font-extrabold tracking-[0.1em] text-white/40"
-          >
-            {String(index + 1).padStart(2, '0')}
-          </span>
         </div>
 
-        {item.template && (
-          <span className="mt-4 inline-flex items-center gap-2 rounded-full border border-dashed border-accent px-3 py-1.5 text-[10px] font-bold uppercase tracking-[0.18em] text-white/70">
-            <HexDot />
-            {t.template}
-          </span>
-        )}
+        <Contents title={t.contents} />
+      </div>
+    </section>
+  )
+}
 
-        {/* Il logo È il nome quando c'è: i nostri sono tutti loghi testuali, e
-            ripeterlo sotto in caratteri sarebbe la stessa parola due volte.
-            L'h2 resta comunque nel documento per la struttura e per chi legge
-            con uno screen reader. */}
-        {item.logo ? (
-          <>
-            <h2 className="sr-only">{item.client}</h2>
-            <img
-              src={item.logo}
-              alt={item.client}
-              loading="lazy"
-              // I loghi partner in public/ sono bianchi pieni (servono al
-              // marquee su fondo nero della home): su una sezione chiara
-              // sparirebbero. `logoMono` dichiara che il logo è monocromatico e
-              // quindi invertibile senza falsare i colori del marchio.
-              // `logoDark` è il caso opposto — inchiostro scuro su trasparente,
-              // che sparisce sulle sezioni nere. Serve perché l'ordine dell'array
-              // decide il fondo: basta aggiungere un caso in cima e ogni logo
-              // cambia lato.
-              style={
-                (light && item.logoMono) || (!light && item.logoDark)
-                  ? { filter: 'invert(1)' }
-                  : undefined
-              }
-              className="mt-6 h-12 w-auto max-w-[200px] object-contain object-left sm:h-14"
-            />
-          </>
+/* Il mosaico: quattro schermate vere stampate in bicromia giallo e nero (scala
+ * di grigi moltiplicata sul giallo, come le foto del team) e, fra una e
+ * l'altra, frammenti di interfaccia disegnati a codice (caseStudyMosaicTiles.jsx),
+ * accostati senza fughe. Ogni schermata porta al suo caso e al passaggio del
+ * mouse torna ai suoi colori. Sul telefono restano due schermate e due
+ * tasselli (registro e 97%: la chat su 130px non si legge). */
+const MOSAIC = [
+  { slug: 'elettra-crm', src: '/casestudy-elettra-dashboard.webp', pos: '8% 4%', cell: 'col-span-2 col-start-1 row-start-1' },
+  { tile: FeedTile, cell: 'col-start-3 row-start-1 lg:row-span-2' },
+  { slug: 'industrial-service-hr', src: '/casestudy-industrial-dashboard.webp', pos: '12% 62%', cell: 'hidden lg:block lg:col-start-4 lg:row-start-1' },
+  { tile: SheetTile, cell: 'hidden lg:block lg:col-start-5 lg:row-start-1' },
+  { tile: KpiTile, cell: 'col-start-1 row-start-2 lg:col-start-6 lg:row-start-1' },
+  { slug: 'jose-prenotazioni', src: '/casestudy-jose-richieste.webp', pos: '30% 30%', cell: 'hidden lg:block lg:col-start-1 lg:row-start-2' },
+  { tile: ChatTile, cell: 'hidden lg:block lg:col-start-2 lg:row-start-2' },
+  { slug: 'jose-prenotazioni', src: '/casestudy-jose-calendario.webp', pos: '20% 20%', cell: 'col-span-2 col-start-2 row-start-2 lg:col-start-4' },
+  { tile: BookingTile, cell: 'hidden lg:block lg:col-start-6 lg:row-start-2' },
+]
+
+function Mosaic({ label }) {
+  const lang = useLang()
+  return (
+    <div className="grid h-[34svh] min-h-[220px] grid-cols-3 grid-rows-2 lg:h-[44svh] lg:min-h-[340px] lg:grid-cols-6">
+      {MOSAIC.map((m, i) =>
+        m.tile ? (
+          <div key={i} className={`cs-mosaic-tile relative overflow-hidden ${m.cell}`}>
+            <m.tile lang={lang} />
+          </div>
         ) : (
-          <h2 className="mt-6 font-display text-3xl font-extrabold leading-none tracking-tight text-white sm:text-4xl">
-            {item.client}
-          </h2>
-        )}
-
-        <span aria-hidden className="mt-5 block h-1 w-12 rounded-full bg-accent" />
-
-        <p className="mt-6 font-display text-2xl font-extrabold leading-[1.1] tracking-tight text-white sm:text-3xl">
-          {item.headline[lang]}
-        </p>
-
-        {/* Chi è il cliente, in due righe. La riga `meta` più sotto dice
-            «Settore: impiantistica su commessa», che a noi basta e a chi non
-            conosce l'azienda non dice niente. */}
-        {item.about?.[lang] && (
-          <p className="mt-5 text-sm leading-relaxed text-white/70">{item.about[lang]}</p>
-        )}
-      </div>
-
-      {/* mt-auto: su desktop il pannello è alto quanto la colonna di destra, e
-          senza questo la CTA resterebbe appesa a metà del vuoto. */}
-      <div className="relative mt-auto pt-10">
-        {item.meta?.length > 0 && (
-          <div className="flex gap-2.5 border-t border-white/10 pt-5">
-            <Icon name="info" className="mt-px h-4 w-4 shrink-0 text-accent" />
-            <p className="text-xs leading-relaxed text-white/60">
-              {item.meta.map((m, i) => (
-                <Fragment key={i}>
-                  {i > 0 && <span className="text-white/40"> · </span>}
-                  <span className="font-bold text-white/80">{m.label[lang]}:</span>{' '}
-                  {m.value[lang]}
-                </Fragment>
-              ))}
-            </p>
-          </div>
-        )}
-
-        <a
-          href={contactHref}
-          className="mt-6 flex items-center justify-between gap-3 rounded-2xl bg-brand-yellow px-5 py-4 font-display text-base font-extrabold text-brand-black transition-transform hover:scale-[1.02]"
-        >
-          {t.diagnose}
-          <ArrowRight className="h-4 w-4" />
-        </a>
-
-        {item.url && (
           <a
-            href={item.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="mt-4 inline-flex items-center gap-2 border-b border-white/10 pb-1 text-sm font-semibold text-white/70 transition hover:text-white"
-          >
-            {/* «Sito cliente» è il caso normale. I due prodotti nostri hanno
-                qualcosa da far provare davvero, e lì l'etichetta lo dice. */}
-            {item.urlLabel?.[lang] || t.live}
-            <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none">
-              <path
-                d="M7 17 17 7M9 7h8v8"
-                stroke="currentColor"
-                strokeWidth="2.2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </a>
-        )}
-      </div>
-    </div>
-  )
-}
-
-/* ------------------------------------------------------------------ */
-/* 0. IL PROBLEMA                                                      */
-/* ------------------------------------------------------------------ */
-
-/* Aggiunto il 2026-08-07 dopo il commento di una collega di Michele: «vedo la
- * soluzione a un processo che non ho capito quale sia». Aveva ragione — la
- * pagina apriva sui risultati, e chi non conosce il cliente non sa di che
- * risultati stiamo parlando. Prima→Dopo arriva troppo tardi ed è fatto di
- * etichette da tre parole: riassume, non spiega.
- *
- * Quindi qui, prima di ogni numero, il problema raccontato per esteso — e nel
- * pannello di sinistra `about`, due righe su cosa fa l'azienda, perché «settore:
- * impiantistica» a noi basta e a un estraneo no.
- *
- * È testo semplice e non una scheda, di proposito: è l'unico blocco narrativo
- * della colonna, e messo in un riquadro come gli altri si leggerebbe come un
- * altro widget da saltare. */
-function Diagnosis({ item }) {
-  const lang = useLang()
-  const t = COPY[lang].labels
-  if (!item.diagnosis?.[lang]) return null
-
-  return (
-    <div className="cs-reveal">
-      <BlockHead title={t.problem} />
-      <p className="mt-4 max-w-3xl text-[15px] leading-relaxed text-white/75 sm:text-base">
-        {item.diagnosis[lang]}
-      </p>
-    </div>
-  )
-}
-
-/* ------------------------------------------------------------------ */
-/* 1. RISULTATI CHIAVE                                                 */
-/* ------------------------------------------------------------------ */
-
-/* Le tre schede in cima: è la prima cosa che si legge della colonna di destra,
- * e per molti l'unica.
- *
- * `resultsNote` non è una postilla decorativa: finché i numeri sono fatti
- * tecnici e non risultati misurati dal cliente, è la riga che impedisce di
- * leggere «1.044» come una promessa di guadagno.
- *
- * `resultsDraft` accende lo stato bozza — badge «numeri di esempio» e schede
- * tratteggiate. Serve a guardare il blocco prima di avere i numeri veri, e a
- * rendere impossibile spedirlo per sbaglio: la pagina gira come link nelle
- * proposte, e un numero inventato senza etichetta, sotto il logo di un cliente
- * vero, si legge come vero. Il flag si toglie insieme ai valori finti. */
-function Results({ item }) {
-  const lang = useLang()
-  const t = COPY[lang].labels
-  if (!item.results?.length) return null
-
-  const draft = item.resultsDraft
-
-  return (
-    <div className="cs-reveal">
-      <BlockHead
-        title={t.results}
-        right={
-          draft && (
-            <span className="inline-flex shrink-0 items-center gap-2 rounded-full border border-dashed border-accent px-3 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-white/70">
-              <HexDot />
-              {t.draft}
-            </span>
-          )
-        }
-      />
-
-      <div className="mt-4 grid gap-3 sm:grid-cols-3">
-        {item.results.map((r, i) => (
-          <div
             key={i}
-            className={[
-              'rounded-2xl bg-white/[0.04] p-5',
-              draft
-                ? 'border border-dashed border-white/10'
-                : 'border border-white/10',
-            ].join(' ')}
+            href={`#${m.slug}`}
+            onClick={(e) => jumpTo(e, m.slug)}
+            aria-label={label(CASE_BY_SLUG[m.slug].client)}
+            className={`group relative overflow-hidden bg-brand-yellow focus-visible:z-10 focus-visible:outline focus-visible:outline-4 focus-visible:-outline-offset-4 focus-visible:outline-brand-yellow ${m.cell}`}
           >
-            <Icon name={r.icon} className="h-7 w-7 text-accent" />
-            <p className="mt-4 font-display text-base font-extrabold leading-tight text-white">
-              {r.title[lang]}
-            </p>
-            {r.body?.[lang] && (
-              <p className="mt-2 text-sm leading-snug text-white/60">{r.body[lang]}</p>
-            )}
-          </div>
-        ))}
-      </div>
-
-      {item.resultsNote?.[lang] && (
-        <p className="mt-3 text-xs leading-relaxed text-white/50">
-          {item.resultsNote[lang]}
-        </p>
+            <img
+              src={m.src}
+              alt=""
+              className="cs-mosaic-img absolute inset-0 h-full w-full object-cover mix-blend-multiply contrast-125 grayscale transition-[filter] duration-500 group-hover:mix-blend-normal group-hover:contrast-100 group-hover:grayscale-0"
+              style={{ objectPosition: m.pos }}
+            />
+          </a>
+        )
       )}
     </div>
   )
 }
 
-/* ------------------------------------------------------------------ */
-/* 2. PRIMA → DOPO                                                     */
-/* ------------------------------------------------------------------ */
-
-/* Sostituisce il paragrafo «Il problema»: le stesse tre cose che non andavano,
- * ma messe accanto a com'è adesso, che è l'unico modo in cui un problema altrui
- * interessa a qualcuno. Voci da 2-4 parole: sono etichette, non frasi. */
-function BeforeAfter({ item }) {
+/* L'indice. È l'unica cosa del primo schermo che si usa: chi legge sceglie il
+ * problema che riconosce e salta al caso. */
+function Contents({ title }) {
   const lang = useLang()
-  const t = COPY[lang].labels
-  const before = item.before?.[lang]
-  const after = item.after?.[lang]
-  if (!before?.length || !after?.length) return null
-
   return (
-    <div className="cs-reveal grid gap-3 lg:grid-cols-[1fr_auto_1fr] lg:items-center">
-      <StatePanel label={t.before} items={before} />
-      <ArrowRight className="mx-auto h-6 w-6 rotate-90 text-accent lg:rotate-0" />
-      <StatePanel label={t.after} items={after} good />
-    </div>
-  )
-}
-
-function StatePanel({ label, items, good }) {
-  return (
-    <div className="h-full rounded-2xl border border-white/10 bg-white/[0.04] p-5">
-      <div className="flex items-center gap-2.5">
-        <Icon
-          name={good ? 'checkCircle' : 'xCircle'}
-          className={good ? 'h-5 w-5 text-accent' : 'h-5 w-5 text-white/50'}
-        />
-        <span
-          className={[
-            'font-display text-sm font-extrabold uppercase tracking-[0.14em]',
-            good ? 'text-accent' : 'text-white/60',
-          ].join(' ')}
-        >
-          {label}
-        </span>
-      </div>
-      <ul className="mt-4 space-y-2.5">
-        {items.map((line, i) => (
-          <li key={i} className="flex items-start gap-2.5 text-sm leading-snug text-white/75">
-            <span
-              aria-hidden
-              className="mt-[0.4rem] h-1.5 w-1.5 shrink-0 rounded-full"
-              style={{ background: good ? 'var(--theme-accent)' : FG(30) }}
-            />
-            <span>{line}</span>
+    <div className={`${ROW} mt-16 pb-24 sm:mt-24 sm:pb-32 lg:pb-40`}>
+      <h2 className={`cs-hero-fade ${T.lead} font-display font-extrabold text-white ${SIDE}`}>
+        {title}
+      </h2>
+      <ul className={`cs-hero-fade ${MAIN} -my-3`}>
+        {CASES.map((c) => (
+          <li key={c.slug}>
+            <a
+              href={`#${c.slug}`}
+              onClick={(e) => jumpTo(e, c.slug)}
+              className="group -mx-4 flex flex-col gap-1 px-4 py-3 transition-colors hover:bg-white/[0.06] focus-visible:bg-white/[0.06] focus-visible:outline-none sm:flex-row sm:items-baseline sm:justify-between sm:gap-8"
+            >
+              <span className={`${T.lead} font-display font-extrabold text-white transition-[color,transform] duration-300 group-hover:translate-x-2 group-hover:text-accent group-focus-visible:text-accent`}>
+                {c.symptom[lang]}
+              </span>
+              <span className={`${T.small} shrink-0 text-white/70`}>{c.client}</span>
+            </a>
           </li>
         ))}
       </ul>
@@ -694,65 +385,205 @@ function StatePanel({ label, items, good }) {
 }
 
 /* ------------------------------------------------------------------ */
-/* 3. COME FUNZIONA                                                    */
+/* UN CASE STUDY = UN CAPITOLO                                         */
 /* ------------------------------------------------------------------ */
 
-/* Quello che prima era il diagramma di flusso disegnato a codice, e prima
- * ancora l'elenco «Cosa abbiamo costruito». Quattro tappe, una riga l'una: serve
- * a far vedere la forma del sistema in tre secondi, non a spiegarlo. Se una
- * tappa non entra in sette parole, la frase intera va nel brief.
- *
- * In colonna fino a xl e in riga da lì: quattro schede affiancate su un telefono
- * avrebbero il testo a due pixel. Il trattino di collegamento ruota da solo. */
-function HowItWorks({ item }) {
+function CaseSection({ item, light }) {
   const lang = useLang()
   const t = COPY[lang].labels
-  if (!item.steps?.length) return null
+  const root = useRef(null)
+
+  useGSAP(
+    () => {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+      // Una riga alla volta: prima il titolo di blocco, poi il testo. gsap.from
+      // (e non set + onEnter manuale): se la riga è già stata superata, per un
+      // deep link o un ripristino dello scroll, ScrollTrigger fa partire il
+      // tween subito invece di lasciare il contenuto a opacity 0.
+      gsap.utils.toArray('.cs-row', root.current).forEach((row) => {
+        gsap.from(row.querySelectorAll('.cs-reveal'), {
+          y: 28,
+          opacity: 0,
+          duration: 0.75,
+          ease: 'power3.out',
+          stagger: 0.08,
+          scrollTrigger: { trigger: row, start: 'top 85%', once: true },
+        })
+      })
+      // La schermata cresce un poco mentre scorre: è l'unica immagine grande
+      // del capitolo e merita di muoversi.
+      gsap.utils.toArray('.cs-plate-inner', root.current).forEach((el) => {
+        gsap.fromTo(
+          el,
+          { scale: 0.94 },
+          {
+            scale: 1,
+            ease: 'none',
+            scrollTrigger: { trigger: el, start: 'top bottom', end: 'center center', scrub: true },
+          }
+        )
+      })
+    },
+    { scope: root }
+  )
 
   return (
-    <div className="cs-reveal">
-      <BlockHead title={t.how} />
-
-      <div className="mt-4 flex flex-col gap-2 sm:grid sm:grid-cols-2 sm:gap-3 xl:flex xl:flex-row xl:items-stretch xl:gap-0">
-        {item.steps.map((s, i) => (
-          <Fragment key={i}>
-            <div className="flex min-w-0 gap-3 rounded-2xl border border-white/10 bg-white/[0.05] p-4 xl:flex-1">
-              <div className="flex shrink-0 flex-col items-center gap-2">
-                <span className="font-display text-[11px] font-extrabold tracking-[0.1em] text-accent">
-                  {String(i + 1).padStart(2, '0')}
-                </span>
-                <Icon name={s.icon} className="h-6 w-6 text-white/70" />
-              </div>
-              <div className="min-w-0">
-                <p className="font-display text-sm font-extrabold leading-tight text-white">
-                  {s.title[lang]}
-                </p>
-                {s.body?.[lang] && (
-                  <p className="mt-1 text-xs leading-snug text-white/60">{s.body[lang]}</p>
-                )}
-              </div>
-            </div>
-            {i < item.steps.length - 1 && (
-              <span
-                aria-hidden
-                className="mx-auto h-3 w-px shrink-0 self-center bg-accent sm:hidden xl:mx-1.5 xl:block xl:h-px xl:w-4"
-              />
+    <section
+      id={item.slug}
+      ref={root}
+      // scroll-mt: con la navbar fissa un'ancora senza margine finisce sotto il logo
+      className={['relative scroll-mt-20', light ? 'bg-white' : 'bg-brand-black'].join(' ')}
+      style={light ? LIGHT_VARS : undefined}
+      {...(light ? { 'data-bg-light': true } : {})}
+    >
+      <div className="container-x py-24 sm:py-28 lg:py-36">
+        <div className={`cs-row ${ROW} lg:items-start`}>
+          <div className={`cs-reveal ${SIDE}`}>
+            <Logo item={item} light={light} />
+            <Meta item={item} className="mt-8 hidden lg:block" />
+          </div>
+          <div className={MAIN}>
+            <h2 className={`cs-reveal ${T.heading} max-w-[22ch] text-white`}>
+              <span className="sr-only">{item.client}: </span>
+              {item.headline[lang]}
+            </h2>
+            {item.template && <p className={`cs-reveal mt-4 ${T.small} text-accent`}>{t.template}</p>}
+            {item.about?.[lang] && (
+              <p className={`cs-reveal mt-6 ${T.lead} max-w-[44ch] text-white/80`}>{item.about[lang]}</p>
             )}
-          </Fragment>
-        ))}
+            {/* Sul telefono l'asse sparisce: settore e sistema vengono dopo il
+                titolo, non fra il logo e il titolo. */}
+            <Meta item={item} className="cs-reveal mt-8 lg:hidden" />
+          </div>
+        </div>
+
+        {item.diagnosis?.[lang] && (
+          <Block title={t.problem}>
+            <p className={`${T.body} max-w-[62ch] text-white`}>{item.diagnosis[lang]}</p>
+          </Block>
+        )}
+
+        <Results item={item} />
+        <Proof item={item} />
+        <BeforeAfter item={item} />
+        <HowItWorks item={item} />
+        <Quote item={item} />
+        <CaseCta />
       </div>
+    </section>
+  )
+}
+
+/* Una riga dell'impaginato: titolo nella zona prima dell'asse, contenuto dopo.
+ * Sul telefono l'asse sparisce e il titolo sta sopra il suo testo. */
+function Block({ title, children }) {
+  return (
+    <div className={`cs-row ${ROW} mt-14 sm:mt-20`}>
+      <h3 className={`cs-reveal ${SIDE} ${T.lead} font-display font-extrabold text-white`}>{title}</h3>
+      <div className={`cs-reveal ${MAIN}`}>{children}</div>
     </div>
   )
 }
 
-/* ------------------------------------------------------------------ */
-/* 4. LA PROVA                                                         */
-/* ------------------------------------------------------------------ */
+/* Chi è il cliente. Il logo È il nome quando c'è: i nostri sono tutti loghi
+ * testuali, e ripeterlo in caratteri sarebbe la stessa parola due volte. */
+function Logo({ item, light }) {
+  if (!item.logo) {
+    return <p className={`${T.lead} font-display font-extrabold text-white`}>{item.client}</p>
+  }
+  return (
+    <img
+      src={item.logo}
+      alt={item.client}
+      loading="lazy"
+      // I loghi partner in public/ sono bianchi pieni (servono al marquee su
+      // fondo nero della home): su un capitolo chiaro sparirebbero.
+      // `logoMono` li dichiara monocromatici e quindi invertibili; `logoDark`
+      // è il caso opposto, inchiostro scuro che sparisce sul nero.
+      style={
+        (light && item.logoMono) || (!light && item.logoDark)
+          ? { filter: 'invert(1)' }
+          : undefined
+      }
+      className="h-12 w-auto max-w-[220px] object-contain object-left sm:h-14"
+    />
+  )
+}
 
-/* Una schermata del sistema, o un facsimile a codice quando l'interfaccia È il
- * prodotto (vedi caseStudyProofs.jsx). Un caso senza `proof` non mostra il
- * blocco: niente cornici «schermata in arrivo», questa pagina gira come link
- * nelle proposte e un buco dichiarato è peggio di un blocco in meno. */
+/* Settore, sistema, anno e link. Su desktop sta sotto il logo, prima
+ * dell'asse; sul telefono dopo il titolo (vedi CaseSection). */
+function Meta({ item, className = '' }) {
+  const lang = useLang()
+  const t = COPY[lang].labels
+
+  return (
+    <div className={className}>
+      <dl className={`grid grid-cols-2 gap-x-6 gap-y-3 lg:grid-cols-1 ${T.small}`}>
+        {item.meta?.map((m, i) => (
+          <div key={i}>
+            <dt className="text-white/60">{m.label[lang]}</dt>
+            <dd className="text-white">{m.value[lang]}</dd>
+          </div>
+        ))}
+        {item.year && (
+          <div>
+            <dt className="text-white/60">{t.year}</dt>
+            <dd className="text-white">{item.year}</dd>
+          </div>
+        )}
+      </dl>
+
+      {item.url && (
+        <a
+          href={item.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          className={`mt-6 inline-block ${T.small} font-semibold text-white underline decoration-2 underline-offset-[6px] transition-colors hover:text-accent`}
+        >
+          {/* «Sito del cliente» è il caso normale. Josè ha una pagina da provare
+              davvero, e lì l'etichetta lo dice. */}
+          {item.urlLabel?.[lang] || t.live}
+          <span className="sr-only"> {t.newTab}</span>
+        </a>
+      )}
+    </div>
+  )
+}
+
+/* Cosa è cambiato: tre risultati in colonna di testo, senza schede.
+ *
+ * `resultsNote` non è una postilla decorativa: finché i numeri sono fatti
+ * tecnici e non risultati misurati dal cliente, è la riga che impedisce di
+ * leggere «1.044» come una promessa di guadagno. `resultsDraft` accende la
+ * scritta «numeri di esempio»: la pagina gira come link nelle proposte, e un
+ * numero inventato senza etichetta si legge come vero. */
+function Results({ item }) {
+  const lang = useLang()
+  const t = COPY[lang].labels
+  if (!item.results?.length) return null
+
+  return (
+    <Block title={t.results}>
+      {item.resultsDraft && <p className={`mb-6 ${T.small} text-accent`}>{t.draft}</p>}
+      <div className="grid gap-8 sm:grid-cols-3 sm:gap-6">
+        {item.results.map((r, i) => (
+          <div key={i}>
+            <p className={`${T.lead} font-display font-extrabold text-white`}>{r.title[lang]}</p>
+            {r.body?.[lang] && <p className={`mt-2 ${T.small} text-white/70`}>{r.body[lang]}</p>}
+          </div>
+        ))}
+      </div>
+      {item.resultsNote?.[lang] && (
+        <p className={`mt-8 ${T.small} max-w-[62ch] text-white/60`}>{item.resultsNote[lang]}</p>
+      )}
+    </Block>
+  )
+}
+
+/* La schermata: a tutta larghezza, su un fondo di un tono diverso dal
+ * capitolo. Uno screenshot del sistema o un facsimile a codice quando
+ * l'interfaccia è il prodotto (caseStudyProofs.jsx). Un caso senza `proof` non
+ * mostra il blocco: niente cornici «schermata in arrivo». */
 function Proof({ item }) {
   const lang = useLang()
   const t = COPY[lang].labels
@@ -763,219 +594,169 @@ function Proof({ item }) {
   if (!Component && shots.length === 0) return null
 
   return (
-    <div className="cs-reveal">
-      <BlockHead title={t.proof} />
-      <div className="mt-4">
-        {Component ? (
-          <Component lang={lang} />
-        ) : (
-          // Due schermate affiancate invece di una lunga: un pannello alto e
-          // stretto, allargato a tutta colonna, viene o minuscolo o tagliato.
-          // Con una sola immagine la griglia resta a una colonna da sé.
-          <div className={shots.length > 1 ? 'grid gap-3 lg:grid-cols-2' : ''}>
-            {shots.map((s) => (
-              // Affiancate stanno a ~425px: la forma del sistema si legge, le
-              // righe dentro no. Il link apre il file a piena risoluzione — chi
-              // vuole guardare i dettagli ci clicca, e costa un tag invece di
-              // una lightbox.
-              <a
-                key={s.src}
-                href={s.src}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="block cursor-zoom-in overflow-hidden rounded-3xl border border-white/10 transition hover:border-accent"
-              >
-                <img
-                  src={s.src}
-                  alt={s.alt?.[lang] || ''}
-                  // width/height dichiarate: senza, l'immagine non tiene il posto
-                  // e il deep link a un'ancora più in basso finisce fuori bersaglio.
-                  width={s.width}
-                  height={s.height}
-                  loading="lazy"
-                  className="block w-full"
-                />
-              </a>
-            ))}
-          </div>
-        )}
+    <figure className="cs-row mt-14 sm:mt-20">
+      <div className="cs-reveal -mx-5 overflow-hidden bg-white/[0.06] px-3 py-6 sm:mx-0 sm:p-8 lg:p-14">
+        <div className="cs-plate-inner">
+          {Component ? (
+            <Component lang={lang} />
+          ) : (
+            // Due schermate affiancate invece di una lunga: un pannello alto e
+            // stretto, allargato a tutta colonna, viene o minuscolo o tagliato.
+            <div className={shots.length > 1 ? 'grid gap-3 lg:grid-cols-2 lg:gap-6' : 'mx-auto max-w-[1100px]'}>
+              {shots.map((s) => (
+                // Il link apre il file a piena risoluzione: chi vuole i
+                // dettagli ci clicca, e costa un tag invece di una lightbox.
+                <a
+                  key={s.src}
+                  href={s.src}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  title={t.zoom}
+                  className="block cursor-zoom-in focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-4 focus-visible:outline-brand-yellow"
+                >
+                  <img
+                    src={s.src}
+                    alt={s.alt?.[lang] || ''}
+                    // width/height dichiarate: senza, l'immagine non tiene il
+                    // posto e il deep link a un'ancora più in basso sbaglia.
+                    width={s.width}
+                    height={s.height}
+                    loading="lazy"
+                    className="block w-full transition-transform duration-500 hover:scale-[1.01]"
+                  />
+                </a>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
-      {/* Facoltativa, e di norma NON si usa: sotto il pannello di un prodotto
-          nostro una postilla «dati di esempio» suona come una scusa, e nessuna
-          pagina SaaS la mette. Serve solo se i numeri mostrati parlano di un
-          cliente vero e non sono i suoi. */}
       {item.proof.caption?.[lang] && (
-        <p className="mt-3 text-xs leading-relaxed text-white/50">
-          {item.proof.caption[lang]}
-        </p>
+        <figcaption className={`cs-reveal ${ROW} mt-5`}>
+          <span className={`${MAIN} ${T.small} max-w-[62ch] text-white/70`}>{item.proof.caption[lang]}</span>
+        </figcaption>
       )}
-    </div>
+    </figure>
   )
 }
 
-/* ------------------------------------------------------------------ */
-/* 5. CITAZIONE + CTA                                                  */
-/* ------------------------------------------------------------------ */
-
-function QuoteAndCta({ item }) {
+/* Prima e adesso: una tabella vera, perché le voci vanno in coppia. Le righe
+ * di separazione qui sono legittime: è l'unico posto della pagina che ne ha. */
+function BeforeAfter({ item }) {
   const lang = useLang()
   const t = COPY[lang].labels
-  const contactHref = `${localePath('/', lang)}#contatti`
+  const before = item.before?.[lang]
+  const after = item.after?.[lang]
+  if (!before?.length || !after?.length) return null
+
+  return (
+    <Block title={t.beforeAfter}>
+      <table className={`w-full table-fixed text-left ${T.body}`}>
+        <thead>
+          <tr>
+            <th scope="col" className="pb-3 pr-6 font-display font-extrabold text-white/60">{t.before}</th>
+            <th scope="col" className="pb-3 font-display font-extrabold text-accent">{t.after}</th>
+          </tr>
+        </thead>
+        <tbody>
+          {before.map((b, i) => (
+            <tr key={i} className="border-t border-white/10 align-top" /* taste-skill-ignore: riga di tabella vera */>
+              <td className="py-4 pr-6 text-white/70">{b}</td>
+              <td className="py-4 text-white">{after[i]}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </Block>
+  )
+}
+
+/* Come funziona: quattro tappe in un elenco numerato vero. I numeri sono i
+ * marcatori dell'<ol>, non etichette disegnate. */
+function HowItWorks({ item }) {
+  const lang = useLang()
+  const t = COPY[lang].labels
+  if (!item.steps?.length) return null
+
+  return (
+    <Block title={t.how}>
+      <ol className={`list-decimal space-y-4 pl-7 ${T.body} marker:font-display marker:font-extrabold marker:text-accent`}>
+        {item.steps.map((s, i) => (
+          <li key={i} className="pl-2">
+            <span className="font-display font-extrabold text-white">{s.title[lang]}.</span>{' '}
+            {s.body?.[lang] && <span className="text-white/70">{s.body[lang]}</span>}
+          </li>
+        ))}
+      </ol>
+    </Block>
+  )
+}
+
+/* La testimonianza, quando c'è. Il nome che rimanda al profilo vero è metà del
+ * suo valore: chiunque può inventarsi un «Responsabile operativo», nessuno si
+ * inventa un LinkedIn che si apre. */
+function Quote({ item }) {
+  const lang = useLang()
+  const t = COPY[lang].labels
   const quote = item.quote
+  if (!quote) return null
 
   return (
-    <div className="cs-reveal grid gap-3 lg:grid-cols-5">
-      {quote && (
-        <blockquote className="rounded-2xl border border-white/10 bg-white/[0.04] p-5 sm:p-6 lg:col-span-3">
-          <span
-            aria-hidden
-            className="block font-display text-4xl font-extrabold leading-none text-accent"
-          >
-            “
-          </span>
-          <p className="mt-2 font-display text-lg font-bold italic leading-snug text-white">
-            {quote.text[lang]}
-          </p>
-          {/* Il nome che rimanda al profilo vero è metà del valore di una
-              testimonianza: chiunque può inventarsi un «Responsabile operativo»,
-              nessuno si inventa un LinkedIn che si apre. Senza `authorUrl` resta
-              testo semplice e il blocco funziona uguale. */}
-          <footer className="mt-3 text-sm">
-            {quote.authorUrl ? (
-              <a
-                href={quote.authorUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 font-semibold text-accent underline decoration-transparent underline-offset-4 transition hover:decoration-current"
-              >
-                {quote.author}
-                <Icon name="linkedin" className="h-3.5 w-3.5" />
-              </a>
-            ) : (
-              <span className="text-accent">{quote.author}</span>
-            )}
-            {quote.role && <span className="text-white/50"> · {quote.role[lang]}</span>}
-          </footer>
-        </blockquote>
-      )}
+    <Block title={t.quote}>
+      <blockquote>
+        <p className={`${T.lead} max-w-[44ch] font-display font-extrabold text-white`}>“{quote.text[lang]}”</p>
+        <footer className={`mt-4 ${T.small} text-white/70`}>
+          {quote.authorUrl ? (
+            <a
+              href={quote.authorUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-semibold text-white underline decoration-2 underline-offset-[6px] hover:text-accent"
+            >
+              {quote.author}
+              <span className="sr-only"> {t.newTab}</span>
+            </a>
+          ) : (
+            <span className="font-semibold text-white">{quote.author}</span>
+          )}
+          {quote.role && <span>, {quote.role[lang]}</span>}
+        </footer>
+      </blockquote>
+    </Block>
+  )
+}
 
-      <a
-        href={contactHref}
-        className={[
-          'group flex items-center gap-4 rounded-2xl border border-white/10 bg-white/[0.04] p-5 transition hover:border-accent sm:p-6',
-          quote ? 'lg:col-span-2' : 'lg:col-span-5',
-        ].join(' ')}
-      >
-        <span
-          aria-hidden
-          className="flex h-11 w-11 shrink-0 items-center justify-center bg-brand-yellow text-brand-black"
-          style={{ clipPath: HEX_CLIP }}
-        >
-          <Icon name="users" className="h-5 w-5" />
-        </span>
-        <span className="min-w-0">
-          <span className="block text-sm text-white/70">{t.similar}</span>
-          <span className="mt-0.5 flex items-center gap-2 font-display text-lg font-extrabold text-accent">
-            {t.talk}
-            <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
-          </span>
-        </span>
-      </a>
+function CaseCta() {
+  const lang = useLang()
+  const t = COPY[lang].labels
+  const primary = COPY[lang].cta.primary
+  return (
+    <div className={`cs-row ${ROW} mt-14 sm:mt-20`}>
+      <div className={`cs-reveal ${MAIN} flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:gap-8`}>
+        <p className={`${T.lead} font-display font-extrabold text-white`}>{t.similar}</p>
+        <PrimaryButton>{primary}</PrimaryButton>
+      </div>
     </div>
   )
 }
 
-/* ------------------------------------------------------------------ */
-/* MATTONI CONDIVISI                                                   */
-/* ------------------------------------------------------------------ */
-
-/* Titolo di blocco: esagono vuoto in accento + testo neutro. L'esagono è il
- * segno del marchio e qui ha un lavoro preciso — dice dove comincia un blocco
- * senza aggiungere una riga di testo. */
-function BlockHead({ title, right }) {
+/* L'unico pulsante della pagina, sempre con lo stesso nome della navbar. */
+function PrimaryButton({ children, dark }) {
+  const lang = useLang()
   return (
-    <div className="flex items-center justify-between gap-4">
-      <h3 className="flex items-center gap-2.5 font-display text-lg font-extrabold tracking-tight text-white sm:text-xl">
-        <svg
-          aria-hidden
-          viewBox="0 0 24 24"
-          className="h-5 w-5 shrink-0 text-accent"
-          fill="none"
-        >
-          <path
-            d="M12 1.75 21.5 7v10L12 22.25 2.5 17V7L12 1.75Z"
-            stroke="currentColor"
-            strokeWidth="1.8"
-            strokeLinejoin="round"
-          />
-        </svg>
-        {title}
-      </h3>
-      {right}
-    </div>
-  )
-}
-
-/* Esagono pieno piccolo, come pallino dei badge. */
-function HexDot() {
-  return (
-    <span
-      aria-hidden
-      className="h-2 w-2 shrink-0 bg-accent"
-      style={{ clipPath: HEX_CLIP }}
-    />
-  )
-}
-
-function ArrowRight({ className = 'h-4 w-4' }) {
-  return (
-    <svg aria-hidden viewBox="0 0 24 24" className={className} fill="none">
-      <path
-        d="M4 12h15M13 6l6 6-6 6"
-        stroke="currentColor"
-        strokeWidth="2.2"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-    </svg>
-  )
-}
-
-/* Trama esagonale in fondo al pannello di sinistra, come nel modello di Marco.
- * L'id del pattern porta lo slug: due <defs> con lo stesso id nella stessa
- * pagina si pestano i piedi, e se la sezione che possiede il primo viene tolta
- * da un filtro tutte le altre restano senza sfondo. */
-function HexDeco({ id }) {
-  const pid = `cs-hex-${id}`
-  return (
-    <svg
-      aria-hidden
-      className="pointer-events-none absolute inset-x-0 bottom-0 h-40 w-full opacity-[0.22]"
+    <a
+      href={`${localePath('/', lang)}#contatti`}
+      className={[
+        'group inline-flex min-h-[52px] items-center gap-3 rounded-full px-7 font-display text-[1.0625rem] font-extrabold transition-[transform,background-color] duration-200 hover:-translate-y-0.5 active:translate-y-0 focus-visible:outline focus-visible:outline-4 focus-visible:outline-offset-4',
+        dark
+          ? 'bg-brand-black text-[#FBFAF9] hover:bg-[#26262a] focus-visible:outline-brand-black'
+          : 'bg-brand-yellow text-brand-black hover:bg-brand-yellow-dark focus-visible:outline-brand-yellow',
+      ].join(' ')}
     >
-      <defs>
-        <pattern id={pid} width="28" height="48" patternUnits="userSpaceOnUse">
-          <g fill="none" stroke="var(--theme-accent)" strokeWidth="1">
-            <path d="M14 -16 28 -8 28 8 14 16 0 8 0 -8Z" />
-            <path d="M14 32 28 40 28 56 14 64 0 56 0 40Z" />
-            <path d="M0 8 14 16 14 32 0 40 -14 32 -14 16Z" />
-            <path d="M28 8 42 16 42 32 28 40 14 32 14 16Z" />
-          </g>
-        </pattern>
-        <linearGradient id={`${pid}-fade`} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="white" stopOpacity="0" />
-          <stop offset="100%" stopColor="white" stopOpacity="1" />
-        </linearGradient>
-        <mask id={`${pid}-mask`}>
-          <rect width="100%" height="100%" fill={`url(#${pid}-fade)`} />
-        </mask>
-      </defs>
-      <rect
-        width="100%"
-        height="100%"
-        fill={`url(#${pid})`}
-        mask={`url(#${pid}-mask)`}
-      />
-    </svg>
+      {children}
+      <svg aria-hidden viewBox="0 0 24 24" className="h-4 w-4 transition-transform group-hover:translate-x-1" fill="none">
+        <path d="M4 12h15M13 6l6 6-6 6" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" />
+      </svg>
+    </a>
   )
 }
 
@@ -987,13 +768,11 @@ function EmptyState() {
   const lang = useLang()
   const t = COPY[lang].empty
   return (
-    <section className="relative">
-      <div className="container-x py-16 sm:py-24">
-        <div className="mx-auto max-w-xl rounded-3xl border border-white/10 bg-white/[0.04] p-8 text-center sm:p-10">
-          <h2 className="text-outlined font-display text-2xl font-extrabold leading-tight sm:text-3xl">
-            {t.heading}
-          </h2>
-          <p className="mt-4 text-base text-white/70">{t.body}</p>
+    <section className="bg-brand-black">
+      <div className={`container-x ${ROW} py-24 sm:py-32`}>
+        <div className={MAIN}>
+          <h2 className={`${T.heading} text-white`}>{t.heading}</h2>
+          <p className={`mt-6 ${T.body} max-w-[62ch] text-white/80`}>{t.body}</p>
         </div>
       </div>
     </section>
@@ -1001,60 +780,87 @@ function EmptyState() {
 }
 
 /* ------------------------------------------------------------------ */
-/* CTA FINALE (giallo)                                                 */
+/* CHIUSURA: tre facce, poi il campo giallo                            */
 /* ------------------------------------------------------------------ */
+
+/* Le foto del team in bianco e nero su giallo pieno, così si saldano al campo
+ * giallo sotto senza bordo: le persone con cui fai la call stanno dentro la
+ * chiusura. Quella di Michele in Team.jsx ha lo sfondo bianco: questa è la
+ * stessa foto (FotoTeam/Michelebennuova.png) appoggiata sul giallo. */
+const TEAM_PHOTOS = [
+  '/team-marco-bw.webp',
+  '/team-toto-bw.webp',
+  '/team-gabriele-bw.webp',
+  '/team-michele-bw-yellow.webp',
+]
 
 function FinalCta() {
   const lang = useLang()
   const t = COPY[lang].cta
-  const contactHref = `${localePath('/', lang)}#contatti`
+  const root = useRef(null)
+
+  useGSAP(
+    () => {
+      if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return
+      gsap.utils.toArray('.cs-face', root.current).forEach((img) => {
+        gsap.fromTo(
+          img,
+          { yPercent: 0 },
+          {
+            yPercent: -6,
+            ease: 'none',
+            scrollTrigger: { trigger: root.current, start: 'top bottom', end: 'bottom top', scrub: true },
+          }
+        )
+      })
+      gsap.from('.cs-cta-reveal', {
+        y: 28,
+        opacity: 0,
+        duration: 0.75,
+        ease: 'power3.out',
+        stagger: 0.08,
+        scrollTrigger: { trigger: '.cs-cta-band', start: 'top 85%', once: true },
+      })
+    },
+    { scope: root }
+  )
 
   return (
-    <section className="relative">
-      <div className="relative overflow-hidden bg-brand-yellow text-brand-black">
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -left-24 -top-24 h-72 w-72 opacity-20 sm:h-96 sm:w-96"
-          style={{ clipPath: HEX_CLIP, background: 'rgba(0,0,0,0.4)' }}
-        />
-        <div
-          aria-hidden
-          className="pointer-events-none absolute -bottom-32 -right-16 h-80 w-80 opacity-15 sm:h-[28rem] sm:w-[28rem]"
-          style={{ clipPath: HEX_CLIP, background: 'rgba(0,0,0,0.4)' }}
-        />
-
-        <div className="container-x relative py-20 text-center md:py-28">
-          <span className="inline-block text-xs font-bold uppercase tracking-[0.3em] text-brand-black/70 sm:text-sm">
-            {t.eyebrow}
-          </span>
-          <h2 className="mx-auto mt-5 max-w-4xl font-display text-4xl font-extrabold uppercase leading-[0.95] tracking-tight sm:text-6xl md:text-7xl">
-            {t.headingLine1}
-            <br />
-            {t.headingLine2}
-          </h2>
-          <p className="mx-auto mt-6 max-w-xl text-base font-medium leading-snug sm:text-lg md:text-xl">
-            {t.body}
-          </p>
-
-          <div className="mt-11 flex flex-col items-center justify-center gap-4 sm:flex-row">
-            <a
-              href={contactHref}
-              className="inline-flex items-center gap-3 rounded-full bg-brand-black px-10 py-5 text-base font-bold uppercase tracking-wider text-white shadow-[0_18px_60px_-12px_rgba(0,0,0,0.6)] transition-transform hover:scale-[1.03] sm:text-lg md:px-12 md:py-6"
-            >
-              {t.primary}
-              <ArrowRight className="h-4 w-4" />
-            </a>
-            <a
-              href={`mailto:${EMAIL}`}
-              className="inline-flex items-center gap-2 rounded-full border-2 border-brand-black/30 px-8 py-4 text-sm font-bold uppercase tracking-wider text-brand-black transition hover:bg-brand-black hover:text-white sm:text-base"
-            >
-              {EMAIL}
-            </a>
+    <section ref={root} className="bg-brand-yellow">
+      <div className="grid grid-cols-2 sm:grid-cols-4">
+        {TEAM_PHOTOS.map((src, i) => (
+          <div key={src} className="aspect-square overflow-hidden sm:aspect-auto sm:h-[36svh] sm:min-h-[260px]">
+            <img
+              src={src}
+              alt={t.team[i]}
+              width={600}
+              height={600}
+              loading="lazy"
+              className="cs-face h-[108%] w-full object-cover object-[50%_20%]"
+            />
           </div>
+        ))}
+      </div>
 
-          <p className="mt-8 text-xs font-bold uppercase tracking-[0.2em] text-brand-black/60 sm:text-sm">
-            {t.footer}
-          </p>
+      <div className="cs-cta-band container-x py-20 sm:py-28 lg:py-36">
+        <div className={ROW}>
+          <div className={MAIN}>
+            <h2 className={`cs-cta-reveal ${T.heading} text-brand-black`}>{t.heading}</h2>
+            <p className={`cs-cta-reveal mt-6 ${T.lead} max-w-[40ch] text-brand-black`}>{t.body}</p>
+            <div className="cs-cta-reveal mt-10 flex flex-col items-start gap-5 sm:flex-row sm:items-center sm:gap-8">
+              <PrimaryButton dark>{t.primary}</PrimaryButton>
+              <p className={`${T.small} text-brand-black`}>
+                {t.mail}{' '}
+                <a
+                  href={`mailto:${EMAIL}`}
+                  className="font-semibold underline decoration-2 underline-offset-[6px] transition-[text-decoration-thickness] hover:decoration-4"
+                >
+                  {EMAIL}
+                </a>
+              </p>
+            </div>
+            <p className={`cs-cta-reveal mt-6 ${T.small} text-brand-black`}>{t.footer}</p>
+          </div>
         </div>
       </div>
     </section>
