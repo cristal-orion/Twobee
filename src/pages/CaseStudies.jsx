@@ -380,6 +380,8 @@ function Works({ active, onChange, onOpen }) {
     src: c.card?.[lang] || c.card?.it,
     alt: t.preview(c.client),
     title: c.client,
+    // la stessa voce «Sistema» della scheda del caso
+    category: c.meta?.find((m) => m.label.it === 'Sistema')?.value[lang],
     meta: c.year,
   }))
 

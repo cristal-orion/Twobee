@@ -393,8 +393,13 @@ export default function ConcaveCarousel({
                       i === live ? 'bg-brand-yellow text-brand-black' : 'bg-[#161618] text-[#FBFAF9]',
                     ].join(' ')}
                   >
-                    <span className="truncate">{it.title}</span>
-                    {it.meta && <span className="shrink-0 opacity-80">{it.meta}</span>}
+                    <span className="flex min-w-0 flex-col">
+                      <span className="truncate">{it.title}</span>
+                      {it.category && (
+                        <span className="truncate text-[0.8125rem] font-normal opacity-80">{it.category}</span>
+                      )}
+                    </span>
+                    {it.meta && <span className="shrink-0 self-start opacity-80">{it.meta}</span>}
                   </span>
                 </div>
                 {/* Riflesso sul pavimento: la stessa immagine capovolta, che
